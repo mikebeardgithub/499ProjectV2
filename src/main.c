@@ -89,17 +89,6 @@ int main(void)
   *  E.g.  SCB->VTOR = 0x20000000;  
   */
 
-  /* TODO - Add your application code here */
-
-
-  /* ADC3 configuration *******************************************************/
-   /*  - Enable peripheral clocks                                              */
-   /*  - DMA2_Stream0 channel2 configuration                                   */
-   /*  - Configure ADC Channel12 pin as analog input  : PC2                    */
-   /*  - Configure ADC3 Channel12                                              */
-   ADC3_CH12_DMA_Config();
-
-
    /* Initialize LEDS */
    STM_EVAL_LEDInit(LED3); // orange LED
    STM_EVAL_LEDInit(LED4); // green LED
@@ -109,11 +98,21 @@ int main(void)
    /* Green Led On: start of application */
    STM_EVAL_LEDOn(LED4);
 
-  /* Initialize User Button */
-  STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_GPIO);
+   /* ADC3 configuration *******************************************************/
+    /*  - Enable peripheral clocks                                              */
+    /*  - DMA2_Stream0 channel2 configuration                                   */
+    /*  - Configure ADC Channel12 pin as analog input  : PC2                    */
+    /*  - Configure ADC3 Channel12                                              */
+    ADC3_CH12_DMA_Config();
 
-  retVal = EVAL_AUDIO_Init( OUTPUT_DEVICE_AUTO, VOL, SAMPLERATE);
-  retVal = EVAL_AUDIO_Play(buffer_output, BUFF_LEN);
+    /* Start ADC3 Software Conversion */
+    ADC_SoftwareStartConv(ADC3);
+
+	/* Initialize User Button */
+	STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_GPIO);
+
+	retVal = EVAL_AUDIO_Init( OUTPUT_DEVICE_AUTO, VOL, SAMPLERATE);
+	retVal = EVAL_AUDIO_Play(buffer_output, BUFF_LEN);
 
   /* Infinite loop */
   while (1)
@@ -203,7 +202,8 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 		// buffer_output[i] = buffer_vco[i];
 
 		buffer_vco[i] = 2000 + 2000*arm_sin_f32((phase_lfo+i)*375*2*PI/48000);		// phase_lfo should allow for arbitrary vco freq.
-		buffer_lfo_float[i] = 0.5 + 0.4*arm_sin_f32((phase_lfo+i)*2*2*PI/48000);	// phase_lfo allows for arbitrary lfo freq.
+		// buffer_lfo_float[i] = 0.5 + 0.4*arm_sin_f32((phase_lfo+i)*2*2*PI/48000);	// phase_lfo allows for arbitrary lfo freq.
+		buffer_lfo_float[i] = ( (float32_t)ADC3ConvertedValue)/255;
 		buffer_output[i] = buffer_vco[i] * buffer_lfo_float[i];
 
 
