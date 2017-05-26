@@ -1,0 +1,16 @@
+UI.c:32:9:ui_getCharWidth	32	static
+UI.c:53:10:ui_getWordWidth	24	static
+UI.c:64:6:ui_drawString2	16	static
+UI.c:81:6:ui_drawString	24	static
+UI.c:88:6:ui_drawTitleBar	32	static
+UI.c:108:6:ui_drawBottomBar	40	static
+UI.c:139:6:ui_getMenuItem	16	static
+UI.c:146:6:ui_drawMenuItem	40	static
+UI.c:193:13:menuUpdateSelection	32	static
+UI.c:214:13:menuDisplayHandler	32	static
+UI.c:254:6:ui_displayMenu	32	static
+UI.c:279:6:ui_displayPreviousMenu	8	static
+UI.c:284:6:ui_drawSlide	40	static
+UI.c:300:6:ui_sethandler	16	static
+UI.c:305:6:ui_executecmd	16	static
+UI.c:310:6:ui_clearUserArea	16	static

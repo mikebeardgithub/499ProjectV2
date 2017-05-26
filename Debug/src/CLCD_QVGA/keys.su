@@ -1,0 +1,2 @@
+keys.c:29:9:readKeyPort	4	static
+keys.c:82:6:getKeypress	4	static
