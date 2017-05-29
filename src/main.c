@@ -28,7 +28,7 @@ SOFTWARE.
 */
 
 /*
- * This file was downloaded and adapted from the project found here:
+ * This file was downloaded and heavily modified from the project found here:
  * https://github.com/MrBlueXav/horrorophone-eclipse-with-makefile
  *
  * There may be very little of the original file left.
@@ -51,7 +51,7 @@ void ADC3_CH12_DMA_Config(void);
 int sample;
 float           		pass = 1.f ;
 float           		phase2 = 0.0f , phase2Step;
-float           		f1 = FREQ1 , f2 = FREQ2 , freq;
+// float           		f1 = FREQ1 , f2 = FREQ2 , freq;
 __IO uint16_t 			ADC3ConvertedValue = 0;
 RCC_ClocksTypeDef       RCC_Clocks;
 GPIO_InitTypeDef        GPIO_InitStructure;
@@ -59,11 +59,28 @@ uint8_t                 state = OFF;
 __IO uint32_t 			TimingDelay = 50;
 
 
-volatile uint16_t buffer_vco[] = {0};
+volatile uint16_t buffer_vco[BUFF_LEN] = {0};
 volatile uint16_t buffer_lfo[BUFF_LEN] = {0};
 volatile float32_t buffer_lfo_float[BUFF_LEN] = {0};
 volatile uint16_t buffer_output[BUFF_LEN] = {0};
-volatile uint16_t phase_lfo = 0;
+
+volatile uint16_t mov_avg [MOV_AVG_BUFF_LEN] = {0};
+volatile uint16_t mov_avg_index = 0;
+volatile uint16_t mov_avg_sum;
+
+// Good test frequency: freq_vco = 410
+volatile float32_t freq_vco = 500.0;
+volatile float32_t freq_lfo = 2.7;
+// float32_t freq_vco = 375.0;					// Pure sine if BUFF_LEN is 128
+volatile uint16_t angle_mem = 0.0;
+
+
+uint16_t wav_vco_sin = 0;
+uint16_t wav_vco_square = 1;
+uint16_t wav_lfo_sin = 1;
+uint16_t wav_lfo_square = 0;
+uint16_t mod_am = 0;
+uint16_t mod_fm = 0;
 
 
 /**
@@ -139,24 +156,6 @@ int main(void)
   }
 }
 
-
-
-/**
-* @brief  Manages the DMA Half Transfer complete interrupt.
-* @param  None
-* @retval None
-*/
-void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
-{
-  /* Generally this interrupt routine is used to load the buffer when
-  a streaming scheme is used: When first Half buffer is already transferred load
-  the new data to the first half of buffer while DMA is transferring data from
-  the second half. And when Transfer complete occurs, load the second half of
-  the buffer while the DMA is transferring from the first half ... */
-
-
-}
-
 /**
   * @brief  Basic management of the timeout situation.
   * @param  None
@@ -168,53 +167,210 @@ uint32_t Codec_TIMEOUT_UserCallback(void)
 	return (0);
 }
 
+/**
+* @brief  Manages the DMA Half Transfer complete interrupt.
+* @param  None
+* @retval None
+*/
+void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
+{
+	/* Generally this interrupt routine is used to load the buffer when
+	a streaming scheme is used: When first Half buffer is already transferred load
+	the new data to the first half of buffer while DMA is transferring data from
+	the second half. And when Transfer complete occurs, load the second half of
+	the buffer while the DMA is transferring from the first half ... */
+
+	// Moving average filter for ADC3 (PC3)
+//	mov_avg[mov_avg_index] = ADC3ConvertedValue;			// Get newest value
+//	mov_avg_sum += ADC3ConvertedValue;						// Accumulate
+//	mov_avg_sum -= mov_avg[(mov_avg_index + 1) % MOV_AVG_BUFF_LEN];	// Remove oldest
+//	mov_avg_index = (mov_avg_index + 1) % MOV_AVG_BUFF_LEN;							// Increment index
+//	freq_vco = 4.0 * ( (float32_t)  mov_avg_sum)/MOV_AVG_BUFF_LEN;
+
+	// freq_vco = (float32_t) ADC3ConvertedValue;
+	// freq_lfo = (float32_t) ADC3ConvertedValue/100;
+	volatile float32_t angle_vco = freq_vco*2*PI/SAMPLERATE;
+	volatile float32_t angle_lfo = freq_lfo*2*PI/SAMPLERATE;
+
+	// Fill buffer from 0 to BUFF_LEN/2
+	volatile int i = 0;
+	volatile int n_half = 0;
+
+	// VCO Waveform
+	if(wav_vco_sin == 1)
+	{
+		for(i = 0; i < BUFF_LEN_DIV2; i++)
+		{
+			buffer_vco[i] = 2000 + 2000*arm_sin_f32((angle_mem+i)*angle_vco);
+		}
+	}
+	else if(wav_vco_square == 1)
+	{
+		/*
+		 * In a single square pulse cycle, there are n samples, each of which is 1/48000s long.
+		 * Therefore,  T = n/48000
+		 * --> n = 48000*T
+		 * --> n = 48000/f
+		 * Therefore, duration of positive (one) half is n/2 = 48000/2f.  Same for negative (zero) half.
+		 *
+		 */
+
+		n_half = SAMPLERATE/freq_vco;
+
+		for(i = 0; i < BUFF_LEN_DIV2; i++)
+		{
+
+			if(angle_mem+i < n_half)
+			{
+				buffer_vco[i] = 4000;
+			}
+			else
+			{
+				buffer_vco[i] = 0000;
+			}
+			//buffer_vco[i] = 2000 + 2000*arm_sin_f32((angle_mem+i)*angle_vco);
+		}
+	}
+
+	// LFO Waveform
+	if(wav_lfo_sin == 1)
+	{
+		for(i = 0; i < BUFF_LEN_DIV2; i++)
+		{
+			buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((angle_mem+i)*angle_lfo);
+		}
+	}
+
+	// VCO-LFO modulation
+	if(mod_am == 1)
+	{
+		for(i = 0; i < BUFF_LEN_DIV2; i++)
+		{
+			buffer_output[i] = buffer_vco[i] * buffer_lfo_float[i];
+		}
+	}
+	else if(mod_fm == 1)
+	{
+		for(i = 0; i < BUFF_LEN_DIV2; i++)
+		{
+			buffer_vco[i] = 2000 + 2000*arm_sin_f32((angle_mem+i)*angle_vco + buffer_lfo_float[i]);
+			buffer_output[i] = buffer_vco[i];
+		}
+	}
+	// No modulation
+	else
+	{
+		for(i = 0; i < BUFF_LEN_DIV2; i++)
+		{
+			buffer_output[i] = buffer_vco[i];
+		}
+	}
+
+
+	// Remember lfo phase and resume next run of callback.
+	angle_mem = (angle_mem + i) % SAMPLERATE;
+	return;
+}
+
 /*
  * Callback used by stm32f4_discovery_audio_codec.c.
  * Refer to stm32f4_discovery_audio_codec.h for more info.
  */
 void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 	// Turns off yellow LED -- indicates no error occurred.
-	// STM_EVAL_LEDOff(LED3);
+	STM_EVAL_LEDOff(LED3);
+
+	// freq_vco = (float32_t) ADC3ConvertedValue;
+	// freq_lfo = (float32_t) ADC3ConvertedValue/100;
+	volatile float32_t angle_vco = freq_vco*2*PI/SAMPLERATE;
+	volatile float32_t angle_lfo = freq_lfo*2*PI/SAMPLERATE;
 
 	// float32_t  sinOutput;
 	volatile int i = 0;
+	volatile int n_half = 0;
 
-	// float32_t ratio = 20/48000;
+	// TODO: remove after testing.
+	// memset(buffer_vco, 0, sizeof(buffer_vco));
+	// memset(buffer_output, 0, sizeof(buffer_output));
 
-	for(i = 0; i < BUFF_LEN; i+=1)
+	// VCO Waveform
+	if(wav_vco_sin == 1)
 	{
-		// Fill lfo buffer with phase shifted portion of sine wave.
-		// buffer_lfo[i] = 0.5 + 0.5*arm_sin_f32((phase_lfo+i)*2*PI/SAMPLERATE);
-//		buffer_output[i] = 65536 * (buffer_vco[i] * buffer_lfo[i]);
-//		buffer_output[i] = (uint16_t) buffer_output[i];
-		//buffer_output[i] = 0.5 + 0.5*arm_sin_f32((phase_lfo+i)*2*PI*50/48000);
-
-		// buffer_output[i] = 60000 * (buffer_vco[i]);
-		// buffer_output[i] = 32767 + 32767*arm_sin_f32((sample+i)*1000.0/48000.0);
-		// buffer_output[i] = 32767 + 32767*sin((sample+i)*480.0*2*PI/48000.0);
-		// buffer_output[i] = buffer_vco[i];
-
-
-		// buffer_lfo[i] = 0.3 + 0.3*arm_sin_f32((phase_lfo+i)*20/48000);
-		// buffer_lfo[i] = 500 + 500*arm_sin_f32((phase_lfo+i)*500/48000);
-		// buffer_lfo[i] = 500 + 500*sin(i*375*2*PI/48000);					//
-		// buffer_lfo[i] = 1500 + 1500*arm_sin_f32(i*375*2*PI/48000);
-		// buffer_output[i] = buffer_vco[i];
-
-		buffer_vco[i] = 2000 + 2000*arm_sin_f32((phase_lfo+i)*375*2*PI/48000);		// phase_lfo should allow for arbitrary vco freq.
-		// buffer_lfo_float[i] = 0.5 + 0.4*arm_sin_f32((phase_lfo+i)*2*2*PI/48000);	// phase_lfo allows for arbitrary lfo freq.
-		buffer_lfo_float[i] = ( (float32_t)ADC3ConvertedValue)/255;
-		buffer_output[i] = buffer_vco[i] * buffer_lfo_float[i];
-
-
+		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
+		{
+			buffer_vco[i] = 2000 + 2000*arm_sin_f32((angle_mem+(i-BUFF_LEN_DIV2))*angle_vco);
+		}
 	}
-	// Floating point vector multiplication.
-	// arm_mult_f32(buffer_vco, buffer_lfo, buffer_output, BUFF_LEN);
+	else if(wav_vco_square == 1)
+	{
+		/*
+		 * In a single square pulse cycle, there are n samples, each of which is 1/48000s long.
+		 * Therefore,  T = n/48000
+		 * --> n = 48000*T
+		 * --> n = 48000/f
+		 * Therefore, duration of positive (one) half is n/2 = 48000/2f.  Same for negative (zero) half.
+		 *
+		 */
+
+		n_half = SAMPLERATE/freq_vco;
+
+		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
+		{
+
+			if(angle_mem+i < n_half)
+			{
+				buffer_vco[i] = 4000;
+			}
+			else
+			{
+				buffer_vco[i] = 0000;
+			}
+			//buffer_vco[i] = 2000 + 2000*arm_sin_f32((angle_mem+i)*angle_vco);
+		}
+	}
+
+	// LFO Waveform
+	if(wav_lfo_sin == 1)
+	{
+		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
+		{
+			// buffer_lfo_float[i] = 0.4 + 0.4*arm_sin_f32((angle_mem+(i-BUFF_LEN_DIV2))*angle_lfo);
+			buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((angle_mem+(i-BUFF_LEN_DIV2))*angle_lfo);
+		}
+	}
+
+	// VCO-LFO modulation
+	if(mod_am == 1)
+	{
+		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
+		{
+			buffer_output[i] = buffer_vco[i] * buffer_lfo_float[i];
+		}
+	}
+	else if(mod_fm == 1)
+	{
+		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
+		{
+			buffer_vco[i] = 2000 + 2000*arm_sin_f32((angle_mem+(i-BUFF_LEN_DIV2))*angle_vco + buffer_lfo_float[i]);
+			buffer_output[i] = buffer_vco[i];
+		}
+	}
+
+	// No modulation
+	else
+	{
+		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
+		{
+			buffer_output[i] = buffer_vco[i];
+		}
+	}
 
 	// Remember lfo phase and resume next run of callback.
-	phase_lfo = (phase_lfo + i) % SAMPLERATE;
+	angle_mem = (angle_mem + i - BUFF_LEN_DIV2) % SAMPLERATE;
 	return;
 }
+
+
 
 /*
  * Callback used by stm324xg_eval_audio_codec.c.
