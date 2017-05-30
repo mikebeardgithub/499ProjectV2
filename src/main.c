@@ -194,7 +194,8 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 
 	// Fill buffer from 0 to BUFF_LEN/2
 	volatile int i = 0;
-	volatile int n_half = 0;
+	volatile int samples_cycle = 0;
+	volatile int samples_half_cycle = 0;
 
 	// VCO Waveform
 	if(wav_vco_sin == 1)
@@ -215,12 +216,13 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 		 *
 		 */
 
-		n_half = SAMPLERATE/freq_vco;
+		samples_cycle = SAMPLERATE/freq_vco;
+		samples_half_cycle = samples_cycle/2;
 
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
 
-			if(angle_mem+i < n_half)
+			if((angle_mem+i)%samples_cycle < samples_half_cycle)
 			{
 				buffer_vco[i] = 4000;
 			}
@@ -287,7 +289,8 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 
 	// float32_t  sinOutput;
 	volatile int i = 0;
-	volatile int n_half = 0;
+	volatile int samples_cycle = 0;
+	volatile int samples_half_cycle = 0;
 
 	// TODO: remove after testing.
 	// memset(buffer_vco, 0, sizeof(buffer_vco));
@@ -312,12 +315,13 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 		 *
 		 */
 
-		n_half = SAMPLERATE/freq_vco;
+		samples_cycle = SAMPLERATE/freq_vco;
+		samples_half_cycle = samples_cycle/2;
 
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
 
-			if(angle_mem+i < n_half)
+			if((angle_mem+i)%samples_cycle < samples_half_cycle)
 			{
 				buffer_vco[i] = 4000;
 			}
