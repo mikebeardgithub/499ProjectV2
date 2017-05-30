@@ -70,9 +70,10 @@ volatile uint16_t mov_avg_sum;
 
 // Good test frequency: freq_vco = 410
 volatile float32_t freq_vco = 500.0;
+// volatile float32_t freq_vco = 750.0;
 volatile float32_t freq_lfo = 2.7;
 // float32_t freq_vco = 375.0;					// Pure sine if BUFF_LEN is 128
-volatile uint16_t angle_mem = 0.0;
+volatile uint16_t sample_count = 0.0;
 
 
 uint16_t wav_vco_sin = 0;
@@ -202,7 +203,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
-			buffer_vco[i] = 2000 + 2000*arm_sin_f32((angle_mem+i)*angle_vco);
+			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+i)*angle_vco);
 		}
 	}
 	else if(wav_vco_square == 1)
@@ -222,7 +223,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
 
-			if((angle_mem+i)%samples_cycle < samples_half_cycle)
+			if((sample_count+i)%samples_cycle < samples_half_cycle)
 			{
 				buffer_vco[i] = 4000;
 			}
@@ -230,7 +231,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 			{
 				buffer_vco[i] = 0000;
 			}
-			//buffer_vco[i] = 2000 + 2000*arm_sin_f32((angle_mem+i)*angle_vco);
+			//buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+i)*angle_vco);
 		}
 	}
 
@@ -239,7 +240,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
-			buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((angle_mem+i)*angle_lfo);
+			buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((sample_count+i)*angle_lfo);
 		}
 	}
 
@@ -255,7 +256,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
-			buffer_vco[i] = 2000 + 2000*arm_sin_f32((angle_mem+i)*angle_vco + buffer_lfo_float[i]);
+			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+i)*angle_vco + buffer_lfo_float[i]);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -270,7 +271,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 
 
 	// Remember lfo phase and resume next run of callback.
-	angle_mem = (angle_mem + i) % SAMPLERATE;
+	sample_count = (sample_count + i) % SAMPLERATE;
 	return;
 }
 
@@ -301,7 +302,7 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
-			buffer_vco[i] = 2000 + 2000*arm_sin_f32((angle_mem+(i-BUFF_LEN_DIV2))*angle_vco);
+			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_vco);
 		}
 	}
 	else if(wav_vco_square == 1)
@@ -321,15 +322,15 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
 
-			if((angle_mem+i)%samples_cycle < samples_half_cycle)
+			if((sample_count+i)%samples_cycle < samples_half_cycle)
 			{
-				buffer_vco[i] = 4000;
+				buffer_vco[i+BUFF_LEN_DIV2] = 4000;
 			}
 			else
 			{
-				buffer_vco[i] = 0000;
+				buffer_vco[i+BUFF_LEN_DIV2] = 0000;
 			}
-			//buffer_vco[i] = 2000 + 2000*arm_sin_f32((angle_mem+i)*angle_vco);
+			//buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+i)*angle_vco);
 		}
 	}
 
@@ -338,8 +339,8 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
-			// buffer_lfo_float[i] = 0.4 + 0.4*arm_sin_f32((angle_mem+(i-BUFF_LEN_DIV2))*angle_lfo);
-			buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((angle_mem+(i-BUFF_LEN_DIV2))*angle_lfo);
+			// buffer_lfo_float[i] = 0.4 + 0.4*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_lfo);
+			buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_lfo);
 		}
 	}
 
@@ -355,7 +356,7 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
-			buffer_vco[i] = 2000 + 2000*arm_sin_f32((angle_mem+(i-BUFF_LEN_DIV2))*angle_vco + buffer_lfo_float[i]);
+			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_vco + buffer_lfo_float[i]);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -370,7 +371,7 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 	}
 
 	// Remember lfo phase and resume next run of callback.
-	angle_mem = (angle_mem + i - BUFF_LEN_DIV2) % SAMPLERATE;
+	sample_count = (sample_count + i - BUFF_LEN_DIV2) % SAMPLERATE;
 	return;
 }
 
