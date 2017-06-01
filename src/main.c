@@ -69,7 +69,7 @@ volatile uint16_t mov_avg_index = 0;
 volatile uint16_t mov_avg_sum;
 
 // Good test frequency: freq_vco = 410
-volatile float32_t freq_vco = 500.0;
+volatile float32_t freq_vco = 250.0;
 // volatile float32_t freq_vco = 750.0;
 volatile float32_t freq_lfo = 2.7;
 // float32_t freq_vco = 375.0;					// Pure sine if BUFF_LEN is 128
@@ -77,7 +77,7 @@ volatile uint16_t sample_count = 0.0;
 
 uint16_t wav_vco = WAVE_SQUARE;
 uint16_t wav_lfo = WAVE_SINE;
-uint16_t mod_type = MOD_NONE;
+uint16_t mod_type = MOD_AM;
 
 /*
  * square()
@@ -86,9 +86,10 @@ uint16_t mod_type = MOD_NONE;
  *
  * Parameter angle: value from 0.0 to 1.0.
  */
-uint16_t square(float32_t angle)
+uint16_t square(uint16_t current_sample, uint16_t samples_half_cycle)
 {
-	if(fmod(angle, 1) < 0.5)
+	// if(fmod(angle, 1) < 0.5)
+	if (current_sample < samples_half_cycle)
 	{
 		return 0;
 	}
@@ -217,6 +218,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 //	freq_vco = 4.0 * ( (float32_t)  mov_avg_sum)/MOV_AVG_BUFF_LEN;
 
 	// TODO: test frequency accuracy.  Might need to remove 2*PI
+	// TODO: Consider using arm_sin_q15 instead of arm_sin_f32.  However, results might cause clipping.
 
 	volatile int i = 0;
 
@@ -228,8 +230,8 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 	// For square
 	// Fill buffer from 0 to BUFF_LEN/2
 	volatile int samples_cycle = 0;
-	// volatile int samples_half_cycle = 0;
-	volatile float32_t angle_vco_norm = freq_vco/SAMPLERATE;
+	volatile int samples_half_cycle = 0;
+	// volatile float32_t angle_vco_norm = freq_vco/SAMPLERATE;
 
 	// VCO Waveform
 	// TODO: to save cpu cycles, consider calculating one cycle of the sine wave and then copying it into the rest of the buffer.
@@ -254,12 +256,15 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 		 */
 
 		samples_cycle = SAMPLERATE/freq_vco;
-		// samples_half_cycle = samples_cycle/2;
+		samples_half_cycle = samples_cycle/2;
 
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
 			// TODO: debug this line.
-			buffer_vco[i] = 4000 * square((sample_count+i) % samples_cycle * angle_vco);
+			// Square expects a value from 0.0 to 1.0
+			// buffer_vco[i] = 4000 * square((sample_count+i) % samples_cycle * angle_vco_norm);
+			buffer_vco[i] = 4000 * square((sample_count+i) % samples_cycle, samples_half_cycle);
+
 		}
 	}
 
@@ -309,7 +314,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
-			buffer_vco[i] = 4000 * square((sample_count+i)*angle_vco + buffer_lfo_float[i]);
+			// buffer_vco[i] = 4000 * square((sample_count+i)*angle_vco + buffer_lfo_float[i]);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -345,8 +350,8 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 	// float32_t  sinOutput;
 	volatile int i = 0;
 	volatile int samples_cycle = 0;
-	// volatile int samples_half_cycle = 0;
-	volatile float32_t angle_vco_norm = freq_vco/SAMPLERATE;
+	volatile int samples_half_cycle = 0;
+	// volatile float32_t angle_vco_norm = freq_vco/SAMPLERATE;
 
 	// TODO: remove after testing.
 	// memset(buffer_vco, 0, sizeof(buffer_vco));
@@ -374,12 +379,13 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 		 */
 
 		samples_cycle = SAMPLERATE/freq_vco;
-		// samples_half_cycle = samples_cycle/2;
+		samples_half_cycle = samples_cycle/2;
 
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
 			// buffer_vco[i+BUFF_LEN_DIV2] = 4000 * square((sample_count+i)*angle_vco);
-			buffer_vco[i] = 4000 * square((sample_count+i) % samples_cycle * angle_vco);
+			// buffer_vco[i] = 4000 * square((sample_count+i) % samples_cycle * angle_vco_norm);
+			buffer_vco[i] = 4000 * square((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle, samples_half_cycle);
 		}
 	}
 
@@ -428,7 +434,7 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
-			buffer_vco[i+BUFF_LEN_DIV2] = 4000 * square((sample_count+i)*angle_vco + buffer_lfo_float[i]);
+			// buffer_vco[i+BUFF_LEN_DIV2] = 4000 * square((sample_count+i)*angle_vco + buffer_lfo_float[i]);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
