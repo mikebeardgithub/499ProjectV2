@@ -5,41 +5,41 @@ Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
   0 .isr_vector   00000188  08000000  08000000  00010000  2**0
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  1 .text         00003c04  08000188  08000188  00010188  2**2
+  1 .text         00003c14  08000188  08000188  00010188  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .rodata       0000081c  08003d8c  08003d8c  00013d8c  2**2
+  2 .rodata       0000081c  08003d9c  08003d9c  00013d9c  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  3 .init_array   00000004  080045a8  080045a8  000145a8  2**2
+  3 .init_array   00000004  080045b8  080045b8  000145b8  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  4 .fini_array   00000004  080045ac  080045ac  000145ac  2**2
+  4 .fini_array   00000004  080045bc  080045bc  000145bc  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  5 .data         00000068  20000000  080045b0  00020000  2**2
+  5 .data         00000064  20000000  080045c0  00020000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  6 .ccmram       00000000  10000000  10000000  00020068  2**0
+  6 .ccmram       00000000  10000000  10000000  00020064  2**0
                   CONTENTS
-  7 .bss          000002a8  20000068  20000068  00020068  2**2
+  7 .bss          000002a8  20000064  20000064  00020064  2**2
                   ALLOC
-  8 ._user_heap_stack 00000400  20000310  20000310  00020068  2**0
+  8 ._user_heap_stack 00000400  2000030c  2000030c  00020064  2**0
                   ALLOC
-  9 .ARM.attributes 0000002e  00000000  00000000  00020068  2**0
+  9 .ARM.attributes 0000002e  00000000  00000000  00020064  2**0
                   CONTENTS, READONLY
- 10 .debug_info   00008523  00000000  00000000  00020096  2**0
+ 10 .debug_info   00008523  00000000  00000000  00020092  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_abbrev 0000180e  00000000  00000000  000285b9  2**0
+ 11 .debug_abbrev 0000180e  00000000  00000000  000285b5  2**0
                   CONTENTS, READONLY, DEBUGGING
  12 .debug_aranges 00000a78  00000000  00000000  00029dc8  2**3
                   CONTENTS, READONLY, DEBUGGING
  13 .debug_ranges 00000958  00000000  00000000  0002a840  2**3
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_line   0000407c  00000000  00000000  0002b198  2**0
+ 14 .debug_line   0000407e  00000000  00000000  0002b198  2**0
                   CONTENTS, READONLY, DEBUGGING
- 15 .debug_str    000039ae  00000000  00000000  0002f214  2**0
+ 15 .debug_str    000039ae  00000000  00000000  0002f216  2**0
                   CONTENTS, READONLY, DEBUGGING
- 16 .comment      000000ee  00000000  00000000  00032bc2  2**0
+ 16 .comment      000000ee  00000000  00000000  00032bc4  2**0
                   CONTENTS, READONLY
- 17 .debug_frame  00002ac4  00000000  00000000  00032cb0  2**2
+ 17 .debug_frame  00002ac4  00000000  00000000  00032cb4  2**2
                   CONTENTS, READONLY, DEBUGGING
- 18 .debug_loc    000000c8  00000000  00000000  00035774  2**0
+ 18 .debug_loc    000000c8  00000000  00000000  00035778  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -56,9 +56,9 @@ Disassembly of section .text:
  800019a:	2301      	movs	r3, #1
  800019c:	7023      	strb	r3, [r4, #0]
  800019e:	bd10      	pop	{r4, pc}
- 80001a0:	20000068 	.word	0x20000068
+ 80001a0:	20000064 	.word	0x20000064
  80001a4:	00000000 	.word	0x00000000
- 80001a8:	08003d74 	.word	0x08003d74
+ 80001a8:	08003d84 	.word	0x08003d84
 
 080001ac <frame_dummy>:
  80001ac:	b508      	push	{r3, lr}
@@ -69,8 +69,8 @@ Disassembly of section .text:
  80001b6:	f3af 8000 	nop.w
  80001ba:	bd08      	pop	{r3, pc}
  80001bc:	00000000 	.word	0x00000000
- 80001c0:	2000006c 	.word	0x2000006c
- 80001c4:	08003d74 	.word	0x08003d74
+ 80001c0:	20000068 	.word	0x20000068
+ 80001c4:	08003d84 	.word	0x08003d84
 
 080001c8 <__aeabi_drsub>:
  80001c8:	f081 4100 	eor.w	r1, r1, #2147483648	; 0x80000000
@@ -5761,8 +5761,8 @@ void STM_EVAL_LEDInit(Led_TypeDef Led)
  8002172:	3710      	adds	r7, #16
  8002174:	46bd      	mov	sp, r7
  8002176:	bd80      	pop	{r7, pc}
- 8002178:	08003d94 	.word	0x08003d94
- 800217c:	08003d8c 	.word	0x08003d8c
+ 8002178:	08003da4 	.word	0x08003da4
+ 800217c:	08003d9c 	.word	0x08003d9c
  8002180:	20000010 	.word	0x20000010
 
 08002184 <STM_EVAL_LEDOn>:
@@ -5792,7 +5792,7 @@ void STM_EVAL_LEDOn(Led_TypeDef Led)
  80021a6:	f85d 7b04 	ldr.w	r7, [sp], #4
  80021aa:	4770      	bx	lr
  80021ac:	20000010 	.word	0x20000010
- 80021b0:	08003d8c 	.word	0x08003d8c
+ 80021b0:	08003d9c 	.word	0x08003d9c
 
 080021b4 <STM_EVAL_LEDOff>:
   *     @arg LED5
@@ -5821,7 +5821,7 @@ void STM_EVAL_LEDOff(Led_TypeDef Led)
  80021d6:	f85d 7b04 	ldr.w	r7, [sp], #4
  80021da:	4770      	bx	lr
  80021dc:	20000010 	.word	0x20000010
- 80021e0:	08003d8c 	.word	0x08003d8c
+ 80021e0:	08003d9c 	.word	0x08003d9c
 
 080021e4 <STM_EVAL_PBInit>:
   *     @arg BUTTON_MODE_EXTI: Button will be connected to EXTI line with interrupt
@@ -6091,7 +6091,7 @@ uint32_t EVAL_AUDIO_Play(uint16_t* pBuffer, uint32_t Size)
  800235e:	bd80      	pop	{r7, pc}
  8002360:	20000024 	.word	0x20000024
  8002364:	20000028 	.word	0x20000028
- 8002368:	20000294 	.word	0x20000294
+ 8002368:	20000290 	.word	0x20000290
 
 0800236c <Audio_MAL_IRQHandler>:
   * @brief  This function handles main Media layer interrupt. 
@@ -6136,7 +6136,7 @@ static void Audio_MAL_IRQHandler(void)
  8002394:	683b      	ldr	r3, [r7, #0]
  8002396:	6879      	ldr	r1, [r7, #4]
  8002398:	4618      	mov	r0, r3
- 800239a:	f001 f859 	bl	8003450 <EVAL_AUDIO_TransferComplete_CallBack>
+ 800239a:	f001 f85d 	bl	8003458 <EVAL_AUDIO_TransferComplete_CallBack>
     
     /* Clear the Interrupt flag */
     DMA_ClearFlag(AUDIO_MAL_DMA_STREAM, AUDIO_MAL_DMA_FLAG_TC);
@@ -6240,7 +6240,7 @@ static void Audio_MAL_IRQHandler(void)
     EVAL_AUDIO_Error_CallBack((uint32_t*)&pAddr);    
  8002420:	463b      	mov	r3, r7
  8002422:	4618      	mov	r0, r3
- 8002424:	f001 fa74 	bl	8003910 <EVAL_AUDIO_Error_CallBack>
+ 8002424:	f001 fa7c 	bl	8003920 <EVAL_AUDIO_Error_CallBack>
     
     /* Clear the Interrupt flag */
     DMA_ClearFlag(AUDIO_MAL_DMA_STREAM, AUDIO_MAL_DMA_FLAG_TE | AUDIO_MAL_DMA_FLAG_FE | \
@@ -6265,7 +6265,7 @@ static void Audio_MAL_IRQHandler(void)
  8002446:	46bd      	mov	sp, r7
  8002448:	bd80      	pop	{r7, pc}
  800244a:	bf00      	nop
- 800244c:	20000294 	.word	0x20000294
+ 800244c:	20000290 	.word	0x20000290
  8002450:	20000028 	.word	0x20000028
  8002454:	20000038 	.word	0x20000038
  8002458:	20000044 	.word	0x20000044
@@ -6330,7 +6330,7 @@ void Audio_I2S_IRQHandler(void)
     {
       /* Wirte data to the DAC interface */
       DAC_SetChannel1Data(DAC_Align_12b_L, EVAL_AUDIO_GetSampleCallBack()); 
- 800249e:	f001 fa2f 	bl	8003900 <EVAL_AUDIO_GetSampleCallBack>
+ 800249e:	f001 fa37 	bl	8003910 <EVAL_AUDIO_GetSampleCallBack>
  80024a2:	4603      	mov	r3, r0
  80024a4:	4619      	mov	r1, r3
  80024a6:	2004      	movs	r0, #4
@@ -6339,7 +6339,7 @@ void Audio_I2S_IRQHandler(void)
     
     /* Send dummy data on I2S to avoid the underrun condition */
     SPI_I2S_SendData(CODEC_I2S, EVAL_AUDIO_GetSampleCallBack()); 
- 80024ac:	f001 fa28 	bl	8003900 <EVAL_AUDIO_GetSampleCallBack>
+ 80024ac:	f001 fa30 	bl	8003910 <EVAL_AUDIO_GetSampleCallBack>
  80024b0:	4603      	mov	r3, r0
  80024b2:	4619      	mov	r1, r3
  80024b4:	4802      	ldr	r0, [pc, #8]	; (80024c0 <SPI3_IRQHandler+0x3c>)
@@ -6573,7 +6573,7 @@ static uint32_t Codec_Init(uint16_t OutputDevice, uint8_t Volume, uint32_t Audio
  8002612:	46bd      	mov	sp, r7
  8002614:	bd80      	pop	{r7, pc}
  8002616:	bf00      	nop
- 8002618:	20000084 	.word	0x20000084
+ 8002618:	20000080 	.word	0x20000080
  800261c:	20000030 	.word	0x20000030
 
 08002620 <Codec_Play>:
@@ -7983,8 +7983,8 @@ static void Audio_MAL_Init(void)
  8002d88:	20000030 	.word	0x20000030
  8002d8c:	20000034 	.word	0x20000034
  8002d90:	20000038 	.word	0x20000038
- 8002d94:	20000088 	.word	0x20000088
- 8002d98:	200002d4 	.word	0x200002d4
+ 8002d94:	20000084 	.word	0x20000084
+ 8002d98:	200002d0 	.word	0x200002d0
  8002d9c:	2000003c 	.word	0x2000003c
  8002da0:	20000040 	.word	0x20000040
  8002da4:	40003c00 	.word	0x40003c00
@@ -8086,7 +8086,7 @@ void Audio_MAL_Play(uint32_t Addr, uint32_t Size)
  8002e20:	bd80      	pop	{r7, pc}
  8002e22:	bf00      	nop
  8002e24:	20000030 	.word	0x20000030
- 8002e28:	200002d4 	.word	0x200002d4
+ 8002e28:	200002d0 	.word	0x200002d0
  8002e2c:	20000038 	.word	0x20000038
  8002e30:	40003c00 	.word	0x40003c00
 
@@ -8269,7 +8269,7 @@ int main(void)
     /*  - Configure ADC Channel12 pin as analog input  : PC2                    */
     /*  - Configure ADC3 Channel12                                              */
     ADC3_CH12_DMA_Config();
- 8002f12:	f000 fd09 	bl	8003928 <ADC3_CH12_DMA_Config>
+ 8002f12:	f000 fd11 	bl	8003938 <ADC3_CH12_DMA_Config>
 
     /* Start ADC3 Software Conversion */
     ADC_SoftwareStartConv(ADC3);
@@ -8356,8 +8356,8 @@ int main(void)
  8002f90:	e7d6      	b.n	8002f40 <main+0x5c>
  8002f92:	bf00      	nop
  8002f94:	40012200 	.word	0x40012200
- 8002f98:	20000210 	.word	0x20000210
- 8002f9c:	2000008e 	.word	0x2000008e
+ 8002f98:	2000020c 	.word	0x2000020c
+ 8002f9c:	2000008a 	.word	0x2000008a
  8002fa0:	20000058 	.word	0x20000058
 
 08002fa4 <Codec_TIMEOUT_UserCallback>:
@@ -8396,34 +8396,34 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 
 	// Odd frequencies cause beating.
 	if (freq_vco % 2) { /* x is odd */  freq_vco +=1; }
- 8002fbe:	4bae      	ldr	r3, [pc, #696]	; (8003278 <EVAL_AUDIO_HalfTransfer_CallBack+0x2c4>)
+ 8002fbe:	4bb0      	ldr	r3, [pc, #704]	; (8003280 <EVAL_AUDIO_HalfTransfer_CallBack+0x2cc>)
  8002fc0:	881b      	ldrh	r3, [r3, #0]
  8002fc2:	b29b      	uxth	r3, r3
  8002fc4:	f003 0301 	and.w	r3, r3, #1
  8002fc8:	b29b      	uxth	r3, r3
  8002fca:	2b00      	cmp	r3, #0
  8002fcc:	d006      	beq.n	8002fdc <EVAL_AUDIO_HalfTransfer_CallBack+0x28>
- 8002fce:	4baa      	ldr	r3, [pc, #680]	; (8003278 <EVAL_AUDIO_HalfTransfer_CallBack+0x2c4>)
+ 8002fce:	4bac      	ldr	r3, [pc, #688]	; (8003280 <EVAL_AUDIO_HalfTransfer_CallBack+0x2cc>)
  8002fd0:	881b      	ldrh	r3, [r3, #0]
  8002fd2:	b29b      	uxth	r3, r3
  8002fd4:	3301      	adds	r3, #1
  8002fd6:	b29a      	uxth	r2, r3
- 8002fd8:	4ba7      	ldr	r3, [pc, #668]	; (8003278 <EVAL_AUDIO_HalfTransfer_CallBack+0x2c4>)
+ 8002fd8:	4ba9      	ldr	r3, [pc, #676]	; (8003280 <EVAL_AUDIO_HalfTransfer_CallBack+0x2cc>)
  8002fda:	801a      	strh	r2, [r3, #0]
 	if (freq_lfo % 2) { /* x is odd */  freq_lfo +=1; }
- 8002fdc:	4ba7      	ldr	r3, [pc, #668]	; (800327c <EVAL_AUDIO_HalfTransfer_CallBack+0x2c8>)
+ 8002fdc:	4ba9      	ldr	r3, [pc, #676]	; (8003284 <EVAL_AUDIO_HalfTransfer_CallBack+0x2d0>)
  8002fde:	881b      	ldrh	r3, [r3, #0]
  8002fe0:	b29b      	uxth	r3, r3
  8002fe2:	f003 0301 	and.w	r3, r3, #1
  8002fe6:	b29b      	uxth	r3, r3
  8002fe8:	2b00      	cmp	r3, #0
  8002fea:	d006      	beq.n	8002ffa <EVAL_AUDIO_HalfTransfer_CallBack+0x46>
- 8002fec:	4ba3      	ldr	r3, [pc, #652]	; (800327c <EVAL_AUDIO_HalfTransfer_CallBack+0x2c8>)
+ 8002fec:	4ba5      	ldr	r3, [pc, #660]	; (8003284 <EVAL_AUDIO_HalfTransfer_CallBack+0x2d0>)
  8002fee:	881b      	ldrh	r3, [r3, #0]
  8002ff0:	b29b      	uxth	r3, r3
  8002ff2:	3301      	adds	r3, #1
  8002ff4:	b29a      	uxth	r2, r3
- 8002ff6:	4ba1      	ldr	r3, [pc, #644]	; (800327c <EVAL_AUDIO_HalfTransfer_CallBack+0x2c8>)
+ 8002ff6:	4ba3      	ldr	r3, [pc, #652]	; (8003284 <EVAL_AUDIO_HalfTransfer_CallBack+0x2d0>)
  8002ff8:	801a      	strh	r2, [r3, #0]
 
 	volatile int i = 0;
@@ -8433,25 +8433,25 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 	// freq_vco = 2 * ADC3ConvertedValue;
 	// freq_lfo = (float32_t) ADC3ConvertedValue/100;
 	volatile float32_t angle_vco = freq_vco*PI/SAMPLERATE;
- 8002ffe:	4b9e      	ldr	r3, [pc, #632]	; (8003278 <EVAL_AUDIO_HalfTransfer_CallBack+0x2c4>)
+ 8002ffe:	4ba0      	ldr	r3, [pc, #640]	; (8003280 <EVAL_AUDIO_HalfTransfer_CallBack+0x2cc>)
  8003000:	881b      	ldrh	r3, [r3, #0]
  8003002:	b29b      	uxth	r3, r3
  8003004:	ee07 3a90 	vmov	s15, r3
  8003008:	eef8 7ae7 	vcvt.f32.s32	s15, s15
- 800300c:	ed9f 7a9c 	vldr	s14, [pc, #624]	; 8003280 <EVAL_AUDIO_HalfTransfer_CallBack+0x2cc>
+ 800300c:	ed9f 7a9e 	vldr	s14, [pc, #632]	; 8003288 <EVAL_AUDIO_HalfTransfer_CallBack+0x2d4>
  8003010:	ee27 7a87 	vmul.f32	s14, s15, s14
- 8003014:	eddf 6a9b 	vldr	s13, [pc, #620]	; 8003284 <EVAL_AUDIO_HalfTransfer_CallBack+0x2d0>
+ 8003014:	eddf 6a9d 	vldr	s13, [pc, #628]	; 800328c <EVAL_AUDIO_HalfTransfer_CallBack+0x2d8>
  8003018:	eec7 7a26 	vdiv.f32	s15, s14, s13
  800301c:	edc7 7a08 	vstr	s15, [r7, #32]
 	volatile float32_t angle_lfo = freq_lfo*PI/SAMPLERATE;
- 8003020:	4b96      	ldr	r3, [pc, #600]	; (800327c <EVAL_AUDIO_HalfTransfer_CallBack+0x2c8>)
+ 8003020:	4b98      	ldr	r3, [pc, #608]	; (8003284 <EVAL_AUDIO_HalfTransfer_CallBack+0x2d0>)
  8003022:	881b      	ldrh	r3, [r3, #0]
  8003024:	b29b      	uxth	r3, r3
  8003026:	ee07 3a90 	vmov	s15, r3
  800302a:	eef8 7ae7 	vcvt.f32.s32	s15, s15
- 800302e:	ed9f 7a94 	vldr	s14, [pc, #592]	; 8003280 <EVAL_AUDIO_HalfTransfer_CallBack+0x2cc>
+ 800302e:	ed9f 7a96 	vldr	s14, [pc, #600]	; 8003288 <EVAL_AUDIO_HalfTransfer_CallBack+0x2d4>
  8003032:	ee27 7a87 	vmul.f32	s14, s15, s14
- 8003036:	eddf 6a93 	vldr	s13, [pc, #588]	; 8003284 <EVAL_AUDIO_HalfTransfer_CallBack+0x2d0>
+ 8003036:	eddf 6a95 	vldr	s13, [pc, #596]	; 800328c <EVAL_AUDIO_HalfTransfer_CallBack+0x2d8>
  800303a:	eec7 7a26 	vdiv.f32	s15, s14, s13
  800303e:	edc7 7a07 	vstr	s15, [r7, #28]
 
@@ -8468,7 +8468,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 	// VCO Waveform
 	// TODO: to save cpu cycles, consider calculating one cycle of the sine wave and then copying it into the rest of the buffer.
 	if(wav_vco == WAVE_SINE)
- 800304a:	4b8f      	ldr	r3, [pc, #572]	; (8003288 <EVAL_AUDIO_HalfTransfer_CallBack+0x2d4>)
+ 800304a:	4b91      	ldr	r3, [pc, #580]	; (8003290 <EVAL_AUDIO_HalfTransfer_CallBack+0x2dc>)
  800304c:	881b      	ldrh	r3, [r3, #0]
  800304e:	2b01      	cmp	r3, #1
  8003050:	d12f      	bne.n	80030b2 <EVAL_AUDIO_HalfTransfer_CallBack+0xfe>
@@ -8480,7 +8480,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 		{
 			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+i)*angle_vco);
  8003058:	6a7c      	ldr	r4, [r7, #36]	; 0x24
- 800305a:	4b8c      	ldr	r3, [pc, #560]	; (800328c <EVAL_AUDIO_HalfTransfer_CallBack+0x2d8>)
+ 800305a:	4b8e      	ldr	r3, [pc, #568]	; (8003294 <EVAL_AUDIO_HalfTransfer_CallBack+0x2e0>)
  800305c:	881b      	ldrh	r3, [r3, #0]
  800305e:	b29b      	uxth	r3, r3
  8003060:	461a      	mov	r2, r3
@@ -8491,17 +8491,17 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
  800306e:	edd7 7a08 	vldr	s15, [r7, #32]
  8003072:	ee67 7a27 	vmul.f32	s15, s14, s15
  8003076:	eeb0 0a67 	vmov.f32	s0, s15
- 800307a:	f000 fe19 	bl	8003cb0 <arm_sin_f32>
+ 800307a:	f000 fe21 	bl	8003cc0 <arm_sin_f32>
  800307e:	eeb0 7a40 	vmov.f32	s14, s0
- 8003082:	eddf 7a83 	vldr	s15, [pc, #524]	; 8003290 <EVAL_AUDIO_HalfTransfer_CallBack+0x2dc>
+ 8003082:	eddf 7a85 	vldr	s15, [pc, #532]	; 8003298 <EVAL_AUDIO_HalfTransfer_CallBack+0x2e4>
  8003086:	ee67 7a27 	vmul.f32	s15, s14, s15
- 800308a:	ed9f 7a81 	vldr	s14, [pc, #516]	; 8003290 <EVAL_AUDIO_HalfTransfer_CallBack+0x2dc>
+ 800308a:	ed9f 7a83 	vldr	s14, [pc, #524]	; 8003298 <EVAL_AUDIO_HalfTransfer_CallBack+0x2e4>
  800308e:	ee77 7a87 	vadd.f32	s15, s15, s14
  8003092:	eefc 7ae7 	vcvt.u32.f32	s15, s15
  8003096:	edc7 7a01 	vstr	s15, [r7, #4]
  800309a:	88bb      	ldrh	r3, [r7, #4]
  800309c:	b29a      	uxth	r2, r3
- 800309e:	4b7d      	ldr	r3, [pc, #500]	; (8003294 <EVAL_AUDIO_HalfTransfer_CallBack+0x2e0>)
+ 800309e:	4b7f      	ldr	r3, [pc, #508]	; (800329c <EVAL_AUDIO_HalfTransfer_CallBack+0x2e8>)
  80030a0:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
 
 	// VCO Waveform
@@ -8515,14 +8515,14 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
  80030aa:	6a7b      	ldr	r3, [r7, #36]	; 0x24
  80030ac:	2b1f      	cmp	r3, #31
  80030ae:	ddd3      	ble.n	8003058 <EVAL_AUDIO_HalfTransfer_CallBack+0xa4>
- 80030b0:	e070      	b.n	8003194 <EVAL_AUDIO_HalfTransfer_CallBack+0x1e0>
+ 80030b0:	e074      	b.n	800319c <EVAL_AUDIO_HalfTransfer_CallBack+0x1e8>
 			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+i)*angle_vco);
 		}
 	}
 
 	// Square
 	else if(wav_vco == WAVE_SQUARE)
- 80030b2:	4b75      	ldr	r3, [pc, #468]	; (8003288 <EVAL_AUDIO_HalfTransfer_CallBack+0x2d4>)
+ 80030b2:	4b77      	ldr	r3, [pc, #476]	; (8003290 <EVAL_AUDIO_HalfTransfer_CallBack+0x2dc>)
  80030b4:	881b      	ldrh	r3, [r3, #0]
  80030b6:	2b02      	cmp	r3, #2
  80030b8:	d136      	bne.n	8003128 <EVAL_AUDIO_HalfTransfer_CallBack+0x174>
@@ -8532,7 +8532,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 		 */
 
 		samples_cycle = SAMPLERATE/freq_vco;
- 80030ba:	4b6f      	ldr	r3, [pc, #444]	; (8003278 <EVAL_AUDIO_HalfTransfer_CallBack+0x2c4>)
+ 80030ba:	4b71      	ldr	r3, [pc, #452]	; (8003280 <EVAL_AUDIO_HalfTransfer_CallBack+0x2cc>)
  80030bc:	881b      	ldrh	r3, [r3, #0]
  80030be:	b29b      	uxth	r3, r3
  80030c0:	461a      	mov	r2, r3
@@ -8553,7 +8553,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 		{
 			buffer_vco[i] = 4000 * square((sample_count+i) % samples_cycle, samples_half_cycle);
  80030dc:	6a7c      	ldr	r4, [r7, #36]	; 0x24
- 80030de:	4b6b      	ldr	r3, [pc, #428]	; (800328c <EVAL_AUDIO_HalfTransfer_CallBack+0x2d8>)
+ 80030de:	4b6d      	ldr	r3, [pc, #436]	; (8003294 <EVAL_AUDIO_HalfTransfer_CallBack+0x2e0>)
  80030e0:	881b      	ldrh	r3, [r3, #0]
  80030e2:	b29b      	uxth	r3, r3
  80030e4:	461a      	mov	r2, r3
@@ -8577,7 +8577,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
  800310e:	4413      	add	r3, r2
  8003110:	015b      	lsls	r3, r3, #5
  8003112:	b29a      	uxth	r2, r3
- 8003114:	4b5f      	ldr	r3, [pc, #380]	; (8003294 <EVAL_AUDIO_HalfTransfer_CallBack+0x2e0>)
+ 8003114:	4b61      	ldr	r3, [pc, #388]	; (800329c <EVAL_AUDIO_HalfTransfer_CallBack+0x2e8>)
  8003116:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
 		 */
 
@@ -8591,20 +8591,20 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
  8003120:	6a7b      	ldr	r3, [r7, #36]	; 0x24
  8003122:	2b1f      	cmp	r3, #31
  8003124:	ddda      	ble.n	80030dc <EVAL_AUDIO_HalfTransfer_CallBack+0x128>
- 8003126:	e035      	b.n	8003194 <EVAL_AUDIO_HalfTransfer_CallBack+0x1e0>
+ 8003126:	e039      	b.n	800319c <EVAL_AUDIO_HalfTransfer_CallBack+0x1e8>
 			buffer_vco[i] = 4000 * square((sample_count+i) % samples_cycle, samples_half_cycle);
 		}
 	}
 
 	// Sawtooth - not tested
 	else if(wav_vco == WAVE_SAWTOOTH)
- 8003128:	4b57      	ldr	r3, [pc, #348]	; (8003288 <EVAL_AUDIO_HalfTransfer_CallBack+0x2d4>)
+ 8003128:	4b59      	ldr	r3, [pc, #356]	; (8003290 <EVAL_AUDIO_HalfTransfer_CallBack+0x2dc>)
  800312a:	881b      	ldrh	r3, [r3, #0]
  800312c:	2b03      	cmp	r3, #3
- 800312e:	d131      	bne.n	8003194 <EVAL_AUDIO_HalfTransfer_CallBack+0x1e0>
+ 800312e:	d135      	bne.n	800319c <EVAL_AUDIO_HalfTransfer_CallBack+0x1e8>
 	{
 		samples_cycle = SAMPLERATE/freq_vco;
- 8003130:	4b51      	ldr	r3, [pc, #324]	; (8003278 <EVAL_AUDIO_HalfTransfer_CallBack+0x2c4>)
+ 8003130:	4b53      	ldr	r3, [pc, #332]	; (8003280 <EVAL_AUDIO_HalfTransfer_CallBack+0x2cc>)
  8003132:	881b      	ldrh	r3, [r3, #0]
  8003134:	b29b      	uxth	r3, r3
  8003136:	461a      	mov	r2, r3
@@ -8615,1511 +8615,1503 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
  8003142:	2300      	movs	r3, #0
  8003144:	627b      	str	r3, [r7, #36]	; 0x24
- 8003146:	e022      	b.n	800318e <EVAL_AUDIO_HalfTransfer_CallBack+0x1da>
+ 8003146:	e026      	b.n	8003196 <EVAL_AUDIO_HalfTransfer_CallBack+0x1e2>
 		{
-			buffer_vco[i] = 4000 * sawtooth((sample_count+i) % samples_cycle);
+			buffer_vco[i] = 40 * sawtooth(samples_cycle - ((sample_count+i) % samples_cycle));
  8003148:	6a7c      	ldr	r4, [r7, #36]	; 0x24
- 800314a:	4b50      	ldr	r3, [pc, #320]	; (800328c <EVAL_AUDIO_HalfTransfer_CallBack+0x2d8>)
- 800314c:	881b      	ldrh	r3, [r3, #0]
- 800314e:	b29b      	uxth	r3, r3
- 8003150:	461a      	mov	r2, r3
- 8003152:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8003154:	4413      	add	r3, r2
- 8003156:	69ba      	ldr	r2, [r7, #24]
- 8003158:	fb93 f1f2 	sdiv	r1, r3, r2
- 800315c:	fb02 f201 	mul.w	r2, r2, r1
- 8003160:	1a9b      	subs	r3, r3, r2
- 8003162:	b29b      	uxth	r3, r3
- 8003164:	4618      	mov	r0, r3
- 8003166:	f7ff feab 	bl	8002ec0 <sawtooth>
- 800316a:	eeb0 7a40 	vmov.f32	s14, s0
- 800316e:	eddf 7a4a 	vldr	s15, [pc, #296]	; 8003298 <EVAL_AUDIO_HalfTransfer_CallBack+0x2e4>
- 8003172:	ee67 7a27 	vmul.f32	s15, s14, s15
- 8003176:	eefc 7ae7 	vcvt.u32.f32	s15, s15
- 800317a:	edc7 7a01 	vstr	s15, [r7, #4]
- 800317e:	88bb      	ldrh	r3, [r7, #4]
- 8003180:	b29a      	uxth	r2, r3
- 8003182:	4b44      	ldr	r3, [pc, #272]	; (8003294 <EVAL_AUDIO_HalfTransfer_CallBack+0x2e0>)
- 8003184:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
+ 800314a:	69bb      	ldr	r3, [r7, #24]
+ 800314c:	b299      	uxth	r1, r3
+ 800314e:	4b51      	ldr	r3, [pc, #324]	; (8003294 <EVAL_AUDIO_HalfTransfer_CallBack+0x2e0>)
+ 8003150:	881b      	ldrh	r3, [r3, #0]
+ 8003152:	b29b      	uxth	r3, r3
+ 8003154:	461a      	mov	r2, r3
+ 8003156:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8003158:	4413      	add	r3, r2
+ 800315a:	69ba      	ldr	r2, [r7, #24]
+ 800315c:	fb93 f0f2 	sdiv	r0, r3, r2
+ 8003160:	fb02 f200 	mul.w	r2, r2, r0
+ 8003164:	1a9b      	subs	r3, r3, r2
+ 8003166:	b29b      	uxth	r3, r3
+ 8003168:	1acb      	subs	r3, r1, r3
+ 800316a:	b29b      	uxth	r3, r3
+ 800316c:	4618      	mov	r0, r3
+ 800316e:	f7ff fea7 	bl	8002ec0 <sawtooth>
+ 8003172:	eeb0 7a40 	vmov.f32	s14, s0
+ 8003176:	eddf 7a4a 	vldr	s15, [pc, #296]	; 80032a0 <EVAL_AUDIO_HalfTransfer_CallBack+0x2ec>
+ 800317a:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 800317e:	eefc 7ae7 	vcvt.u32.f32	s15, s15
+ 8003182:	edc7 7a01 	vstr	s15, [r7, #4]
+ 8003186:	88bb      	ldrh	r3, [r7, #4]
+ 8003188:	b29a      	uxth	r2, r3
+ 800318a:	4b44      	ldr	r3, [pc, #272]	; (800329c <EVAL_AUDIO_HalfTransfer_CallBack+0x2e8>)
+ 800318c:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
 	// Sawtooth - not tested
 	else if(wav_vco == WAVE_SAWTOOTH)
 	{
 		samples_cycle = SAMPLERATE/freq_vco;
 
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
- 8003188:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 800318a:	3301      	adds	r3, #1
- 800318c:	627b      	str	r3, [r7, #36]	; 0x24
- 800318e:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8003190:	2b1f      	cmp	r3, #31
- 8003192:	ddd9      	ble.n	8003148 <EVAL_AUDIO_HalfTransfer_CallBack+0x194>
+ 8003190:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8003192:	3301      	adds	r3, #1
+ 8003194:	627b      	str	r3, [r7, #36]	; 0x24
+ 8003196:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8003198:	2b1f      	cmp	r3, #31
+ 800319a:	ddd5      	ble.n	8003148 <EVAL_AUDIO_HalfTransfer_CallBack+0x194>
 	}
 
 	// LFO Waveform
 	// TODO: the amplitude depends on whether it's used for AM (low value) or FM (high value).
 	// TODO: figure out how to allow for sub 2 hz frequencies
 	if(wav_lfo == WAVE_SINE)
- 8003194:	4b41      	ldr	r3, [pc, #260]	; (800329c <EVAL_AUDIO_HalfTransfer_CallBack+0x2e8>)
- 8003196:	881b      	ldrh	r3, [r3, #0]
- 8003198:	2b01      	cmp	r3, #1
- 800319a:	d139      	bne.n	8003210 <EVAL_AUDIO_HalfTransfer_CallBack+0x25c>
+ 800319c:	4b41      	ldr	r3, [pc, #260]	; (80032a4 <EVAL_AUDIO_HalfTransfer_CallBack+0x2f0>)
+ 800319e:	881b      	ldrh	r3, [r3, #0]
+ 80031a0:	2b01      	cmp	r3, #1
+ 80031a2:	d139      	bne.n	8003218 <EVAL_AUDIO_HalfTransfer_CallBack+0x264>
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
- 800319c:	2300      	movs	r3, #0
- 800319e:	627b      	str	r3, [r7, #36]	; 0x24
- 80031a0:	e033      	b.n	800320a <EVAL_AUDIO_HalfTransfer_CallBack+0x256>
+ 80031a4:	2300      	movs	r3, #0
+ 80031a6:	627b      	str	r3, [r7, #36]	; 0x24
+ 80031a8:	e033      	b.n	8003212 <EVAL_AUDIO_HalfTransfer_CallBack+0x25e>
 		{
 			// buffer_lfo_float[i] = 0.4 + 0.4*arm_sin_f32((sample_count+i)*angle_lfo);		// Small amplitude for AM mod of sine
 			buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((sample_count+i)*angle_lfo);	// Large amplitude for FM mod of sine
- 80031a2:	6a7c      	ldr	r4, [r7, #36]	; 0x24
- 80031a4:	4b39      	ldr	r3, [pc, #228]	; (800328c <EVAL_AUDIO_HalfTransfer_CallBack+0x2d8>)
- 80031a6:	881b      	ldrh	r3, [r3, #0]
- 80031a8:	b29b      	uxth	r3, r3
- 80031aa:	461a      	mov	r2, r3
- 80031ac:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 80031ae:	4413      	add	r3, r2
- 80031b0:	ee07 3a90 	vmov	s15, r3
- 80031b4:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
- 80031b8:	edd7 7a07 	vldr	s15, [r7, #28]
- 80031bc:	ee67 7a27 	vmul.f32	s15, s14, s15
- 80031c0:	eeb0 0a67 	vmov.f32	s0, s15
- 80031c4:	f000 fd74 	bl	8003cb0 <arm_sin_f32>
- 80031c8:	ee10 3a10 	vmov	r3, s0
- 80031cc:	4618      	mov	r0, r3
- 80031ce:	f7fd f95f 	bl	8000490 <__aeabi_f2d>
- 80031d2:	f04f 0200 	mov.w	r2, #0
- 80031d6:	4b32      	ldr	r3, [pc, #200]	; (80032a0 <EVAL_AUDIO_HalfTransfer_CallBack+0x2ec>)
- 80031d8:	f7fd f9ae 	bl	8000538 <__aeabi_dmul>
- 80031dc:	4602      	mov	r2, r0
- 80031de:	460b      	mov	r3, r1
- 80031e0:	4610      	mov	r0, r2
- 80031e2:	4619      	mov	r1, r3
- 80031e4:	f04f 0200 	mov.w	r2, #0
- 80031e8:	4b2d      	ldr	r3, [pc, #180]	; (80032a0 <EVAL_AUDIO_HalfTransfer_CallBack+0x2ec>)
- 80031ea:	f7fc fff3 	bl	80001d4 <__adddf3>
- 80031ee:	4602      	mov	r2, r0
- 80031f0:	460b      	mov	r3, r1
- 80031f2:	4610      	mov	r0, r2
- 80031f4:	4619      	mov	r1, r3
- 80031f6:	f7fd fbb1 	bl	800095c <__aeabi_d2f>
- 80031fa:	4601      	mov	r1, r0
- 80031fc:	4a29      	ldr	r2, [pc, #164]	; (80032a4 <EVAL_AUDIO_HalfTransfer_CallBack+0x2f0>)
- 80031fe:	00a3      	lsls	r3, r4, #2
- 8003200:	4413      	add	r3, r2
- 8003202:	6019      	str	r1, [r3, #0]
+ 80031aa:	6a7c      	ldr	r4, [r7, #36]	; 0x24
+ 80031ac:	4b39      	ldr	r3, [pc, #228]	; (8003294 <EVAL_AUDIO_HalfTransfer_CallBack+0x2e0>)
+ 80031ae:	881b      	ldrh	r3, [r3, #0]
+ 80031b0:	b29b      	uxth	r3, r3
+ 80031b2:	461a      	mov	r2, r3
+ 80031b4:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 80031b6:	4413      	add	r3, r2
+ 80031b8:	ee07 3a90 	vmov	s15, r3
+ 80031bc:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 80031c0:	edd7 7a07 	vldr	s15, [r7, #28]
+ 80031c4:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 80031c8:	eeb0 0a67 	vmov.f32	s0, s15
+ 80031cc:	f000 fd78 	bl	8003cc0 <arm_sin_f32>
+ 80031d0:	ee10 3a10 	vmov	r3, s0
+ 80031d4:	4618      	mov	r0, r3
+ 80031d6:	f7fd f95b 	bl	8000490 <__aeabi_f2d>
+ 80031da:	f04f 0200 	mov.w	r2, #0
+ 80031de:	4b32      	ldr	r3, [pc, #200]	; (80032a8 <EVAL_AUDIO_HalfTransfer_CallBack+0x2f4>)
+ 80031e0:	f7fd f9aa 	bl	8000538 <__aeabi_dmul>
+ 80031e4:	4602      	mov	r2, r0
+ 80031e6:	460b      	mov	r3, r1
+ 80031e8:	4610      	mov	r0, r2
+ 80031ea:	4619      	mov	r1, r3
+ 80031ec:	f04f 0200 	mov.w	r2, #0
+ 80031f0:	4b2d      	ldr	r3, [pc, #180]	; (80032a8 <EVAL_AUDIO_HalfTransfer_CallBack+0x2f4>)
+ 80031f2:	f7fc ffef 	bl	80001d4 <__adddf3>
+ 80031f6:	4602      	mov	r2, r0
+ 80031f8:	460b      	mov	r3, r1
+ 80031fa:	4610      	mov	r0, r2
+ 80031fc:	4619      	mov	r1, r3
+ 80031fe:	f7fd fbad 	bl	800095c <__aeabi_d2f>
+ 8003202:	4601      	mov	r1, r0
+ 8003204:	4a29      	ldr	r2, [pc, #164]	; (80032ac <EVAL_AUDIO_HalfTransfer_CallBack+0x2f8>)
+ 8003206:	00a3      	lsls	r3, r4, #2
+ 8003208:	4413      	add	r3, r2
+ 800320a:	6019      	str	r1, [r3, #0]
 	// LFO Waveform
 	// TODO: the amplitude depends on whether it's used for AM (low value) or FM (high value).
 	// TODO: figure out how to allow for sub 2 hz frequencies
 	if(wav_lfo == WAVE_SINE)
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
- 8003204:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8003206:	3301      	adds	r3, #1
- 8003208:	627b      	str	r3, [r7, #36]	; 0x24
- 800320a:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 800320c:	2b1f      	cmp	r3, #31
- 800320e:	ddc8      	ble.n	80031a2 <EVAL_AUDIO_HalfTransfer_CallBack+0x1ee>
+ 800320c:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 800320e:	3301      	adds	r3, #1
+ 8003210:	627b      	str	r3, [r7, #36]	; 0x24
+ 8003212:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8003214:	2b1f      	cmp	r3, #31
+ 8003216:	ddc8      	ble.n	80031aa <EVAL_AUDIO_HalfTransfer_CallBack+0x1f6>
 	{
 		// TODO: fill lfo buffer with zeros.
 	}
 
 	// VCO-LFO modulation
 	if(mod_type == MOD_AM)
- 8003210:	4b25      	ldr	r3, [pc, #148]	; (80032a8 <EVAL_AUDIO_HalfTransfer_CallBack+0x2f4>)
- 8003212:	881b      	ldrh	r3, [r3, #0]
- 8003214:	2b01      	cmp	r3, #1
- 8003216:	d124      	bne.n	8003262 <EVAL_AUDIO_HalfTransfer_CallBack+0x2ae>
+ 8003218:	4b25      	ldr	r3, [pc, #148]	; (80032b0 <EVAL_AUDIO_HalfTransfer_CallBack+0x2fc>)
+ 800321a:	881b      	ldrh	r3, [r3, #0]
+ 800321c:	2b01      	cmp	r3, #1
+ 800321e:	d124      	bne.n	800326a <EVAL_AUDIO_HalfTransfer_CallBack+0x2b6>
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
- 8003218:	2300      	movs	r3, #0
- 800321a:	627b      	str	r3, [r7, #36]	; 0x24
- 800321c:	e01d      	b.n	800325a <EVAL_AUDIO_HalfTransfer_CallBack+0x2a6>
+ 8003220:	2300      	movs	r3, #0
+ 8003222:	627b      	str	r3, [r7, #36]	; 0x24
+ 8003224:	e01d      	b.n	8003262 <EVAL_AUDIO_HalfTransfer_CallBack+0x2ae>
 		{
 			buffer_output[i] = buffer_vco[i] * buffer_lfo_float[i];
- 800321e:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8003220:	6a7a      	ldr	r2, [r7, #36]	; 0x24
- 8003222:	491c      	ldr	r1, [pc, #112]	; (8003294 <EVAL_AUDIO_HalfTransfer_CallBack+0x2e0>)
- 8003224:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
- 8003228:	b292      	uxth	r2, r2
- 800322a:	ee07 2a90 	vmov	s15, r2
- 800322e:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
- 8003232:	6a7a      	ldr	r2, [r7, #36]	; 0x24
- 8003234:	491b      	ldr	r1, [pc, #108]	; (80032a4 <EVAL_AUDIO_HalfTransfer_CallBack+0x2f0>)
- 8003236:	0092      	lsls	r2, r2, #2
- 8003238:	440a      	add	r2, r1
- 800323a:	edd2 7a00 	vldr	s15, [r2]
- 800323e:	ee67 7a27 	vmul.f32	s15, s14, s15
- 8003242:	eefc 7ae7 	vcvt.u32.f32	s15, s15
- 8003246:	edc7 7a01 	vstr	s15, [r7, #4]
- 800324a:	88ba      	ldrh	r2, [r7, #4]
- 800324c:	b291      	uxth	r1, r2
- 800324e:	4a17      	ldr	r2, [pc, #92]	; (80032ac <EVAL_AUDIO_HalfTransfer_CallBack+0x2f8>)
- 8003250:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
+ 8003226:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8003228:	6a7a      	ldr	r2, [r7, #36]	; 0x24
+ 800322a:	491c      	ldr	r1, [pc, #112]	; (800329c <EVAL_AUDIO_HalfTransfer_CallBack+0x2e8>)
+ 800322c:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
+ 8003230:	b292      	uxth	r2, r2
+ 8003232:	ee07 2a90 	vmov	s15, r2
+ 8003236:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 800323a:	6a7a      	ldr	r2, [r7, #36]	; 0x24
+ 800323c:	491b      	ldr	r1, [pc, #108]	; (80032ac <EVAL_AUDIO_HalfTransfer_CallBack+0x2f8>)
+ 800323e:	0092      	lsls	r2, r2, #2
+ 8003240:	440a      	add	r2, r1
+ 8003242:	edd2 7a00 	vldr	s15, [r2]
+ 8003246:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 800324a:	eefc 7ae7 	vcvt.u32.f32	s15, s15
+ 800324e:	edc7 7a01 	vstr	s15, [r7, #4]
+ 8003252:	88ba      	ldrh	r2, [r7, #4]
+ 8003254:	b291      	uxth	r1, r2
+ 8003256:	4a17      	ldr	r2, [pc, #92]	; (80032b4 <EVAL_AUDIO_HalfTransfer_CallBack+0x300>)
+ 8003258:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
 	}
 
 	// VCO-LFO modulation
 	if(mod_type == MOD_AM)
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
- 8003254:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8003256:	3301      	adds	r3, #1
- 8003258:	627b      	str	r3, [r7, #36]	; 0x24
- 800325a:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 800325c:	2b1f      	cmp	r3, #31
- 800325e:	ddde      	ble.n	800321e <EVAL_AUDIO_HalfTransfer_CallBack+0x26a>
- 8003260:	e0cb      	b.n	80033fa <EVAL_AUDIO_HalfTransfer_CallBack+0x446>
+ 800325c:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 800325e:	3301      	adds	r3, #1
+ 8003260:	627b      	str	r3, [r7, #36]	; 0x24
+ 8003262:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8003264:	2b1f      	cmp	r3, #31
+ 8003266:	ddde      	ble.n	8003226 <EVAL_AUDIO_HalfTransfer_CallBack+0x272>
+ 8003268:	e0cb      	b.n	8003402 <EVAL_AUDIO_HalfTransfer_CallBack+0x44e>
 			buffer_output[i] = buffer_vco[i] * buffer_lfo_float[i];
 		}
 	}
 
 	// FM for sine wave VCO.
 	else if(wav_vco == WAVE_SINE && mod_type == MOD_FM)
- 8003262:	4b09      	ldr	r3, [pc, #36]	; (8003288 <EVAL_AUDIO_HalfTransfer_CallBack+0x2d4>)
- 8003264:	881b      	ldrh	r3, [r3, #0]
- 8003266:	2b01      	cmp	r3, #1
- 8003268:	d164      	bne.n	8003334 <EVAL_AUDIO_HalfTransfer_CallBack+0x380>
- 800326a:	4b0f      	ldr	r3, [pc, #60]	; (80032a8 <EVAL_AUDIO_HalfTransfer_CallBack+0x2f4>)
+ 800326a:	4b09      	ldr	r3, [pc, #36]	; (8003290 <EVAL_AUDIO_HalfTransfer_CallBack+0x2dc>)
  800326c:	881b      	ldrh	r3, [r3, #0]
- 800326e:	2b02      	cmp	r3, #2
- 8003270:	d160      	bne.n	8003334 <EVAL_AUDIO_HalfTransfer_CallBack+0x380>
+ 800326e:	2b01      	cmp	r3, #1
+ 8003270:	d164      	bne.n	800333c <EVAL_AUDIO_HalfTransfer_CallBack+0x388>
+ 8003272:	4b0f      	ldr	r3, [pc, #60]	; (80032b0 <EVAL_AUDIO_HalfTransfer_CallBack+0x2fc>)
+ 8003274:	881b      	ldrh	r3, [r3, #0]
+ 8003276:	2b02      	cmp	r3, #2
+ 8003278:	d160      	bne.n	800333c <EVAL_AUDIO_HalfTransfer_CallBack+0x388>
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
- 8003272:	2300      	movs	r3, #0
- 8003274:	627b      	str	r3, [r7, #36]	; 0x24
- 8003276:	e059      	b.n	800332c <EVAL_AUDIO_HalfTransfer_CallBack+0x378>
- 8003278:	2000005c 	.word	0x2000005c
- 800327c:	2000005e 	.word	0x2000005e
- 8003280:	40490fdb 	.word	0x40490fdb
- 8003284:	473b8000 	.word	0x473b8000
- 8003288:	20000060 	.word	0x20000060
- 800328c:	20000290 	.word	0x20000290
- 8003290:	44fa0000 	.word	0x44fa0000
- 8003294:	20000090 	.word	0x20000090
- 8003298:	457a0000 	.word	0x457a0000
- 800329c:	20000062 	.word	0x20000062
- 80032a0:	40440000 	.word	0x40440000
- 80032a4:	20000110 	.word	0x20000110
- 80032a8:	20000064 	.word	0x20000064
- 80032ac:	20000210 	.word	0x20000210
+ 800327a:	2300      	movs	r3, #0
+ 800327c:	627b      	str	r3, [r7, #36]	; 0x24
+ 800327e:	e059      	b.n	8003334 <EVAL_AUDIO_HalfTransfer_CallBack+0x380>
+ 8003280:	2000005c 	.word	0x2000005c
+ 8003284:	2000005e 	.word	0x2000005e
+ 8003288:	40490fdb 	.word	0x40490fdb
+ 800328c:	473b8000 	.word	0x473b8000
+ 8003290:	20000060 	.word	0x20000060
+ 8003294:	2000028c 	.word	0x2000028c
+ 8003298:	44fa0000 	.word	0x44fa0000
+ 800329c:	2000008c 	.word	0x2000008c
+ 80032a0:	42200000 	.word	0x42200000
+ 80032a4:	20000062 	.word	0x20000062
+ 80032a8:	40440000 	.word	0x40440000
+ 80032ac:	2000010c 	.word	0x2000010c
+ 80032b0:	2000028e 	.word	0x2000028e
+ 80032b4:	2000020c 	.word	0x2000020c
 		{
 			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+i)*angle_vco + 40*buffer_lfo_float[i]);
- 80032b0:	6a7c      	ldr	r4, [r7, #36]	; 0x24
- 80032b2:	4b5e      	ldr	r3, [pc, #376]	; (800342c <EVAL_AUDIO_HalfTransfer_CallBack+0x478>)
- 80032b4:	881b      	ldrh	r3, [r3, #0]
- 80032b6:	b29b      	uxth	r3, r3
- 80032b8:	461a      	mov	r2, r3
- 80032ba:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 80032bc:	4413      	add	r3, r2
- 80032be:	ee07 3a90 	vmov	s15, r3
- 80032c2:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
- 80032c6:	edd7 7a08 	vldr	s15, [r7, #32]
- 80032ca:	ee27 7a27 	vmul.f32	s14, s14, s15
- 80032ce:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 80032d0:	4a57      	ldr	r2, [pc, #348]	; (8003430 <EVAL_AUDIO_HalfTransfer_CallBack+0x47c>)
- 80032d2:	009b      	lsls	r3, r3, #2
- 80032d4:	4413      	add	r3, r2
- 80032d6:	edd3 7a00 	vldr	s15, [r3]
- 80032da:	eddf 6a56 	vldr	s13, [pc, #344]	; 8003434 <EVAL_AUDIO_HalfTransfer_CallBack+0x480>
- 80032de:	ee67 7aa6 	vmul.f32	s15, s15, s13
- 80032e2:	ee77 7a27 	vadd.f32	s15, s14, s15
- 80032e6:	eeb0 0a67 	vmov.f32	s0, s15
- 80032ea:	f000 fce1 	bl	8003cb0 <arm_sin_f32>
- 80032ee:	eeb0 7a40 	vmov.f32	s14, s0
- 80032f2:	eddf 7a51 	vldr	s15, [pc, #324]	; 8003438 <EVAL_AUDIO_HalfTransfer_CallBack+0x484>
- 80032f6:	ee67 7a27 	vmul.f32	s15, s14, s15
- 80032fa:	ed9f 7a4f 	vldr	s14, [pc, #316]	; 8003438 <EVAL_AUDIO_HalfTransfer_CallBack+0x484>
- 80032fe:	ee77 7a87 	vadd.f32	s15, s15, s14
- 8003302:	eefc 7ae7 	vcvt.u32.f32	s15, s15
- 8003306:	edc7 7a01 	vstr	s15, [r7, #4]
- 800330a:	88bb      	ldrh	r3, [r7, #4]
- 800330c:	b29a      	uxth	r2, r3
- 800330e:	4b4b      	ldr	r3, [pc, #300]	; (800343c <EVAL_AUDIO_HalfTransfer_CallBack+0x488>)
- 8003310:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
+ 80032b8:	6a7c      	ldr	r4, [r7, #36]	; 0x24
+ 80032ba:	4b5e      	ldr	r3, [pc, #376]	; (8003434 <EVAL_AUDIO_HalfTransfer_CallBack+0x480>)
+ 80032bc:	881b      	ldrh	r3, [r3, #0]
+ 80032be:	b29b      	uxth	r3, r3
+ 80032c0:	461a      	mov	r2, r3
+ 80032c2:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 80032c4:	4413      	add	r3, r2
+ 80032c6:	ee07 3a90 	vmov	s15, r3
+ 80032ca:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 80032ce:	edd7 7a08 	vldr	s15, [r7, #32]
+ 80032d2:	ee27 7a27 	vmul.f32	s14, s14, s15
+ 80032d6:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 80032d8:	4a57      	ldr	r2, [pc, #348]	; (8003438 <EVAL_AUDIO_HalfTransfer_CallBack+0x484>)
+ 80032da:	009b      	lsls	r3, r3, #2
+ 80032dc:	4413      	add	r3, r2
+ 80032de:	edd3 7a00 	vldr	s15, [r3]
+ 80032e2:	eddf 6a56 	vldr	s13, [pc, #344]	; 800343c <EVAL_AUDIO_HalfTransfer_CallBack+0x488>
+ 80032e6:	ee67 7aa6 	vmul.f32	s15, s15, s13
+ 80032ea:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 80032ee:	eeb0 0a67 	vmov.f32	s0, s15
+ 80032f2:	f000 fce5 	bl	8003cc0 <arm_sin_f32>
+ 80032f6:	eeb0 7a40 	vmov.f32	s14, s0
+ 80032fa:	eddf 7a51 	vldr	s15, [pc, #324]	; 8003440 <EVAL_AUDIO_HalfTransfer_CallBack+0x48c>
+ 80032fe:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 8003302:	ed9f 7a4f 	vldr	s14, [pc, #316]	; 8003440 <EVAL_AUDIO_HalfTransfer_CallBack+0x48c>
+ 8003306:	ee77 7a87 	vadd.f32	s15, s15, s14
+ 800330a:	eefc 7ae7 	vcvt.u32.f32	s15, s15
+ 800330e:	edc7 7a01 	vstr	s15, [r7, #4]
+ 8003312:	88bb      	ldrh	r3, [r7, #4]
+ 8003314:	b29a      	uxth	r2, r3
+ 8003316:	4b4b      	ldr	r3, [pc, #300]	; (8003444 <EVAL_AUDIO_HalfTransfer_CallBack+0x490>)
+ 8003318:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
 			buffer_output[i] = buffer_vco[i];
- 8003314:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8003316:	6a7a      	ldr	r2, [r7, #36]	; 0x24
- 8003318:	4948      	ldr	r1, [pc, #288]	; (800343c <EVAL_AUDIO_HalfTransfer_CallBack+0x488>)
- 800331a:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
- 800331e:	b291      	uxth	r1, r2
- 8003320:	4a47      	ldr	r2, [pc, #284]	; (8003440 <EVAL_AUDIO_HalfTransfer_CallBack+0x48c>)
- 8003322:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
+ 800331c:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 800331e:	6a7a      	ldr	r2, [r7, #36]	; 0x24
+ 8003320:	4948      	ldr	r1, [pc, #288]	; (8003444 <EVAL_AUDIO_HalfTransfer_CallBack+0x490>)
+ 8003322:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
+ 8003326:	b291      	uxth	r1, r2
+ 8003328:	4a47      	ldr	r2, [pc, #284]	; (8003448 <EVAL_AUDIO_HalfTransfer_CallBack+0x494>)
+ 800332a:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
 	}
 
 	// FM for sine wave VCO.
 	else if(wav_vco == WAVE_SINE && mod_type == MOD_FM)
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
- 8003326:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8003328:	3301      	adds	r3, #1
- 800332a:	627b      	str	r3, [r7, #36]	; 0x24
- 800332c:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 800332e:	2b1f      	cmp	r3, #31
- 8003330:	ddbe      	ble.n	80032b0 <EVAL_AUDIO_HalfTransfer_CallBack+0x2fc>
+ 800332e:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8003330:	3301      	adds	r3, #1
+ 8003332:	627b      	str	r3, [r7, #36]	; 0x24
+ 8003334:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8003336:	2b1f      	cmp	r3, #31
+ 8003338:	ddbe      	ble.n	80032b8 <EVAL_AUDIO_HalfTransfer_CallBack+0x304>
 			buffer_output[i] = buffer_vco[i] * buffer_lfo_float[i];
 		}
 	}
 
 	// FM for sine wave VCO.
 	else if(wav_vco == WAVE_SINE && mod_type == MOD_FM)
- 8003332:	e062      	b.n	80033fa <EVAL_AUDIO_HalfTransfer_CallBack+0x446>
+ 800333a:	e062      	b.n	8003402 <EVAL_AUDIO_HalfTransfer_CallBack+0x44e>
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
 
 	// FM for square wave VCO.
 	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
- 8003334:	4b43      	ldr	r3, [pc, #268]	; (8003444 <EVAL_AUDIO_HalfTransfer_CallBack+0x490>)
- 8003336:	881b      	ldrh	r3, [r3, #0]
- 8003338:	2b02      	cmp	r3, #2
- 800333a:	d14c      	bne.n	80033d6 <EVAL_AUDIO_HalfTransfer_CallBack+0x422>
- 800333c:	4b42      	ldr	r3, [pc, #264]	; (8003448 <EVAL_AUDIO_HalfTransfer_CallBack+0x494>)
+ 800333c:	4b43      	ldr	r3, [pc, #268]	; (800344c <EVAL_AUDIO_HalfTransfer_CallBack+0x498>)
  800333e:	881b      	ldrh	r3, [r3, #0]
  8003340:	2b02      	cmp	r3, #2
- 8003342:	d148      	bne.n	80033d6 <EVAL_AUDIO_HalfTransfer_CallBack+0x422>
+ 8003342:	d14c      	bne.n	80033de <EVAL_AUDIO_HalfTransfer_CallBack+0x42a>
+ 8003344:	4b42      	ldr	r3, [pc, #264]	; (8003450 <EVAL_AUDIO_HalfTransfer_CallBack+0x49c>)
+ 8003346:	881b      	ldrh	r3, [r3, #0]
+ 8003348:	2b02      	cmp	r3, #2
+ 800334a:	d148      	bne.n	80033de <EVAL_AUDIO_HalfTransfer_CallBack+0x42a>
 	{
 		samples_cycle = samples_cycle + buffer_lfo_float[i];
- 8003344:	69bb      	ldr	r3, [r7, #24]
- 8003346:	ee07 3a90 	vmov	s15, r3
- 800334a:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
- 800334e:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8003350:	4a37      	ldr	r2, [pc, #220]	; (8003430 <EVAL_AUDIO_HalfTransfer_CallBack+0x47c>)
- 8003352:	009b      	lsls	r3, r3, #2
- 8003354:	4413      	add	r3, r2
- 8003356:	edd3 7a00 	vldr	s15, [r3]
- 800335a:	ee77 7a27 	vadd.f32	s15, s14, s15
- 800335e:	eefd 7ae7 	vcvt.s32.f32	s15, s15
- 8003362:	ee17 3a90 	vmov	r3, s15
- 8003366:	61bb      	str	r3, [r7, #24]
+ 800334c:	69bb      	ldr	r3, [r7, #24]
+ 800334e:	ee07 3a90 	vmov	s15, r3
+ 8003352:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 8003356:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8003358:	4a37      	ldr	r2, [pc, #220]	; (8003438 <EVAL_AUDIO_HalfTransfer_CallBack+0x484>)
+ 800335a:	009b      	lsls	r3, r3, #2
+ 800335c:	4413      	add	r3, r2
+ 800335e:	edd3 7a00 	vldr	s15, [r3]
+ 8003362:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 8003366:	eefd 7ae7 	vcvt.s32.f32	s15, s15
+ 800336a:	ee17 3a90 	vmov	r3, s15
+ 800336e:	61bb      	str	r3, [r7, #24]
 		samples_half_cycle = samples_cycle / 2;
- 8003368:	69bb      	ldr	r3, [r7, #24]
- 800336a:	0fda      	lsrs	r2, r3, #31
- 800336c:	4413      	add	r3, r2
- 800336e:	105b      	asrs	r3, r3, #1
- 8003370:	617b      	str	r3, [r7, #20]
+ 8003370:	69bb      	ldr	r3, [r7, #24]
+ 8003372:	0fda      	lsrs	r2, r3, #31
+ 8003374:	4413      	add	r3, r2
+ 8003376:	105b      	asrs	r3, r3, #1
+ 8003378:	617b      	str	r3, [r7, #20]
 
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
- 8003372:	2300      	movs	r3, #0
- 8003374:	627b      	str	r3, [r7, #36]	; 0x24
- 8003376:	e02a      	b.n	80033ce <EVAL_AUDIO_HalfTransfer_CallBack+0x41a>
+ 800337a:	2300      	movs	r3, #0
+ 800337c:	627b      	str	r3, [r7, #36]	; 0x24
+ 800337e:	e02a      	b.n	80033d6 <EVAL_AUDIO_HalfTransfer_CallBack+0x422>
 		{
 			buffer_vco[i] = 4000 * square((sample_count+i) % samples_cycle, samples_half_cycle);
- 8003378:	6a7c      	ldr	r4, [r7, #36]	; 0x24
- 800337a:	4b2c      	ldr	r3, [pc, #176]	; (800342c <EVAL_AUDIO_HalfTransfer_CallBack+0x478>)
- 800337c:	881b      	ldrh	r3, [r3, #0]
- 800337e:	b29b      	uxth	r3, r3
- 8003380:	461a      	mov	r2, r3
- 8003382:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8003384:	4413      	add	r3, r2
- 8003386:	69ba      	ldr	r2, [r7, #24]
- 8003388:	fb93 f1f2 	sdiv	r1, r3, r2
- 800338c:	fb02 f201 	mul.w	r2, r2, r1
- 8003390:	1a9b      	subs	r3, r3, r2
- 8003392:	b29b      	uxth	r3, r3
- 8003394:	697a      	ldr	r2, [r7, #20]
- 8003396:	b292      	uxth	r2, r2
- 8003398:	4611      	mov	r1, r2
- 800339a:	4618      	mov	r0, r3
- 800339c:	f7ff fd7a 	bl	8002e94 <square>
- 80033a0:	4603      	mov	r3, r0
- 80033a2:	461a      	mov	r2, r3
- 80033a4:	0152      	lsls	r2, r2, #5
- 80033a6:	1ad2      	subs	r2, r2, r3
- 80033a8:	0092      	lsls	r2, r2, #2
- 80033aa:	4413      	add	r3, r2
- 80033ac:	015b      	lsls	r3, r3, #5
- 80033ae:	b29a      	uxth	r2, r3
- 80033b0:	4b22      	ldr	r3, [pc, #136]	; (800343c <EVAL_AUDIO_HalfTransfer_CallBack+0x488>)
- 80033b2:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
+ 8003380:	6a7c      	ldr	r4, [r7, #36]	; 0x24
+ 8003382:	4b2c      	ldr	r3, [pc, #176]	; (8003434 <EVAL_AUDIO_HalfTransfer_CallBack+0x480>)
+ 8003384:	881b      	ldrh	r3, [r3, #0]
+ 8003386:	b29b      	uxth	r3, r3
+ 8003388:	461a      	mov	r2, r3
+ 800338a:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 800338c:	4413      	add	r3, r2
+ 800338e:	69ba      	ldr	r2, [r7, #24]
+ 8003390:	fb93 f1f2 	sdiv	r1, r3, r2
+ 8003394:	fb02 f201 	mul.w	r2, r2, r1
+ 8003398:	1a9b      	subs	r3, r3, r2
+ 800339a:	b29b      	uxth	r3, r3
+ 800339c:	697a      	ldr	r2, [r7, #20]
+ 800339e:	b292      	uxth	r2, r2
+ 80033a0:	4611      	mov	r1, r2
+ 80033a2:	4618      	mov	r0, r3
+ 80033a4:	f7ff fd76 	bl	8002e94 <square>
+ 80033a8:	4603      	mov	r3, r0
+ 80033aa:	461a      	mov	r2, r3
+ 80033ac:	0152      	lsls	r2, r2, #5
+ 80033ae:	1ad2      	subs	r2, r2, r3
+ 80033b0:	0092      	lsls	r2, r2, #2
+ 80033b2:	4413      	add	r3, r2
+ 80033b4:	015b      	lsls	r3, r3, #5
+ 80033b6:	b29a      	uxth	r2, r3
+ 80033b8:	4b22      	ldr	r3, [pc, #136]	; (8003444 <EVAL_AUDIO_HalfTransfer_CallBack+0x490>)
+ 80033ba:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
 			buffer_output[i] = buffer_vco[i];
- 80033b6:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 80033b8:	6a7a      	ldr	r2, [r7, #36]	; 0x24
- 80033ba:	4920      	ldr	r1, [pc, #128]	; (800343c <EVAL_AUDIO_HalfTransfer_CallBack+0x488>)
- 80033bc:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
- 80033c0:	b291      	uxth	r1, r2
- 80033c2:	4a1f      	ldr	r2, [pc, #124]	; (8003440 <EVAL_AUDIO_HalfTransfer_CallBack+0x48c>)
- 80033c4:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
+ 80033be:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 80033c0:	6a7a      	ldr	r2, [r7, #36]	; 0x24
+ 80033c2:	4920      	ldr	r1, [pc, #128]	; (8003444 <EVAL_AUDIO_HalfTransfer_CallBack+0x490>)
+ 80033c4:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
+ 80033c8:	b291      	uxth	r1, r2
+ 80033ca:	4a1f      	ldr	r2, [pc, #124]	; (8003448 <EVAL_AUDIO_HalfTransfer_CallBack+0x494>)
+ 80033cc:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
 	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
 	{
 		samples_cycle = samples_cycle + buffer_lfo_float[i];
 		samples_half_cycle = samples_cycle / 2;
 
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
- 80033c8:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 80033ca:	3301      	adds	r3, #1
- 80033cc:	627b      	str	r3, [r7, #36]	; 0x24
- 80033ce:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 80033d0:	2b1f      	cmp	r3, #31
- 80033d2:	ddd1      	ble.n	8003378 <EVAL_AUDIO_HalfTransfer_CallBack+0x3c4>
+ 80033d0:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 80033d2:	3301      	adds	r3, #1
+ 80033d4:	627b      	str	r3, [r7, #36]	; 0x24
+ 80033d6:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 80033d8:	2b1f      	cmp	r3, #31
+ 80033da:	ddd1      	ble.n	8003380 <EVAL_AUDIO_HalfTransfer_CallBack+0x3cc>
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
 
 	// FM for square wave VCO.
 	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
- 80033d4:	e011      	b.n	80033fa <EVAL_AUDIO_HalfTransfer_CallBack+0x446>
+ 80033dc:	e011      	b.n	8003402 <EVAL_AUDIO_HalfTransfer_CallBack+0x44e>
 	}
 
 	// No modulation
 	else
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
- 80033d6:	2300      	movs	r3, #0
- 80033d8:	627b      	str	r3, [r7, #36]	; 0x24
- 80033da:	e00b      	b.n	80033f4 <EVAL_AUDIO_HalfTransfer_CallBack+0x440>
+ 80033de:	2300      	movs	r3, #0
+ 80033e0:	627b      	str	r3, [r7, #36]	; 0x24
+ 80033e2:	e00b      	b.n	80033fc <EVAL_AUDIO_HalfTransfer_CallBack+0x448>
 		{
 			buffer_output[i] = buffer_vco[i];
- 80033dc:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 80033de:	6a7a      	ldr	r2, [r7, #36]	; 0x24
- 80033e0:	4916      	ldr	r1, [pc, #88]	; (800343c <EVAL_AUDIO_HalfTransfer_CallBack+0x488>)
- 80033e2:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
- 80033e6:	b291      	uxth	r1, r2
- 80033e8:	4a15      	ldr	r2, [pc, #84]	; (8003440 <EVAL_AUDIO_HalfTransfer_CallBack+0x48c>)
- 80033ea:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
+ 80033e4:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 80033e6:	6a7a      	ldr	r2, [r7, #36]	; 0x24
+ 80033e8:	4916      	ldr	r1, [pc, #88]	; (8003444 <EVAL_AUDIO_HalfTransfer_CallBack+0x490>)
+ 80033ea:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
+ 80033ee:	b291      	uxth	r1, r2
+ 80033f0:	4a15      	ldr	r2, [pc, #84]	; (8003448 <EVAL_AUDIO_HalfTransfer_CallBack+0x494>)
+ 80033f2:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
 	}
 
 	// No modulation
 	else
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
- 80033ee:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 80033f0:	3301      	adds	r3, #1
- 80033f2:	627b      	str	r3, [r7, #36]	; 0x24
- 80033f4:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 80033f6:	2b1f      	cmp	r3, #31
- 80033f8:	ddf0      	ble.n	80033dc <EVAL_AUDIO_HalfTransfer_CallBack+0x428>
+ 80033f6:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 80033f8:	3301      	adds	r3, #1
+ 80033fa:	627b      	str	r3, [r7, #36]	; 0x24
+ 80033fc:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 80033fe:	2b1f      	cmp	r3, #31
+ 8003400:	ddf0      	ble.n	80033e4 <EVAL_AUDIO_HalfTransfer_CallBack+0x430>
 		}
 	}
 
 
 	// Remember lfo phase and resume next run of callback.
 	sample_count = (sample_count + i) % SAMPLERATE;
- 80033fa:	4b0c      	ldr	r3, [pc, #48]	; (800342c <EVAL_AUDIO_HalfTransfer_CallBack+0x478>)
- 80033fc:	881b      	ldrh	r3, [r3, #0]
- 80033fe:	b29b      	uxth	r3, r3
- 8003400:	461a      	mov	r2, r3
- 8003402:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8003404:	4413      	add	r3, r2
- 8003406:	4a11      	ldr	r2, [pc, #68]	; (800344c <EVAL_AUDIO_HalfTransfer_CallBack+0x498>)
- 8003408:	fb82 1203 	smull	r1, r2, r2, r3
- 800340c:	1291      	asrs	r1, r2, #10
- 800340e:	17da      	asrs	r2, r3, #31
- 8003410:	1a8a      	subs	r2, r1, r2
- 8003412:	f64b 3180 	movw	r1, #48000	; 0xbb80
- 8003416:	fb01 f202 	mul.w	r2, r1, r2
- 800341a:	1a9a      	subs	r2, r3, r2
- 800341c:	b292      	uxth	r2, r2
- 800341e:	4b03      	ldr	r3, [pc, #12]	; (800342c <EVAL_AUDIO_HalfTransfer_CallBack+0x478>)
- 8003420:	801a      	strh	r2, [r3, #0]
+ 8003402:	4b0c      	ldr	r3, [pc, #48]	; (8003434 <EVAL_AUDIO_HalfTransfer_CallBack+0x480>)
+ 8003404:	881b      	ldrh	r3, [r3, #0]
+ 8003406:	b29b      	uxth	r3, r3
+ 8003408:	461a      	mov	r2, r3
+ 800340a:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 800340c:	4413      	add	r3, r2
+ 800340e:	4a11      	ldr	r2, [pc, #68]	; (8003454 <EVAL_AUDIO_HalfTransfer_CallBack+0x4a0>)
+ 8003410:	fb82 1203 	smull	r1, r2, r2, r3
+ 8003414:	1291      	asrs	r1, r2, #10
+ 8003416:	17da      	asrs	r2, r3, #31
+ 8003418:	1a8a      	subs	r2, r1, r2
+ 800341a:	f64b 3180 	movw	r1, #48000	; 0xbb80
+ 800341e:	fb01 f202 	mul.w	r2, r1, r2
+ 8003422:	1a9a      	subs	r2, r3, r2
+ 8003424:	b292      	uxth	r2, r2
+ 8003426:	4b03      	ldr	r3, [pc, #12]	; (8003434 <EVAL_AUDIO_HalfTransfer_CallBack+0x480>)
+ 8003428:	801a      	strh	r2, [r3, #0]
 	return;
- 8003422:	bf00      	nop
-}
- 8003424:	372c      	adds	r7, #44	; 0x2c
- 8003426:	46bd      	mov	sp, r7
- 8003428:	bd90      	pop	{r4, r7, pc}
  800342a:	bf00      	nop
- 800342c:	20000290 	.word	0x20000290
- 8003430:	20000110 	.word	0x20000110
- 8003434:	42200000 	.word	0x42200000
- 8003438:	44fa0000 	.word	0x44fa0000
- 800343c:	20000090 	.word	0x20000090
- 8003440:	20000210 	.word	0x20000210
- 8003444:	20000060 	.word	0x20000060
- 8003448:	20000064 	.word	0x20000064
- 800344c:	057619f1 	.word	0x057619f1
+}
+ 800342c:	372c      	adds	r7, #44	; 0x2c
+ 800342e:	46bd      	mov	sp, r7
+ 8003430:	bd90      	pop	{r4, r7, pc}
+ 8003432:	bf00      	nop
+ 8003434:	2000028c 	.word	0x2000028c
+ 8003438:	2000010c 	.word	0x2000010c
+ 800343c:	42200000 	.word	0x42200000
+ 8003440:	44fa0000 	.word	0x44fa0000
+ 8003444:	2000008c 	.word	0x2000008c
+ 8003448:	2000020c 	.word	0x2000020c
+ 800344c:	20000060 	.word	0x20000060
+ 8003450:	2000028e 	.word	0x2000028e
+ 8003454:	057619f1 	.word	0x057619f1
 
-08003450 <EVAL_AUDIO_TransferComplete_CallBack>:
+08003458 <EVAL_AUDIO_TransferComplete_CallBack>:
 
 /*
  * Callback used by stm32f4_discovery_audio_codec.c.
  * Refer to stm32f4_discovery_audio_codec.h for more info.
  */
 void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
- 8003450:	b590      	push	{r4, r7, lr}
- 8003452:	b08b      	sub	sp, #44	; 0x2c
- 8003454:	af00      	add	r7, sp, #0
- 8003456:	60f8      	str	r0, [r7, #12]
- 8003458:	60b9      	str	r1, [r7, #8]
+ 8003458:	b590      	push	{r4, r7, lr}
+ 800345a:	b08b      	sub	sp, #44	; 0x2c
+ 800345c:	af00      	add	r7, sp, #0
+ 800345e:	60f8      	str	r0, [r7, #12]
+ 8003460:	60b9      	str	r1, [r7, #8]
 	// Turns off yellow LED -- indicates no error occurred.
 	STM_EVAL_LEDOff(LED3);
- 800345a:	2001      	movs	r0, #1
- 800345c:	f7fe feaa 	bl	80021b4 <STM_EVAL_LEDOff>
+ 8003462:	2001      	movs	r0, #1
+ 8003464:	f7fe fea6 	bl	80021b4 <STM_EVAL_LEDOff>
 
 	// Odd frequencies cause beating.
 	if (freq_vco % 2) { /* x is odd */  freq_vco +=1; }
- 8003460:	4bb0      	ldr	r3, [pc, #704]	; (8003724 <EVAL_AUDIO_TransferComplete_CallBack+0x2d4>)
- 8003462:	881b      	ldrh	r3, [r3, #0]
- 8003464:	b29b      	uxth	r3, r3
- 8003466:	f003 0301 	and.w	r3, r3, #1
- 800346a:	b29b      	uxth	r3, r3
- 800346c:	2b00      	cmp	r3, #0
- 800346e:	d006      	beq.n	800347e <EVAL_AUDIO_TransferComplete_CallBack+0x2e>
- 8003470:	4bac      	ldr	r3, [pc, #688]	; (8003724 <EVAL_AUDIO_TransferComplete_CallBack+0x2d4>)
- 8003472:	881b      	ldrh	r3, [r3, #0]
- 8003474:	b29b      	uxth	r3, r3
- 8003476:	3301      	adds	r3, #1
- 8003478:	b29a      	uxth	r2, r3
- 800347a:	4baa      	ldr	r3, [pc, #680]	; (8003724 <EVAL_AUDIO_TransferComplete_CallBack+0x2d4>)
- 800347c:	801a      	strh	r2, [r3, #0]
+ 8003468:	4bb2      	ldr	r3, [pc, #712]	; (8003734 <EVAL_AUDIO_TransferComplete_CallBack+0x2dc>)
+ 800346a:	881b      	ldrh	r3, [r3, #0]
+ 800346c:	b29b      	uxth	r3, r3
+ 800346e:	f003 0301 	and.w	r3, r3, #1
+ 8003472:	b29b      	uxth	r3, r3
+ 8003474:	2b00      	cmp	r3, #0
+ 8003476:	d006      	beq.n	8003486 <EVAL_AUDIO_TransferComplete_CallBack+0x2e>
+ 8003478:	4bae      	ldr	r3, [pc, #696]	; (8003734 <EVAL_AUDIO_TransferComplete_CallBack+0x2dc>)
+ 800347a:	881b      	ldrh	r3, [r3, #0]
+ 800347c:	b29b      	uxth	r3, r3
+ 800347e:	3301      	adds	r3, #1
+ 8003480:	b29a      	uxth	r2, r3
+ 8003482:	4bac      	ldr	r3, [pc, #688]	; (8003734 <EVAL_AUDIO_TransferComplete_CallBack+0x2dc>)
+ 8003484:	801a      	strh	r2, [r3, #0]
 	if (freq_lfo % 2) { /* x is odd */  freq_lfo +=1; }
- 800347e:	4baa      	ldr	r3, [pc, #680]	; (8003728 <EVAL_AUDIO_TransferComplete_CallBack+0x2d8>)
- 8003480:	881b      	ldrh	r3, [r3, #0]
- 8003482:	b29b      	uxth	r3, r3
- 8003484:	f003 0301 	and.w	r3, r3, #1
- 8003488:	b29b      	uxth	r3, r3
- 800348a:	2b00      	cmp	r3, #0
- 800348c:	d006      	beq.n	800349c <EVAL_AUDIO_TransferComplete_CallBack+0x4c>
- 800348e:	4ba6      	ldr	r3, [pc, #664]	; (8003728 <EVAL_AUDIO_TransferComplete_CallBack+0x2d8>)
- 8003490:	881b      	ldrh	r3, [r3, #0]
- 8003492:	b29b      	uxth	r3, r3
- 8003494:	3301      	adds	r3, #1
- 8003496:	b29a      	uxth	r2, r3
- 8003498:	4ba3      	ldr	r3, [pc, #652]	; (8003728 <EVAL_AUDIO_TransferComplete_CallBack+0x2d8>)
- 800349a:	801a      	strh	r2, [r3, #0]
+ 8003486:	4bac      	ldr	r3, [pc, #688]	; (8003738 <EVAL_AUDIO_TransferComplete_CallBack+0x2e0>)
+ 8003488:	881b      	ldrh	r3, [r3, #0]
+ 800348a:	b29b      	uxth	r3, r3
+ 800348c:	f003 0301 	and.w	r3, r3, #1
+ 8003490:	b29b      	uxth	r3, r3
+ 8003492:	2b00      	cmp	r3, #0
+ 8003494:	d006      	beq.n	80034a4 <EVAL_AUDIO_TransferComplete_CallBack+0x4c>
+ 8003496:	4ba8      	ldr	r3, [pc, #672]	; (8003738 <EVAL_AUDIO_TransferComplete_CallBack+0x2e0>)
+ 8003498:	881b      	ldrh	r3, [r3, #0]
+ 800349a:	b29b      	uxth	r3, r3
+ 800349c:	3301      	adds	r3, #1
+ 800349e:	b29a      	uxth	r2, r3
+ 80034a0:	4ba5      	ldr	r3, [pc, #660]	; (8003738 <EVAL_AUDIO_TransferComplete_CallBack+0x2e0>)
+ 80034a2:	801a      	strh	r2, [r3, #0]
 
 	// freq_vco = 2 * ADC3ConvertedValue;
 	// freq_lfo = (float32_t) ADC3ConvertedValue/100;
 	volatile float32_t angle_vco = freq_vco*PI/SAMPLERATE;
- 800349c:	4ba1      	ldr	r3, [pc, #644]	; (8003724 <EVAL_AUDIO_TransferComplete_CallBack+0x2d4>)
- 800349e:	881b      	ldrh	r3, [r3, #0]
- 80034a0:	b29b      	uxth	r3, r3
- 80034a2:	ee07 3a90 	vmov	s15, r3
- 80034a6:	eef8 7ae7 	vcvt.f32.s32	s15, s15
- 80034aa:	ed9f 7aa0 	vldr	s14, [pc, #640]	; 800372c <EVAL_AUDIO_TransferComplete_CallBack+0x2dc>
- 80034ae:	ee27 7a87 	vmul.f32	s14, s15, s14
- 80034b2:	eddf 6a9f 	vldr	s13, [pc, #636]	; 8003730 <EVAL_AUDIO_TransferComplete_CallBack+0x2e0>
- 80034b6:	eec7 7a26 	vdiv.f32	s15, s14, s13
- 80034ba:	edc7 7a09 	vstr	s15, [r7, #36]	; 0x24
+ 80034a4:	4ba3      	ldr	r3, [pc, #652]	; (8003734 <EVAL_AUDIO_TransferComplete_CallBack+0x2dc>)
+ 80034a6:	881b      	ldrh	r3, [r3, #0]
+ 80034a8:	b29b      	uxth	r3, r3
+ 80034aa:	ee07 3a90 	vmov	s15, r3
+ 80034ae:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 80034b2:	ed9f 7aa2 	vldr	s14, [pc, #648]	; 800373c <EVAL_AUDIO_TransferComplete_CallBack+0x2e4>
+ 80034b6:	ee27 7a87 	vmul.f32	s14, s15, s14
+ 80034ba:	eddf 6aa1 	vldr	s13, [pc, #644]	; 8003740 <EVAL_AUDIO_TransferComplete_CallBack+0x2e8>
+ 80034be:	eec7 7a26 	vdiv.f32	s15, s14, s13
+ 80034c2:	edc7 7a09 	vstr	s15, [r7, #36]	; 0x24
 	volatile float32_t angle_lfo = freq_lfo*PI/SAMPLERATE;
- 80034be:	4b9a      	ldr	r3, [pc, #616]	; (8003728 <EVAL_AUDIO_TransferComplete_CallBack+0x2d8>)
- 80034c0:	881b      	ldrh	r3, [r3, #0]
- 80034c2:	b29b      	uxth	r3, r3
- 80034c4:	ee07 3a90 	vmov	s15, r3
- 80034c8:	eef8 7ae7 	vcvt.f32.s32	s15, s15
- 80034cc:	ed9f 7a97 	vldr	s14, [pc, #604]	; 800372c <EVAL_AUDIO_TransferComplete_CallBack+0x2dc>
- 80034d0:	ee27 7a87 	vmul.f32	s14, s15, s14
- 80034d4:	eddf 6a96 	vldr	s13, [pc, #600]	; 8003730 <EVAL_AUDIO_TransferComplete_CallBack+0x2e0>
- 80034d8:	eec7 7a26 	vdiv.f32	s15, s14, s13
- 80034dc:	edc7 7a08 	vstr	s15, [r7, #32]
+ 80034c6:	4b9c      	ldr	r3, [pc, #624]	; (8003738 <EVAL_AUDIO_TransferComplete_CallBack+0x2e0>)
+ 80034c8:	881b      	ldrh	r3, [r3, #0]
+ 80034ca:	b29b      	uxth	r3, r3
+ 80034cc:	ee07 3a90 	vmov	s15, r3
+ 80034d0:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 80034d4:	ed9f 7a99 	vldr	s14, [pc, #612]	; 800373c <EVAL_AUDIO_TransferComplete_CallBack+0x2e4>
+ 80034d8:	ee27 7a87 	vmul.f32	s14, s15, s14
+ 80034dc:	eddf 6a98 	vldr	s13, [pc, #608]	; 8003740 <EVAL_AUDIO_TransferComplete_CallBack+0x2e8>
+ 80034e0:	eec7 7a26 	vdiv.f32	s15, s14, s13
+ 80034e4:	edc7 7a08 	vstr	s15, [r7, #32]
 
 	// float32_t  sinOutput;
 	volatile int i = 0;
- 80034e0:	2300      	movs	r3, #0
- 80034e2:	61fb      	str	r3, [r7, #28]
-	volatile int samples_cycle = 0;
- 80034e4:	2300      	movs	r3, #0
- 80034e6:	61bb      	str	r3, [r7, #24]
-	volatile int samples_half_cycle = 0;
  80034e8:	2300      	movs	r3, #0
- 80034ea:	617b      	str	r3, [r7, #20]
+ 80034ea:	61fb      	str	r3, [r7, #28]
+	volatile int samples_cycle = 0;
+ 80034ec:	2300      	movs	r3, #0
+ 80034ee:	61bb      	str	r3, [r7, #24]
+	volatile int samples_half_cycle = 0;
+ 80034f0:	2300      	movs	r3, #0
+ 80034f2:	617b      	str	r3, [r7, #20]
 	// TODO: remove after testing.
 	// memset(buffer_vco, 0, sizeof(buffer_vco));
 	// memset(buffer_output, 0, sizeof(buffer_output));
 
 	// VCO Waveform
 	if(wav_vco == WAVE_SINE)
- 80034ec:	4b91      	ldr	r3, [pc, #580]	; (8003734 <EVAL_AUDIO_TransferComplete_CallBack+0x2e4>)
- 80034ee:	881b      	ldrh	r3, [r3, #0]
- 80034f0:	2b01      	cmp	r3, #1
- 80034f2:	d130      	bne.n	8003556 <EVAL_AUDIO_TransferComplete_CallBack+0x106>
+ 80034f4:	4b93      	ldr	r3, [pc, #588]	; (8003744 <EVAL_AUDIO_TransferComplete_CallBack+0x2ec>)
+ 80034f6:	881b      	ldrh	r3, [r3, #0]
+ 80034f8:	2b01      	cmp	r3, #1
+ 80034fa:	d130      	bne.n	800355e <EVAL_AUDIO_TransferComplete_CallBack+0x106>
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 80034f4:	2320      	movs	r3, #32
- 80034f6:	61fb      	str	r3, [r7, #28]
- 80034f8:	e029      	b.n	800354e <EVAL_AUDIO_TransferComplete_CallBack+0xfe>
+ 80034fc:	2320      	movs	r3, #32
+ 80034fe:	61fb      	str	r3, [r7, #28]
+ 8003500:	e029      	b.n	8003556 <EVAL_AUDIO_TransferComplete_CallBack+0xfe>
 		{
 			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_vco);
- 80034fa:	69fc      	ldr	r4, [r7, #28]
- 80034fc:	4b8e      	ldr	r3, [pc, #568]	; (8003738 <EVAL_AUDIO_TransferComplete_CallBack+0x2e8>)
- 80034fe:	881b      	ldrh	r3, [r3, #0]
- 8003500:	b29b      	uxth	r3, r3
- 8003502:	461a      	mov	r2, r3
- 8003504:	69fb      	ldr	r3, [r7, #28]
- 8003506:	3b20      	subs	r3, #32
- 8003508:	4413      	add	r3, r2
- 800350a:	ee07 3a90 	vmov	s15, r3
- 800350e:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
- 8003512:	edd7 7a09 	vldr	s15, [r7, #36]	; 0x24
- 8003516:	ee67 7a27 	vmul.f32	s15, s14, s15
- 800351a:	eeb0 0a67 	vmov.f32	s0, s15
- 800351e:	f000 fbc7 	bl	8003cb0 <arm_sin_f32>
- 8003522:	eeb0 7a40 	vmov.f32	s14, s0
- 8003526:	eddf 7a85 	vldr	s15, [pc, #532]	; 800373c <EVAL_AUDIO_TransferComplete_CallBack+0x2ec>
- 800352a:	ee67 7a27 	vmul.f32	s15, s14, s15
- 800352e:	ed9f 7a83 	vldr	s14, [pc, #524]	; 800373c <EVAL_AUDIO_TransferComplete_CallBack+0x2ec>
- 8003532:	ee77 7a87 	vadd.f32	s15, s15, s14
- 8003536:	eefc 7ae7 	vcvt.u32.f32	s15, s15
- 800353a:	edc7 7a01 	vstr	s15, [r7, #4]
- 800353e:	88bb      	ldrh	r3, [r7, #4]
- 8003540:	b29a      	uxth	r2, r3
- 8003542:	4b7f      	ldr	r3, [pc, #508]	; (8003740 <EVAL_AUDIO_TransferComplete_CallBack+0x2f0>)
- 8003544:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
+ 8003502:	69fc      	ldr	r4, [r7, #28]
+ 8003504:	4b90      	ldr	r3, [pc, #576]	; (8003748 <EVAL_AUDIO_TransferComplete_CallBack+0x2f0>)
+ 8003506:	881b      	ldrh	r3, [r3, #0]
+ 8003508:	b29b      	uxth	r3, r3
+ 800350a:	461a      	mov	r2, r3
+ 800350c:	69fb      	ldr	r3, [r7, #28]
+ 800350e:	3b20      	subs	r3, #32
+ 8003510:	4413      	add	r3, r2
+ 8003512:	ee07 3a90 	vmov	s15, r3
+ 8003516:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 800351a:	edd7 7a09 	vldr	s15, [r7, #36]	; 0x24
+ 800351e:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 8003522:	eeb0 0a67 	vmov.f32	s0, s15
+ 8003526:	f000 fbcb 	bl	8003cc0 <arm_sin_f32>
+ 800352a:	eeb0 7a40 	vmov.f32	s14, s0
+ 800352e:	eddf 7a87 	vldr	s15, [pc, #540]	; 800374c <EVAL_AUDIO_TransferComplete_CallBack+0x2f4>
+ 8003532:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 8003536:	ed9f 7a85 	vldr	s14, [pc, #532]	; 800374c <EVAL_AUDIO_TransferComplete_CallBack+0x2f4>
+ 800353a:	ee77 7a87 	vadd.f32	s15, s15, s14
+ 800353e:	eefc 7ae7 	vcvt.u32.f32	s15, s15
+ 8003542:	edc7 7a01 	vstr	s15, [r7, #4]
+ 8003546:	88bb      	ldrh	r3, [r7, #4]
+ 8003548:	b29a      	uxth	r2, r3
+ 800354a:	4b81      	ldr	r3, [pc, #516]	; (8003750 <EVAL_AUDIO_TransferComplete_CallBack+0x2f8>)
+ 800354c:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
 	// memset(buffer_output, 0, sizeof(buffer_output));
 
 	// VCO Waveform
 	if(wav_vco == WAVE_SINE)
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 8003548:	69fb      	ldr	r3, [r7, #28]
- 800354a:	3301      	adds	r3, #1
- 800354c:	61fb      	str	r3, [r7, #28]
- 800354e:	69fb      	ldr	r3, [r7, #28]
- 8003550:	2b3f      	cmp	r3, #63	; 0x3f
- 8003552:	ddd2      	ble.n	80034fa <EVAL_AUDIO_TransferComplete_CallBack+0xaa>
- 8003554:	e072      	b.n	800363c <EVAL_AUDIO_TransferComplete_CallBack+0x1ec>
+ 8003550:	69fb      	ldr	r3, [r7, #28]
+ 8003552:	3301      	adds	r3, #1
+ 8003554:	61fb      	str	r3, [r7, #28]
+ 8003556:	69fb      	ldr	r3, [r7, #28]
+ 8003558:	2b3f      	cmp	r3, #63	; 0x3f
+ 800355a:	ddd2      	ble.n	8003502 <EVAL_AUDIO_TransferComplete_CallBack+0xaa>
+ 800355c:	e076      	b.n	800364c <EVAL_AUDIO_TransferComplete_CallBack+0x1f4>
 			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_vco);
 		}
 	}
 
 	// SQUARE
 	else if(wav_vco == WAVE_SQUARE)
- 8003556:	4b77      	ldr	r3, [pc, #476]	; (8003734 <EVAL_AUDIO_TransferComplete_CallBack+0x2e4>)
- 8003558:	881b      	ldrh	r3, [r3, #0]
- 800355a:	2b02      	cmp	r3, #2
- 800355c:	d137      	bne.n	80035ce <EVAL_AUDIO_TransferComplete_CallBack+0x17e>
+ 800355e:	4b79      	ldr	r3, [pc, #484]	; (8003744 <EVAL_AUDIO_TransferComplete_CallBack+0x2ec>)
+ 8003560:	881b      	ldrh	r3, [r3, #0]
+ 8003562:	2b02      	cmp	r3, #2
+ 8003564:	d137      	bne.n	80035d6 <EVAL_AUDIO_TransferComplete_CallBack+0x17e>
 		 * --> n = 48000/f
 		 * Therefore, duration of positive (one) half is n/2 = 48000/2f.  Same for negative (zero) half.
 		 *
 		 */
 
 		samples_cycle = SAMPLERATE/freq_vco;
- 800355e:	4b71      	ldr	r3, [pc, #452]	; (8003724 <EVAL_AUDIO_TransferComplete_CallBack+0x2d4>)
- 8003560:	881b      	ldrh	r3, [r3, #0]
- 8003562:	b29b      	uxth	r3, r3
- 8003564:	461a      	mov	r2, r3
- 8003566:	f64b 3380 	movw	r3, #48000	; 0xbb80
- 800356a:	fb93 f3f2 	sdiv	r3, r3, r2
- 800356e:	61bb      	str	r3, [r7, #24]
+ 8003566:	4b73      	ldr	r3, [pc, #460]	; (8003734 <EVAL_AUDIO_TransferComplete_CallBack+0x2dc>)
+ 8003568:	881b      	ldrh	r3, [r3, #0]
+ 800356a:	b29b      	uxth	r3, r3
+ 800356c:	461a      	mov	r2, r3
+ 800356e:	f64b 3380 	movw	r3, #48000	; 0xbb80
+ 8003572:	fb93 f3f2 	sdiv	r3, r3, r2
+ 8003576:	61bb      	str	r3, [r7, #24]
 		samples_half_cycle = samples_cycle/2;
- 8003570:	69bb      	ldr	r3, [r7, #24]
- 8003572:	0fda      	lsrs	r2, r3, #31
- 8003574:	4413      	add	r3, r2
- 8003576:	105b      	asrs	r3, r3, #1
- 8003578:	617b      	str	r3, [r7, #20]
+ 8003578:	69bb      	ldr	r3, [r7, #24]
+ 800357a:	0fda      	lsrs	r2, r3, #31
+ 800357c:	4413      	add	r3, r2
+ 800357e:	105b      	asrs	r3, r3, #1
+ 8003580:	617b      	str	r3, [r7, #20]
 
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 800357a:	2320      	movs	r3, #32
- 800357c:	61fb      	str	r3, [r7, #28]
- 800357e:	e022      	b.n	80035c6 <EVAL_AUDIO_TransferComplete_CallBack+0x176>
+ 8003582:	2320      	movs	r3, #32
+ 8003584:	61fb      	str	r3, [r7, #28]
+ 8003586:	e022      	b.n	80035ce <EVAL_AUDIO_TransferComplete_CallBack+0x176>
 		{
 			buffer_vco[i] = 4000 * square((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle, samples_half_cycle);
- 8003580:	69fc      	ldr	r4, [r7, #28]
- 8003582:	4b6d      	ldr	r3, [pc, #436]	; (8003738 <EVAL_AUDIO_TransferComplete_CallBack+0x2e8>)
- 8003584:	881b      	ldrh	r3, [r3, #0]
- 8003586:	b29b      	uxth	r3, r3
- 8003588:	461a      	mov	r2, r3
- 800358a:	69fb      	ldr	r3, [r7, #28]
- 800358c:	3b20      	subs	r3, #32
- 800358e:	4413      	add	r3, r2
- 8003590:	69ba      	ldr	r2, [r7, #24]
- 8003592:	fb93 f1f2 	sdiv	r1, r3, r2
- 8003596:	fb02 f201 	mul.w	r2, r2, r1
- 800359a:	1a9b      	subs	r3, r3, r2
- 800359c:	b29b      	uxth	r3, r3
- 800359e:	697a      	ldr	r2, [r7, #20]
- 80035a0:	b292      	uxth	r2, r2
- 80035a2:	4611      	mov	r1, r2
- 80035a4:	4618      	mov	r0, r3
- 80035a6:	f7ff fc75 	bl	8002e94 <square>
- 80035aa:	4603      	mov	r3, r0
- 80035ac:	461a      	mov	r2, r3
- 80035ae:	0152      	lsls	r2, r2, #5
- 80035b0:	1ad2      	subs	r2, r2, r3
- 80035b2:	0092      	lsls	r2, r2, #2
- 80035b4:	4413      	add	r3, r2
- 80035b6:	015b      	lsls	r3, r3, #5
- 80035b8:	b29a      	uxth	r2, r3
- 80035ba:	4b61      	ldr	r3, [pc, #388]	; (8003740 <EVAL_AUDIO_TransferComplete_CallBack+0x2f0>)
- 80035bc:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
+ 8003588:	69fc      	ldr	r4, [r7, #28]
+ 800358a:	4b6f      	ldr	r3, [pc, #444]	; (8003748 <EVAL_AUDIO_TransferComplete_CallBack+0x2f0>)
+ 800358c:	881b      	ldrh	r3, [r3, #0]
+ 800358e:	b29b      	uxth	r3, r3
+ 8003590:	461a      	mov	r2, r3
+ 8003592:	69fb      	ldr	r3, [r7, #28]
+ 8003594:	3b20      	subs	r3, #32
+ 8003596:	4413      	add	r3, r2
+ 8003598:	69ba      	ldr	r2, [r7, #24]
+ 800359a:	fb93 f1f2 	sdiv	r1, r3, r2
+ 800359e:	fb02 f201 	mul.w	r2, r2, r1
+ 80035a2:	1a9b      	subs	r3, r3, r2
+ 80035a4:	b29b      	uxth	r3, r3
+ 80035a6:	697a      	ldr	r2, [r7, #20]
+ 80035a8:	b292      	uxth	r2, r2
+ 80035aa:	4611      	mov	r1, r2
+ 80035ac:	4618      	mov	r0, r3
+ 80035ae:	f7ff fc71 	bl	8002e94 <square>
+ 80035b2:	4603      	mov	r3, r0
+ 80035b4:	461a      	mov	r2, r3
+ 80035b6:	0152      	lsls	r2, r2, #5
+ 80035b8:	1ad2      	subs	r2, r2, r3
+ 80035ba:	0092      	lsls	r2, r2, #2
+ 80035bc:	4413      	add	r3, r2
+ 80035be:	015b      	lsls	r3, r3, #5
+ 80035c0:	b29a      	uxth	r2, r3
+ 80035c2:	4b63      	ldr	r3, [pc, #396]	; (8003750 <EVAL_AUDIO_TransferComplete_CallBack+0x2f8>)
+ 80035c4:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
 		 */
 
 		samples_cycle = SAMPLERATE/freq_vco;
 		samples_half_cycle = samples_cycle/2;
 
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 80035c0:	69fb      	ldr	r3, [r7, #28]
- 80035c2:	3301      	adds	r3, #1
- 80035c4:	61fb      	str	r3, [r7, #28]
- 80035c6:	69fb      	ldr	r3, [r7, #28]
- 80035c8:	2b3f      	cmp	r3, #63	; 0x3f
- 80035ca:	ddd9      	ble.n	8003580 <EVAL_AUDIO_TransferComplete_CallBack+0x130>
- 80035cc:	e036      	b.n	800363c <EVAL_AUDIO_TransferComplete_CallBack+0x1ec>
+ 80035c8:	69fb      	ldr	r3, [r7, #28]
+ 80035ca:	3301      	adds	r3, #1
+ 80035cc:	61fb      	str	r3, [r7, #28]
+ 80035ce:	69fb      	ldr	r3, [r7, #28]
+ 80035d0:	2b3f      	cmp	r3, #63	; 0x3f
+ 80035d2:	ddd9      	ble.n	8003588 <EVAL_AUDIO_TransferComplete_CallBack+0x130>
+ 80035d4:	e03a      	b.n	800364c <EVAL_AUDIO_TransferComplete_CallBack+0x1f4>
 			buffer_vco[i] = 4000 * square((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle, samples_half_cycle);
 		}
 	}
 
 	// Sawtooth - not tested
 	else if(wav_vco == WAVE_SAWTOOTH)
- 80035ce:	4b59      	ldr	r3, [pc, #356]	; (8003734 <EVAL_AUDIO_TransferComplete_CallBack+0x2e4>)
- 80035d0:	881b      	ldrh	r3, [r3, #0]
- 80035d2:	2b03      	cmp	r3, #3
- 80035d4:	d132      	bne.n	800363c <EVAL_AUDIO_TransferComplete_CallBack+0x1ec>
+ 80035d6:	4b5b      	ldr	r3, [pc, #364]	; (8003744 <EVAL_AUDIO_TransferComplete_CallBack+0x2ec>)
+ 80035d8:	881b      	ldrh	r3, [r3, #0]
+ 80035da:	2b03      	cmp	r3, #3
+ 80035dc:	d136      	bne.n	800364c <EVAL_AUDIO_TransferComplete_CallBack+0x1f4>
 	{
 		samples_cycle = SAMPLERATE/freq_vco;
- 80035d6:	4b53      	ldr	r3, [pc, #332]	; (8003724 <EVAL_AUDIO_TransferComplete_CallBack+0x2d4>)
- 80035d8:	881b      	ldrh	r3, [r3, #0]
- 80035da:	b29b      	uxth	r3, r3
- 80035dc:	461a      	mov	r2, r3
- 80035de:	f64b 3380 	movw	r3, #48000	; 0xbb80
- 80035e2:	fb93 f3f2 	sdiv	r3, r3, r2
- 80035e6:	61bb      	str	r3, [r7, #24]
+ 80035de:	4b55      	ldr	r3, [pc, #340]	; (8003734 <EVAL_AUDIO_TransferComplete_CallBack+0x2dc>)
+ 80035e0:	881b      	ldrh	r3, [r3, #0]
+ 80035e2:	b29b      	uxth	r3, r3
+ 80035e4:	461a      	mov	r2, r3
+ 80035e6:	f64b 3380 	movw	r3, #48000	; 0xbb80
+ 80035ea:	fb93 f3f2 	sdiv	r3, r3, r2
+ 80035ee:	61bb      	str	r3, [r7, #24]
 
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 80035e8:	2320      	movs	r3, #32
- 80035ea:	61fb      	str	r3, [r7, #28]
- 80035ec:	e023      	b.n	8003636 <EVAL_AUDIO_TransferComplete_CallBack+0x1e6>
+ 80035f0:	2320      	movs	r3, #32
+ 80035f2:	61fb      	str	r3, [r7, #28]
+ 80035f4:	e027      	b.n	8003646 <EVAL_AUDIO_TransferComplete_CallBack+0x1ee>
 		{
-			buffer_vco[i] = 4000 * sawtooth((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle);
- 80035ee:	69fc      	ldr	r4, [r7, #28]
- 80035f0:	4b51      	ldr	r3, [pc, #324]	; (8003738 <EVAL_AUDIO_TransferComplete_CallBack+0x2e8>)
- 80035f2:	881b      	ldrh	r3, [r3, #0]
- 80035f4:	b29b      	uxth	r3, r3
- 80035f6:	461a      	mov	r2, r3
- 80035f8:	69fb      	ldr	r3, [r7, #28]
- 80035fa:	3b20      	subs	r3, #32
- 80035fc:	4413      	add	r3, r2
- 80035fe:	69ba      	ldr	r2, [r7, #24]
- 8003600:	fb93 f1f2 	sdiv	r1, r3, r2
- 8003604:	fb02 f201 	mul.w	r2, r2, r1
- 8003608:	1a9b      	subs	r3, r3, r2
- 800360a:	b29b      	uxth	r3, r3
- 800360c:	4618      	mov	r0, r3
- 800360e:	f7ff fc57 	bl	8002ec0 <sawtooth>
- 8003612:	eeb0 7a40 	vmov.f32	s14, s0
- 8003616:	eddf 7a4b 	vldr	s15, [pc, #300]	; 8003744 <EVAL_AUDIO_TransferComplete_CallBack+0x2f4>
- 800361a:	ee67 7a27 	vmul.f32	s15, s14, s15
- 800361e:	eefc 7ae7 	vcvt.u32.f32	s15, s15
- 8003622:	edc7 7a01 	vstr	s15, [r7, #4]
- 8003626:	88bb      	ldrh	r3, [r7, #4]
- 8003628:	b29a      	uxth	r2, r3
- 800362a:	4b45      	ldr	r3, [pc, #276]	; (8003740 <EVAL_AUDIO_TransferComplete_CallBack+0x2f0>)
- 800362c:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
+			buffer_vco[i] = 40 * sawtooth(samples_cycle - ((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle));
+ 80035f6:	69fc      	ldr	r4, [r7, #28]
+ 80035f8:	69bb      	ldr	r3, [r7, #24]
+ 80035fa:	b299      	uxth	r1, r3
+ 80035fc:	4b52      	ldr	r3, [pc, #328]	; (8003748 <EVAL_AUDIO_TransferComplete_CallBack+0x2f0>)
+ 80035fe:	881b      	ldrh	r3, [r3, #0]
+ 8003600:	b29b      	uxth	r3, r3
+ 8003602:	461a      	mov	r2, r3
+ 8003604:	69fb      	ldr	r3, [r7, #28]
+ 8003606:	3b20      	subs	r3, #32
+ 8003608:	4413      	add	r3, r2
+ 800360a:	69ba      	ldr	r2, [r7, #24]
+ 800360c:	fb93 f0f2 	sdiv	r0, r3, r2
+ 8003610:	fb02 f200 	mul.w	r2, r2, r0
+ 8003614:	1a9b      	subs	r3, r3, r2
+ 8003616:	b29b      	uxth	r3, r3
+ 8003618:	1acb      	subs	r3, r1, r3
+ 800361a:	b29b      	uxth	r3, r3
+ 800361c:	4618      	mov	r0, r3
+ 800361e:	f7ff fc4f 	bl	8002ec0 <sawtooth>
+ 8003622:	eeb0 7a40 	vmov.f32	s14, s0
+ 8003626:	eddf 7a4b 	vldr	s15, [pc, #300]	; 8003754 <EVAL_AUDIO_TransferComplete_CallBack+0x2fc>
+ 800362a:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 800362e:	eefc 7ae7 	vcvt.u32.f32	s15, s15
+ 8003632:	edc7 7a01 	vstr	s15, [r7, #4]
+ 8003636:	88bb      	ldrh	r3, [r7, #4]
+ 8003638:	b29a      	uxth	r2, r3
+ 800363a:	4b45      	ldr	r3, [pc, #276]	; (8003750 <EVAL_AUDIO_TransferComplete_CallBack+0x2f8>)
+ 800363c:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
 	// Sawtooth - not tested
 	else if(wav_vco == WAVE_SAWTOOTH)
 	{
 		samples_cycle = SAMPLERATE/freq_vco;
 
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 8003630:	69fb      	ldr	r3, [r7, #28]
- 8003632:	3301      	adds	r3, #1
- 8003634:	61fb      	str	r3, [r7, #28]
- 8003636:	69fb      	ldr	r3, [r7, #28]
- 8003638:	2b3f      	cmp	r3, #63	; 0x3f
- 800363a:	ddd8      	ble.n	80035ee <EVAL_AUDIO_TransferComplete_CallBack+0x19e>
-			buffer_vco[i] = 4000 * sawtooth((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle);
+ 8003640:	69fb      	ldr	r3, [r7, #28]
+ 8003642:	3301      	adds	r3, #1
+ 8003644:	61fb      	str	r3, [r7, #28]
+ 8003646:	69fb      	ldr	r3, [r7, #28]
+ 8003648:	2b3f      	cmp	r3, #63	; 0x3f
+ 800364a:	ddd4      	ble.n	80035f6 <EVAL_AUDIO_TransferComplete_CallBack+0x19e>
+			buffer_vco[i] = 40 * sawtooth(samples_cycle - ((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle));
 		}
 	}
 
 	// LFO Waveform
 	if(wav_lfo == WAVE_SINE)
- 800363c:	4b42      	ldr	r3, [pc, #264]	; (8003748 <EVAL_AUDIO_TransferComplete_CallBack+0x2f8>)
- 800363e:	881b      	ldrh	r3, [r3, #0]
- 8003640:	2b01      	cmp	r3, #1
- 8003642:	d13a      	bne.n	80036ba <EVAL_AUDIO_TransferComplete_CallBack+0x26a>
+ 800364c:	4b42      	ldr	r3, [pc, #264]	; (8003758 <EVAL_AUDIO_TransferComplete_CallBack+0x300>)
+ 800364e:	881b      	ldrh	r3, [r3, #0]
+ 8003650:	2b01      	cmp	r3, #1
+ 8003652:	d13a      	bne.n	80036ca <EVAL_AUDIO_TransferComplete_CallBack+0x272>
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 8003644:	2320      	movs	r3, #32
- 8003646:	61fb      	str	r3, [r7, #28]
- 8003648:	e034      	b.n	80036b4 <EVAL_AUDIO_TransferComplete_CallBack+0x264>
+ 8003654:	2320      	movs	r3, #32
+ 8003656:	61fb      	str	r3, [r7, #28]
+ 8003658:	e034      	b.n	80036c4 <EVAL_AUDIO_TransferComplete_CallBack+0x26c>
 		{
 			// buffer_lfo_float[i] = 0.4 + 0.4*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_lfo);
 			buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_lfo);
- 800364a:	69fc      	ldr	r4, [r7, #28]
- 800364c:	4b3a      	ldr	r3, [pc, #232]	; (8003738 <EVAL_AUDIO_TransferComplete_CallBack+0x2e8>)
- 800364e:	881b      	ldrh	r3, [r3, #0]
- 8003650:	b29b      	uxth	r3, r3
- 8003652:	461a      	mov	r2, r3
- 8003654:	69fb      	ldr	r3, [r7, #28]
- 8003656:	3b20      	subs	r3, #32
- 8003658:	4413      	add	r3, r2
- 800365a:	ee07 3a90 	vmov	s15, r3
- 800365e:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
- 8003662:	edd7 7a08 	vldr	s15, [r7, #32]
- 8003666:	ee67 7a27 	vmul.f32	s15, s14, s15
- 800366a:	eeb0 0a67 	vmov.f32	s0, s15
- 800366e:	f000 fb1f 	bl	8003cb0 <arm_sin_f32>
- 8003672:	ee10 3a10 	vmov	r3, s0
- 8003676:	4618      	mov	r0, r3
- 8003678:	f7fc ff0a 	bl	8000490 <__aeabi_f2d>
- 800367c:	f04f 0200 	mov.w	r2, #0
- 8003680:	4b32      	ldr	r3, [pc, #200]	; (800374c <EVAL_AUDIO_TransferComplete_CallBack+0x2fc>)
- 8003682:	f7fc ff59 	bl	8000538 <__aeabi_dmul>
- 8003686:	4602      	mov	r2, r0
- 8003688:	460b      	mov	r3, r1
- 800368a:	4610      	mov	r0, r2
- 800368c:	4619      	mov	r1, r3
- 800368e:	f04f 0200 	mov.w	r2, #0
- 8003692:	4b2e      	ldr	r3, [pc, #184]	; (800374c <EVAL_AUDIO_TransferComplete_CallBack+0x2fc>)
- 8003694:	f7fc fd9e 	bl	80001d4 <__adddf3>
- 8003698:	4602      	mov	r2, r0
- 800369a:	460b      	mov	r3, r1
- 800369c:	4610      	mov	r0, r2
- 800369e:	4619      	mov	r1, r3
- 80036a0:	f7fd f95c 	bl	800095c <__aeabi_d2f>
- 80036a4:	4601      	mov	r1, r0
- 80036a6:	4a2a      	ldr	r2, [pc, #168]	; (8003750 <EVAL_AUDIO_TransferComplete_CallBack+0x300>)
- 80036a8:	00a3      	lsls	r3, r4, #2
- 80036aa:	4413      	add	r3, r2
- 80036ac:	6019      	str	r1, [r3, #0]
+ 800365a:	69fc      	ldr	r4, [r7, #28]
+ 800365c:	4b3a      	ldr	r3, [pc, #232]	; (8003748 <EVAL_AUDIO_TransferComplete_CallBack+0x2f0>)
+ 800365e:	881b      	ldrh	r3, [r3, #0]
+ 8003660:	b29b      	uxth	r3, r3
+ 8003662:	461a      	mov	r2, r3
+ 8003664:	69fb      	ldr	r3, [r7, #28]
+ 8003666:	3b20      	subs	r3, #32
+ 8003668:	4413      	add	r3, r2
+ 800366a:	ee07 3a90 	vmov	s15, r3
+ 800366e:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 8003672:	edd7 7a08 	vldr	s15, [r7, #32]
+ 8003676:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 800367a:	eeb0 0a67 	vmov.f32	s0, s15
+ 800367e:	f000 fb1f 	bl	8003cc0 <arm_sin_f32>
+ 8003682:	ee10 3a10 	vmov	r3, s0
+ 8003686:	4618      	mov	r0, r3
+ 8003688:	f7fc ff02 	bl	8000490 <__aeabi_f2d>
+ 800368c:	f04f 0200 	mov.w	r2, #0
+ 8003690:	4b32      	ldr	r3, [pc, #200]	; (800375c <EVAL_AUDIO_TransferComplete_CallBack+0x304>)
+ 8003692:	f7fc ff51 	bl	8000538 <__aeabi_dmul>
+ 8003696:	4602      	mov	r2, r0
+ 8003698:	460b      	mov	r3, r1
+ 800369a:	4610      	mov	r0, r2
+ 800369c:	4619      	mov	r1, r3
+ 800369e:	f04f 0200 	mov.w	r2, #0
+ 80036a2:	4b2e      	ldr	r3, [pc, #184]	; (800375c <EVAL_AUDIO_TransferComplete_CallBack+0x304>)
+ 80036a4:	f7fc fd96 	bl	80001d4 <__adddf3>
+ 80036a8:	4602      	mov	r2, r0
+ 80036aa:	460b      	mov	r3, r1
+ 80036ac:	4610      	mov	r0, r2
+ 80036ae:	4619      	mov	r1, r3
+ 80036b0:	f7fd f954 	bl	800095c <__aeabi_d2f>
+ 80036b4:	4601      	mov	r1, r0
+ 80036b6:	4a2a      	ldr	r2, [pc, #168]	; (8003760 <EVAL_AUDIO_TransferComplete_CallBack+0x308>)
+ 80036b8:	00a3      	lsls	r3, r4, #2
+ 80036ba:	4413      	add	r3, r2
+ 80036bc:	6019      	str	r1, [r3, #0]
 	}
 
 	// LFO Waveform
 	if(wav_lfo == WAVE_SINE)
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 80036ae:	69fb      	ldr	r3, [r7, #28]
- 80036b0:	3301      	adds	r3, #1
- 80036b2:	61fb      	str	r3, [r7, #28]
- 80036b4:	69fb      	ldr	r3, [r7, #28]
- 80036b6:	2b3f      	cmp	r3, #63	; 0x3f
- 80036b8:	ddc7      	ble.n	800364a <EVAL_AUDIO_TransferComplete_CallBack+0x1fa>
+ 80036be:	69fb      	ldr	r3, [r7, #28]
+ 80036c0:	3301      	adds	r3, #1
+ 80036c2:	61fb      	str	r3, [r7, #28]
+ 80036c4:	69fb      	ldr	r3, [r7, #28]
+ 80036c6:	2b3f      	cmp	r3, #63	; 0x3f
+ 80036c8:	ddc7      	ble.n	800365a <EVAL_AUDIO_TransferComplete_CallBack+0x202>
 			// buffer_lfo_float[i] = 10.0 + 10.0*arm_sin_f32((sample_count+i)*angle_lfo);		// Medium amplitude for FM mod of square
 		}
 	}
 
 	// VCO-LFO modulation
 	if(mod_type == MOD_AM)
- 80036ba:	4b26      	ldr	r3, [pc, #152]	; (8003754 <EVAL_AUDIO_TransferComplete_CallBack+0x304>)
- 80036bc:	881b      	ldrh	r3, [r3, #0]
- 80036be:	2b01      	cmp	r3, #1
- 80036c0:	d124      	bne.n	800370c <EVAL_AUDIO_TransferComplete_CallBack+0x2bc>
+ 80036ca:	4b26      	ldr	r3, [pc, #152]	; (8003764 <EVAL_AUDIO_TransferComplete_CallBack+0x30c>)
+ 80036cc:	881b      	ldrh	r3, [r3, #0]
+ 80036ce:	2b01      	cmp	r3, #1
+ 80036d0:	d124      	bne.n	800371c <EVAL_AUDIO_TransferComplete_CallBack+0x2c4>
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 80036c2:	2320      	movs	r3, #32
- 80036c4:	61fb      	str	r3, [r7, #28]
- 80036c6:	e01d      	b.n	8003704 <EVAL_AUDIO_TransferComplete_CallBack+0x2b4>
+ 80036d2:	2320      	movs	r3, #32
+ 80036d4:	61fb      	str	r3, [r7, #28]
+ 80036d6:	e01d      	b.n	8003714 <EVAL_AUDIO_TransferComplete_CallBack+0x2bc>
 		{
 			buffer_output[i] = buffer_vco[i] * buffer_lfo_float[i];
- 80036c8:	69fb      	ldr	r3, [r7, #28]
- 80036ca:	69fa      	ldr	r2, [r7, #28]
- 80036cc:	491c      	ldr	r1, [pc, #112]	; (8003740 <EVAL_AUDIO_TransferComplete_CallBack+0x2f0>)
- 80036ce:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
- 80036d2:	b292      	uxth	r2, r2
- 80036d4:	ee07 2a90 	vmov	s15, r2
- 80036d8:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
- 80036dc:	69fa      	ldr	r2, [r7, #28]
- 80036de:	491c      	ldr	r1, [pc, #112]	; (8003750 <EVAL_AUDIO_TransferComplete_CallBack+0x300>)
- 80036e0:	0092      	lsls	r2, r2, #2
- 80036e2:	440a      	add	r2, r1
- 80036e4:	edd2 7a00 	vldr	s15, [r2]
- 80036e8:	ee67 7a27 	vmul.f32	s15, s14, s15
- 80036ec:	eefc 7ae7 	vcvt.u32.f32	s15, s15
- 80036f0:	edc7 7a01 	vstr	s15, [r7, #4]
- 80036f4:	88ba      	ldrh	r2, [r7, #4]
- 80036f6:	b291      	uxth	r1, r2
- 80036f8:	4a17      	ldr	r2, [pc, #92]	; (8003758 <EVAL_AUDIO_TransferComplete_CallBack+0x308>)
- 80036fa:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
+ 80036d8:	69fb      	ldr	r3, [r7, #28]
+ 80036da:	69fa      	ldr	r2, [r7, #28]
+ 80036dc:	491c      	ldr	r1, [pc, #112]	; (8003750 <EVAL_AUDIO_TransferComplete_CallBack+0x2f8>)
+ 80036de:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
+ 80036e2:	b292      	uxth	r2, r2
+ 80036e4:	ee07 2a90 	vmov	s15, r2
+ 80036e8:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 80036ec:	69fa      	ldr	r2, [r7, #28]
+ 80036ee:	491c      	ldr	r1, [pc, #112]	; (8003760 <EVAL_AUDIO_TransferComplete_CallBack+0x308>)
+ 80036f0:	0092      	lsls	r2, r2, #2
+ 80036f2:	440a      	add	r2, r1
+ 80036f4:	edd2 7a00 	vldr	s15, [r2]
+ 80036f8:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 80036fc:	eefc 7ae7 	vcvt.u32.f32	s15, s15
+ 8003700:	edc7 7a01 	vstr	s15, [r7, #4]
+ 8003704:	88ba      	ldrh	r2, [r7, #4]
+ 8003706:	b291      	uxth	r1, r2
+ 8003708:	4a17      	ldr	r2, [pc, #92]	; (8003768 <EVAL_AUDIO_TransferComplete_CallBack+0x310>)
+ 800370a:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
 	}
 
 	// VCO-LFO modulation
 	if(mod_type == MOD_AM)
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 80036fe:	69fb      	ldr	r3, [r7, #28]
- 8003700:	3301      	adds	r3, #1
- 8003702:	61fb      	str	r3, [r7, #28]
- 8003704:	69fb      	ldr	r3, [r7, #28]
- 8003706:	2b3f      	cmp	r3, #63	; 0x3f
- 8003708:	ddde      	ble.n	80036c8 <EVAL_AUDIO_TransferComplete_CallBack+0x278>
- 800370a:	e0ce      	b.n	80038aa <EVAL_AUDIO_TransferComplete_CallBack+0x45a>
+ 800370e:	69fb      	ldr	r3, [r7, #28]
+ 8003710:	3301      	adds	r3, #1
+ 8003712:	61fb      	str	r3, [r7, #28]
+ 8003714:	69fb      	ldr	r3, [r7, #28]
+ 8003716:	2b3f      	cmp	r3, #63	; 0x3f
+ 8003718:	ddde      	ble.n	80036d8 <EVAL_AUDIO_TransferComplete_CallBack+0x280>
+ 800371a:	e0ce      	b.n	80038ba <EVAL_AUDIO_TransferComplete_CallBack+0x462>
 			buffer_output[i] = buffer_vco[i] * buffer_lfo_float[i];
 		}
 	}
 
 	// FM for sine wave VCO.
 	else if(wav_vco == WAVE_SINE && mod_type == MOD_FM)
- 800370c:	4b09      	ldr	r3, [pc, #36]	; (8003734 <EVAL_AUDIO_TransferComplete_CallBack+0x2e4>)
- 800370e:	881b      	ldrh	r3, [r3, #0]
- 8003710:	2b01      	cmp	r3, #1
- 8003712:	d166      	bne.n	80037e2 <EVAL_AUDIO_TransferComplete_CallBack+0x392>
- 8003714:	4b0f      	ldr	r3, [pc, #60]	; (8003754 <EVAL_AUDIO_TransferComplete_CallBack+0x304>)
- 8003716:	881b      	ldrh	r3, [r3, #0]
- 8003718:	2b02      	cmp	r3, #2
- 800371a:	d162      	bne.n	80037e2 <EVAL_AUDIO_TransferComplete_CallBack+0x392>
+ 800371c:	4b09      	ldr	r3, [pc, #36]	; (8003744 <EVAL_AUDIO_TransferComplete_CallBack+0x2ec>)
+ 800371e:	881b      	ldrh	r3, [r3, #0]
+ 8003720:	2b01      	cmp	r3, #1
+ 8003722:	d166      	bne.n	80037f2 <EVAL_AUDIO_TransferComplete_CallBack+0x39a>
+ 8003724:	4b0f      	ldr	r3, [pc, #60]	; (8003764 <EVAL_AUDIO_TransferComplete_CallBack+0x30c>)
+ 8003726:	881b      	ldrh	r3, [r3, #0]
+ 8003728:	2b02      	cmp	r3, #2
+ 800372a:	d162      	bne.n	80037f2 <EVAL_AUDIO_TransferComplete_CallBack+0x39a>
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 800371c:	2320      	movs	r3, #32
- 800371e:	61fb      	str	r3, [r7, #28]
- 8003720:	e05b      	b.n	80037da <EVAL_AUDIO_TransferComplete_CallBack+0x38a>
- 8003722:	bf00      	nop
- 8003724:	2000005c 	.word	0x2000005c
- 8003728:	2000005e 	.word	0x2000005e
- 800372c:	40490fdb 	.word	0x40490fdb
- 8003730:	473b8000 	.word	0x473b8000
- 8003734:	20000060 	.word	0x20000060
- 8003738:	20000290 	.word	0x20000290
- 800373c:	44fa0000 	.word	0x44fa0000
- 8003740:	20000090 	.word	0x20000090
- 8003744:	457a0000 	.word	0x457a0000
- 8003748:	20000062 	.word	0x20000062
- 800374c:	40440000 	.word	0x40440000
- 8003750:	20000110 	.word	0x20000110
- 8003754:	20000064 	.word	0x20000064
- 8003758:	20000210 	.word	0x20000210
+ 800372c:	2320      	movs	r3, #32
+ 800372e:	61fb      	str	r3, [r7, #28]
+ 8003730:	e05b      	b.n	80037ea <EVAL_AUDIO_TransferComplete_CallBack+0x392>
+ 8003732:	bf00      	nop
+ 8003734:	2000005c 	.word	0x2000005c
+ 8003738:	2000005e 	.word	0x2000005e
+ 800373c:	40490fdb 	.word	0x40490fdb
+ 8003740:	473b8000 	.word	0x473b8000
+ 8003744:	20000060 	.word	0x20000060
+ 8003748:	2000028c 	.word	0x2000028c
+ 800374c:	44fa0000 	.word	0x44fa0000
+ 8003750:	2000008c 	.word	0x2000008c
+ 8003754:	42200000 	.word	0x42200000
+ 8003758:	20000062 	.word	0x20000062
+ 800375c:	40440000 	.word	0x40440000
+ 8003760:	2000010c 	.word	0x2000010c
+ 8003764:	2000028e 	.word	0x2000028e
+ 8003768:	2000020c 	.word	0x2000020c
 		{
 			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_vco + 40*buffer_lfo_float[i]);
- 800375c:	69fc      	ldr	r4, [r7, #28]
- 800375e:	4b5f      	ldr	r3, [pc, #380]	; (80038dc <EVAL_AUDIO_TransferComplete_CallBack+0x48c>)
- 8003760:	881b      	ldrh	r3, [r3, #0]
- 8003762:	b29b      	uxth	r3, r3
- 8003764:	461a      	mov	r2, r3
- 8003766:	69fb      	ldr	r3, [r7, #28]
- 8003768:	3b20      	subs	r3, #32
- 800376a:	4413      	add	r3, r2
- 800376c:	ee07 3a90 	vmov	s15, r3
- 8003770:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
- 8003774:	edd7 7a09 	vldr	s15, [r7, #36]	; 0x24
- 8003778:	ee27 7a27 	vmul.f32	s14, s14, s15
- 800377c:	69fb      	ldr	r3, [r7, #28]
- 800377e:	4a58      	ldr	r2, [pc, #352]	; (80038e0 <EVAL_AUDIO_TransferComplete_CallBack+0x490>)
- 8003780:	009b      	lsls	r3, r3, #2
- 8003782:	4413      	add	r3, r2
- 8003784:	edd3 7a00 	vldr	s15, [r3]
- 8003788:	eddf 6a56 	vldr	s13, [pc, #344]	; 80038e4 <EVAL_AUDIO_TransferComplete_CallBack+0x494>
- 800378c:	ee67 7aa6 	vmul.f32	s15, s15, s13
- 8003790:	ee77 7a27 	vadd.f32	s15, s14, s15
- 8003794:	eeb0 0a67 	vmov.f32	s0, s15
- 8003798:	f000 fa8a 	bl	8003cb0 <arm_sin_f32>
- 800379c:	eeb0 7a40 	vmov.f32	s14, s0
- 80037a0:	eddf 7a51 	vldr	s15, [pc, #324]	; 80038e8 <EVAL_AUDIO_TransferComplete_CallBack+0x498>
- 80037a4:	ee67 7a27 	vmul.f32	s15, s14, s15
- 80037a8:	ed9f 7a4f 	vldr	s14, [pc, #316]	; 80038e8 <EVAL_AUDIO_TransferComplete_CallBack+0x498>
- 80037ac:	ee77 7a87 	vadd.f32	s15, s15, s14
- 80037b0:	eefc 7ae7 	vcvt.u32.f32	s15, s15
- 80037b4:	edc7 7a01 	vstr	s15, [r7, #4]
- 80037b8:	88bb      	ldrh	r3, [r7, #4]
- 80037ba:	b29a      	uxth	r2, r3
- 80037bc:	4b4b      	ldr	r3, [pc, #300]	; (80038ec <EVAL_AUDIO_TransferComplete_CallBack+0x49c>)
- 80037be:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
+ 800376c:	69fc      	ldr	r4, [r7, #28]
+ 800376e:	4b5f      	ldr	r3, [pc, #380]	; (80038ec <EVAL_AUDIO_TransferComplete_CallBack+0x494>)
+ 8003770:	881b      	ldrh	r3, [r3, #0]
+ 8003772:	b29b      	uxth	r3, r3
+ 8003774:	461a      	mov	r2, r3
+ 8003776:	69fb      	ldr	r3, [r7, #28]
+ 8003778:	3b20      	subs	r3, #32
+ 800377a:	4413      	add	r3, r2
+ 800377c:	ee07 3a90 	vmov	s15, r3
+ 8003780:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 8003784:	edd7 7a09 	vldr	s15, [r7, #36]	; 0x24
+ 8003788:	ee27 7a27 	vmul.f32	s14, s14, s15
+ 800378c:	69fb      	ldr	r3, [r7, #28]
+ 800378e:	4a58      	ldr	r2, [pc, #352]	; (80038f0 <EVAL_AUDIO_TransferComplete_CallBack+0x498>)
+ 8003790:	009b      	lsls	r3, r3, #2
+ 8003792:	4413      	add	r3, r2
+ 8003794:	edd3 7a00 	vldr	s15, [r3]
+ 8003798:	eddf 6a56 	vldr	s13, [pc, #344]	; 80038f4 <EVAL_AUDIO_TransferComplete_CallBack+0x49c>
+ 800379c:	ee67 7aa6 	vmul.f32	s15, s15, s13
+ 80037a0:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 80037a4:	eeb0 0a67 	vmov.f32	s0, s15
+ 80037a8:	f000 fa8a 	bl	8003cc0 <arm_sin_f32>
+ 80037ac:	eeb0 7a40 	vmov.f32	s14, s0
+ 80037b0:	eddf 7a51 	vldr	s15, [pc, #324]	; 80038f8 <EVAL_AUDIO_TransferComplete_CallBack+0x4a0>
+ 80037b4:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 80037b8:	ed9f 7a4f 	vldr	s14, [pc, #316]	; 80038f8 <EVAL_AUDIO_TransferComplete_CallBack+0x4a0>
+ 80037bc:	ee77 7a87 	vadd.f32	s15, s15, s14
+ 80037c0:	eefc 7ae7 	vcvt.u32.f32	s15, s15
+ 80037c4:	edc7 7a01 	vstr	s15, [r7, #4]
+ 80037c8:	88bb      	ldrh	r3, [r7, #4]
+ 80037ca:	b29a      	uxth	r2, r3
+ 80037cc:	4b4b      	ldr	r3, [pc, #300]	; (80038fc <EVAL_AUDIO_TransferComplete_CallBack+0x4a4>)
+ 80037ce:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
 			buffer_output[i] = buffer_vco[i];
- 80037c2:	69fb      	ldr	r3, [r7, #28]
- 80037c4:	69fa      	ldr	r2, [r7, #28]
- 80037c6:	4949      	ldr	r1, [pc, #292]	; (80038ec <EVAL_AUDIO_TransferComplete_CallBack+0x49c>)
- 80037c8:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
- 80037cc:	b291      	uxth	r1, r2
- 80037ce:	4a48      	ldr	r2, [pc, #288]	; (80038f0 <EVAL_AUDIO_TransferComplete_CallBack+0x4a0>)
- 80037d0:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
+ 80037d2:	69fb      	ldr	r3, [r7, #28]
+ 80037d4:	69fa      	ldr	r2, [r7, #28]
+ 80037d6:	4949      	ldr	r1, [pc, #292]	; (80038fc <EVAL_AUDIO_TransferComplete_CallBack+0x4a4>)
+ 80037d8:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
+ 80037dc:	b291      	uxth	r1, r2
+ 80037de:	4a48      	ldr	r2, [pc, #288]	; (8003900 <EVAL_AUDIO_TransferComplete_CallBack+0x4a8>)
+ 80037e0:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
 	}
 
 	// FM for sine wave VCO.
 	else if(wav_vco == WAVE_SINE && mod_type == MOD_FM)
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 80037d4:	69fb      	ldr	r3, [r7, #28]
- 80037d6:	3301      	adds	r3, #1
- 80037d8:	61fb      	str	r3, [r7, #28]
- 80037da:	69fb      	ldr	r3, [r7, #28]
- 80037dc:	2b3f      	cmp	r3, #63	; 0x3f
- 80037de:	ddbd      	ble.n	800375c <EVAL_AUDIO_TransferComplete_CallBack+0x30c>
+ 80037e4:	69fb      	ldr	r3, [r7, #28]
+ 80037e6:	3301      	adds	r3, #1
+ 80037e8:	61fb      	str	r3, [r7, #28]
+ 80037ea:	69fb      	ldr	r3, [r7, #28]
+ 80037ec:	2b3f      	cmp	r3, #63	; 0x3f
+ 80037ee:	ddbd      	ble.n	800376c <EVAL_AUDIO_TransferComplete_CallBack+0x314>
 			buffer_output[i] = buffer_vco[i] * buffer_lfo_float[i];
 		}
 	}
 
 	// FM for sine wave VCO.
 	else if(wav_vco == WAVE_SINE && mod_type == MOD_FM)
- 80037e0:	e063      	b.n	80038aa <EVAL_AUDIO_TransferComplete_CallBack+0x45a>
+ 80037f0:	e063      	b.n	80038ba <EVAL_AUDIO_TransferComplete_CallBack+0x462>
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
 
 	// FM for square wave VCO.
 	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
- 80037e2:	4b44      	ldr	r3, [pc, #272]	; (80038f4 <EVAL_AUDIO_TransferComplete_CallBack+0x4a4>)
- 80037e4:	881b      	ldrh	r3, [r3, #0]
- 80037e6:	2b02      	cmp	r3, #2
- 80037e8:	d14d      	bne.n	8003886 <EVAL_AUDIO_TransferComplete_CallBack+0x436>
- 80037ea:	4b43      	ldr	r3, [pc, #268]	; (80038f8 <EVAL_AUDIO_TransferComplete_CallBack+0x4a8>)
- 80037ec:	881b      	ldrh	r3, [r3, #0]
- 80037ee:	2b02      	cmp	r3, #2
- 80037f0:	d149      	bne.n	8003886 <EVAL_AUDIO_TransferComplete_CallBack+0x436>
+ 80037f2:	4b44      	ldr	r3, [pc, #272]	; (8003904 <EVAL_AUDIO_TransferComplete_CallBack+0x4ac>)
+ 80037f4:	881b      	ldrh	r3, [r3, #0]
+ 80037f6:	2b02      	cmp	r3, #2
+ 80037f8:	d14d      	bne.n	8003896 <EVAL_AUDIO_TransferComplete_CallBack+0x43e>
+ 80037fa:	4b43      	ldr	r3, [pc, #268]	; (8003908 <EVAL_AUDIO_TransferComplete_CallBack+0x4b0>)
+ 80037fc:	881b      	ldrh	r3, [r3, #0]
+ 80037fe:	2b02      	cmp	r3, #2
+ 8003800:	d149      	bne.n	8003896 <EVAL_AUDIO_TransferComplete_CallBack+0x43e>
 	{
 		samples_cycle = samples_cycle + buffer_lfo_float[i];
- 80037f2:	69bb      	ldr	r3, [r7, #24]
- 80037f4:	ee07 3a90 	vmov	s15, r3
- 80037f8:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
- 80037fc:	69fb      	ldr	r3, [r7, #28]
- 80037fe:	4a38      	ldr	r2, [pc, #224]	; (80038e0 <EVAL_AUDIO_TransferComplete_CallBack+0x490>)
- 8003800:	009b      	lsls	r3, r3, #2
- 8003802:	4413      	add	r3, r2
- 8003804:	edd3 7a00 	vldr	s15, [r3]
- 8003808:	ee77 7a27 	vadd.f32	s15, s14, s15
- 800380c:	eefd 7ae7 	vcvt.s32.f32	s15, s15
- 8003810:	ee17 3a90 	vmov	r3, s15
- 8003814:	61bb      	str	r3, [r7, #24]
+ 8003802:	69bb      	ldr	r3, [r7, #24]
+ 8003804:	ee07 3a90 	vmov	s15, r3
+ 8003808:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 800380c:	69fb      	ldr	r3, [r7, #28]
+ 800380e:	4a38      	ldr	r2, [pc, #224]	; (80038f0 <EVAL_AUDIO_TransferComplete_CallBack+0x498>)
+ 8003810:	009b      	lsls	r3, r3, #2
+ 8003812:	4413      	add	r3, r2
+ 8003814:	edd3 7a00 	vldr	s15, [r3]
+ 8003818:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 800381c:	eefd 7ae7 	vcvt.s32.f32	s15, s15
+ 8003820:	ee17 3a90 	vmov	r3, s15
+ 8003824:	61bb      	str	r3, [r7, #24]
 		samples_half_cycle = samples_cycle / 2;
- 8003816:	69bb      	ldr	r3, [r7, #24]
- 8003818:	0fda      	lsrs	r2, r3, #31
- 800381a:	4413      	add	r3, r2
- 800381c:	105b      	asrs	r3, r3, #1
- 800381e:	617b      	str	r3, [r7, #20]
+ 8003826:	69bb      	ldr	r3, [r7, #24]
+ 8003828:	0fda      	lsrs	r2, r3, #31
+ 800382a:	4413      	add	r3, r2
+ 800382c:	105b      	asrs	r3, r3, #1
+ 800382e:	617b      	str	r3, [r7, #20]
 
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 8003820:	2320      	movs	r3, #32
- 8003822:	61fb      	str	r3, [r7, #28]
- 8003824:	e02b      	b.n	800387e <EVAL_AUDIO_TransferComplete_CallBack+0x42e>
+ 8003830:	2320      	movs	r3, #32
+ 8003832:	61fb      	str	r3, [r7, #28]
+ 8003834:	e02b      	b.n	800388e <EVAL_AUDIO_TransferComplete_CallBack+0x436>
 		{
 			// buffer_vco[i] = 4000 * square((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle, samples_half_cycle);
 			buffer_vco[i] = 4000 * square((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle, samples_half_cycle);
- 8003826:	69fc      	ldr	r4, [r7, #28]
- 8003828:	4b2c      	ldr	r3, [pc, #176]	; (80038dc <EVAL_AUDIO_TransferComplete_CallBack+0x48c>)
- 800382a:	881b      	ldrh	r3, [r3, #0]
- 800382c:	b29b      	uxth	r3, r3
- 800382e:	461a      	mov	r2, r3
- 8003830:	69fb      	ldr	r3, [r7, #28]
- 8003832:	3b20      	subs	r3, #32
- 8003834:	4413      	add	r3, r2
- 8003836:	69ba      	ldr	r2, [r7, #24]
- 8003838:	fb93 f1f2 	sdiv	r1, r3, r2
- 800383c:	fb02 f201 	mul.w	r2, r2, r1
- 8003840:	1a9b      	subs	r3, r3, r2
- 8003842:	b29b      	uxth	r3, r3
- 8003844:	697a      	ldr	r2, [r7, #20]
- 8003846:	b292      	uxth	r2, r2
- 8003848:	4611      	mov	r1, r2
- 800384a:	4618      	mov	r0, r3
- 800384c:	f7ff fb22 	bl	8002e94 <square>
- 8003850:	4603      	mov	r3, r0
- 8003852:	461a      	mov	r2, r3
- 8003854:	0152      	lsls	r2, r2, #5
- 8003856:	1ad2      	subs	r2, r2, r3
- 8003858:	0092      	lsls	r2, r2, #2
- 800385a:	4413      	add	r3, r2
- 800385c:	015b      	lsls	r3, r3, #5
- 800385e:	b29a      	uxth	r2, r3
- 8003860:	4b22      	ldr	r3, [pc, #136]	; (80038ec <EVAL_AUDIO_TransferComplete_CallBack+0x49c>)
- 8003862:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
+ 8003836:	69fc      	ldr	r4, [r7, #28]
+ 8003838:	4b2c      	ldr	r3, [pc, #176]	; (80038ec <EVAL_AUDIO_TransferComplete_CallBack+0x494>)
+ 800383a:	881b      	ldrh	r3, [r3, #0]
+ 800383c:	b29b      	uxth	r3, r3
+ 800383e:	461a      	mov	r2, r3
+ 8003840:	69fb      	ldr	r3, [r7, #28]
+ 8003842:	3b20      	subs	r3, #32
+ 8003844:	4413      	add	r3, r2
+ 8003846:	69ba      	ldr	r2, [r7, #24]
+ 8003848:	fb93 f1f2 	sdiv	r1, r3, r2
+ 800384c:	fb02 f201 	mul.w	r2, r2, r1
+ 8003850:	1a9b      	subs	r3, r3, r2
+ 8003852:	b29b      	uxth	r3, r3
+ 8003854:	697a      	ldr	r2, [r7, #20]
+ 8003856:	b292      	uxth	r2, r2
+ 8003858:	4611      	mov	r1, r2
+ 800385a:	4618      	mov	r0, r3
+ 800385c:	f7ff fb1a 	bl	8002e94 <square>
+ 8003860:	4603      	mov	r3, r0
+ 8003862:	461a      	mov	r2, r3
+ 8003864:	0152      	lsls	r2, r2, #5
+ 8003866:	1ad2      	subs	r2, r2, r3
+ 8003868:	0092      	lsls	r2, r2, #2
+ 800386a:	4413      	add	r3, r2
+ 800386c:	015b      	lsls	r3, r3, #5
+ 800386e:	b29a      	uxth	r2, r3
+ 8003870:	4b22      	ldr	r3, [pc, #136]	; (80038fc <EVAL_AUDIO_TransferComplete_CallBack+0x4a4>)
+ 8003872:	f823 2014 	strh.w	r2, [r3, r4, lsl #1]
 			buffer_output[i] = buffer_vco[i];
- 8003866:	69fb      	ldr	r3, [r7, #28]
- 8003868:	69fa      	ldr	r2, [r7, #28]
- 800386a:	4920      	ldr	r1, [pc, #128]	; (80038ec <EVAL_AUDIO_TransferComplete_CallBack+0x49c>)
- 800386c:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
- 8003870:	b291      	uxth	r1, r2
- 8003872:	4a1f      	ldr	r2, [pc, #124]	; (80038f0 <EVAL_AUDIO_TransferComplete_CallBack+0x4a0>)
- 8003874:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
+ 8003876:	69fb      	ldr	r3, [r7, #28]
+ 8003878:	69fa      	ldr	r2, [r7, #28]
+ 800387a:	4920      	ldr	r1, [pc, #128]	; (80038fc <EVAL_AUDIO_TransferComplete_CallBack+0x4a4>)
+ 800387c:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
+ 8003880:	b291      	uxth	r1, r2
+ 8003882:	4a1f      	ldr	r2, [pc, #124]	; (8003900 <EVAL_AUDIO_TransferComplete_CallBack+0x4a8>)
+ 8003884:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
 	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
 	{
 		samples_cycle = samples_cycle + buffer_lfo_float[i];
 		samples_half_cycle = samples_cycle / 2;
 
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 8003878:	69fb      	ldr	r3, [r7, #28]
- 800387a:	3301      	adds	r3, #1
- 800387c:	61fb      	str	r3, [r7, #28]
- 800387e:	69fb      	ldr	r3, [r7, #28]
- 8003880:	2b3f      	cmp	r3, #63	; 0x3f
- 8003882:	ddd0      	ble.n	8003826 <EVAL_AUDIO_TransferComplete_CallBack+0x3d6>
+ 8003888:	69fb      	ldr	r3, [r7, #28]
+ 800388a:	3301      	adds	r3, #1
+ 800388c:	61fb      	str	r3, [r7, #28]
+ 800388e:	69fb      	ldr	r3, [r7, #28]
+ 8003890:	2b3f      	cmp	r3, #63	; 0x3f
+ 8003892:	ddd0      	ble.n	8003836 <EVAL_AUDIO_TransferComplete_CallBack+0x3de>
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
 
 	// FM for square wave VCO.
 	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
- 8003884:	e011      	b.n	80038aa <EVAL_AUDIO_TransferComplete_CallBack+0x45a>
+ 8003894:	e011      	b.n	80038ba <EVAL_AUDIO_TransferComplete_CallBack+0x462>
 	}
 
 	// No modulation
 	else
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 8003886:	2320      	movs	r3, #32
- 8003888:	61fb      	str	r3, [r7, #28]
- 800388a:	e00b      	b.n	80038a4 <EVAL_AUDIO_TransferComplete_CallBack+0x454>
+ 8003896:	2320      	movs	r3, #32
+ 8003898:	61fb      	str	r3, [r7, #28]
+ 800389a:	e00b      	b.n	80038b4 <EVAL_AUDIO_TransferComplete_CallBack+0x45c>
 		{
 			buffer_output[i] = buffer_vco[i];
- 800388c:	69fb      	ldr	r3, [r7, #28]
- 800388e:	69fa      	ldr	r2, [r7, #28]
- 8003890:	4916      	ldr	r1, [pc, #88]	; (80038ec <EVAL_AUDIO_TransferComplete_CallBack+0x49c>)
- 8003892:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
- 8003896:	b291      	uxth	r1, r2
- 8003898:	4a15      	ldr	r2, [pc, #84]	; (80038f0 <EVAL_AUDIO_TransferComplete_CallBack+0x4a0>)
- 800389a:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
+ 800389c:	69fb      	ldr	r3, [r7, #28]
+ 800389e:	69fa      	ldr	r2, [r7, #28]
+ 80038a0:	4916      	ldr	r1, [pc, #88]	; (80038fc <EVAL_AUDIO_TransferComplete_CallBack+0x4a4>)
+ 80038a2:	f831 2012 	ldrh.w	r2, [r1, r2, lsl #1]
+ 80038a6:	b291      	uxth	r1, r2
+ 80038a8:	4a15      	ldr	r2, [pc, #84]	; (8003900 <EVAL_AUDIO_TransferComplete_CallBack+0x4a8>)
+ 80038aa:	f822 1013 	strh.w	r1, [r2, r3, lsl #1]
 	}
 
 	// No modulation
 	else
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
- 800389e:	69fb      	ldr	r3, [r7, #28]
- 80038a0:	3301      	adds	r3, #1
- 80038a2:	61fb      	str	r3, [r7, #28]
- 80038a4:	69fb      	ldr	r3, [r7, #28]
- 80038a6:	2b3f      	cmp	r3, #63	; 0x3f
- 80038a8:	ddf0      	ble.n	800388c <EVAL_AUDIO_TransferComplete_CallBack+0x43c>
+ 80038ae:	69fb      	ldr	r3, [r7, #28]
+ 80038b0:	3301      	adds	r3, #1
+ 80038b2:	61fb      	str	r3, [r7, #28]
+ 80038b4:	69fb      	ldr	r3, [r7, #28]
+ 80038b6:	2b3f      	cmp	r3, #63	; 0x3f
+ 80038b8:	ddf0      	ble.n	800389c <EVAL_AUDIO_TransferComplete_CallBack+0x444>
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
 
 	// Remember lfo phase and resume next run of callback.
 	sample_count = (sample_count + i - BUFF_LEN_DIV2) % SAMPLERATE;
- 80038aa:	4b0c      	ldr	r3, [pc, #48]	; (80038dc <EVAL_AUDIO_TransferComplete_CallBack+0x48c>)
- 80038ac:	881b      	ldrh	r3, [r3, #0]
- 80038ae:	b29b      	uxth	r3, r3
- 80038b0:	461a      	mov	r2, r3
- 80038b2:	69fb      	ldr	r3, [r7, #28]
- 80038b4:	4413      	add	r3, r2
- 80038b6:	3b20      	subs	r3, #32
- 80038b8:	4a10      	ldr	r2, [pc, #64]	; (80038fc <EVAL_AUDIO_TransferComplete_CallBack+0x4ac>)
- 80038ba:	fb82 1203 	smull	r1, r2, r2, r3
- 80038be:	1291      	asrs	r1, r2, #10
- 80038c0:	17da      	asrs	r2, r3, #31
- 80038c2:	1a8a      	subs	r2, r1, r2
- 80038c4:	f64b 3180 	movw	r1, #48000	; 0xbb80
- 80038c8:	fb01 f202 	mul.w	r2, r1, r2
- 80038cc:	1a9a      	subs	r2, r3, r2
- 80038ce:	b292      	uxth	r2, r2
- 80038d0:	4b02      	ldr	r3, [pc, #8]	; (80038dc <EVAL_AUDIO_TransferComplete_CallBack+0x48c>)
- 80038d2:	801a      	strh	r2, [r3, #0]
+ 80038ba:	4b0c      	ldr	r3, [pc, #48]	; (80038ec <EVAL_AUDIO_TransferComplete_CallBack+0x494>)
+ 80038bc:	881b      	ldrh	r3, [r3, #0]
+ 80038be:	b29b      	uxth	r3, r3
+ 80038c0:	461a      	mov	r2, r3
+ 80038c2:	69fb      	ldr	r3, [r7, #28]
+ 80038c4:	4413      	add	r3, r2
+ 80038c6:	3b20      	subs	r3, #32
+ 80038c8:	4a10      	ldr	r2, [pc, #64]	; (800390c <EVAL_AUDIO_TransferComplete_CallBack+0x4b4>)
+ 80038ca:	fb82 1203 	smull	r1, r2, r2, r3
+ 80038ce:	1291      	asrs	r1, r2, #10
+ 80038d0:	17da      	asrs	r2, r3, #31
+ 80038d2:	1a8a      	subs	r2, r1, r2
+ 80038d4:	f64b 3180 	movw	r1, #48000	; 0xbb80
+ 80038d8:	fb01 f202 	mul.w	r2, r1, r2
+ 80038dc:	1a9a      	subs	r2, r3, r2
+ 80038de:	b292      	uxth	r2, r2
+ 80038e0:	4b02      	ldr	r3, [pc, #8]	; (80038ec <EVAL_AUDIO_TransferComplete_CallBack+0x494>)
+ 80038e2:	801a      	strh	r2, [r3, #0]
 	return;
- 80038d4:	bf00      	nop
+ 80038e4:	bf00      	nop
 }
- 80038d6:	372c      	adds	r7, #44	; 0x2c
- 80038d8:	46bd      	mov	sp, r7
- 80038da:	bd90      	pop	{r4, r7, pc}
- 80038dc:	20000290 	.word	0x20000290
- 80038e0:	20000110 	.word	0x20000110
- 80038e4:	42200000 	.word	0x42200000
- 80038e8:	44fa0000 	.word	0x44fa0000
- 80038ec:	20000090 	.word	0x20000090
- 80038f0:	20000210 	.word	0x20000210
- 80038f4:	20000060 	.word	0x20000060
- 80038f8:	20000064 	.word	0x20000064
- 80038fc:	057619f1 	.word	0x057619f1
+ 80038e6:	372c      	adds	r7, #44	; 0x2c
+ 80038e8:	46bd      	mov	sp, r7
+ 80038ea:	bd90      	pop	{r4, r7, pc}
+ 80038ec:	2000028c 	.word	0x2000028c
+ 80038f0:	2000010c 	.word	0x2000010c
+ 80038f4:	42200000 	.word	0x42200000
+ 80038f8:	44fa0000 	.word	0x44fa0000
+ 80038fc:	2000008c 	.word	0x2000008c
+ 8003900:	2000020c 	.word	0x2000020c
+ 8003904:	20000060 	.word	0x20000060
+ 8003908:	2000028e 	.word	0x2000028e
+ 800390c:	057619f1 	.word	0x057619f1
 
-08003900 <EVAL_AUDIO_GetSampleCallBack>:
+08003910 <EVAL_AUDIO_GetSampleCallBack>:
 
 /*
  * Callback used by stm324xg_eval_audio_codec.c.
  * Refer to stm324xg_eval_audio_codec.h for more info.
  */
 uint16_t EVAL_AUDIO_GetSampleCallBack(void){
- 8003900:	b480      	push	{r7}
- 8003902:	af00      	add	r7, sp, #0
+ 8003910:	b480      	push	{r7}
+ 8003912:	af00      	add	r7, sp, #0
   /* TODO, implement your code here */
 
   // return -1;
 	return 0;
- 8003904:	2300      	movs	r3, #0
+ 8003914:	2300      	movs	r3, #0
 }
- 8003906:	4618      	mov	r0, r3
- 8003908:	46bd      	mov	sp, r7
- 800390a:	f85d 7b04 	ldr.w	r7, [sp], #4
- 800390e:	4770      	bx	lr
+ 8003916:	4618      	mov	r0, r3
+ 8003918:	46bd      	mov	sp, r7
+ 800391a:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800391e:	4770      	bx	lr
 
-08003910 <EVAL_AUDIO_Error_CallBack>:
+08003920 <EVAL_AUDIO_Error_CallBack>:
 
 void EVAL_AUDIO_Error_CallBack(void* pData)
 {
- 8003910:	b580      	push	{r7, lr}
- 8003912:	b082      	sub	sp, #8
- 8003914:	af00      	add	r7, sp, #0
- 8003916:	6078      	str	r0, [r7, #4]
+ 8003920:	b580      	push	{r7, lr}
+ 8003922:	b082      	sub	sp, #8
+ 8003924:	af00      	add	r7, sp, #0
+ 8003926:	6078      	str	r0, [r7, #4]
 	STM_EVAL_LEDOn(LED3);
- 8003918:	2001      	movs	r0, #1
- 800391a:	f7fe fc33 	bl	8002184 <STM_EVAL_LEDOn>
+ 8003928:	2001      	movs	r0, #1
+ 800392a:	f7fe fc2b 	bl	8002184 <STM_EVAL_LEDOn>
 }
- 800391e:	bf00      	nop
- 8003920:	3708      	adds	r7, #8
- 8003922:	46bd      	mov	sp, r7
- 8003924:	bd80      	pop	{r7, pc}
- 8003926:	bf00      	nop
+ 800392e:	bf00      	nop
+ 8003930:	3708      	adds	r7, #8
+ 8003932:	46bd      	mov	sp, r7
+ 8003934:	bd80      	pop	{r7, pc}
+ 8003936:	bf00      	nop
 
-08003928 <ADC3_CH12_DMA_Config>:
+08003938 <ADC3_CH12_DMA_Config>:
   * @brief  ADC3 channel12 with DMA configuration
   * @param  None
   * @retval None
   */
 void ADC3_CH12_DMA_Config(void)
 {
- 8003928:	b580      	push	{r7, lr}
- 800392a:	b09c      	sub	sp, #112	; 0x70
- 800392c:	af00      	add	r7, sp, #0
+ 8003938:	b580      	push	{r7, lr}
+ 800393a:	b09c      	sub	sp, #112	; 0x70
+ 800393c:	af00      	add	r7, sp, #0
   ADC_CommonInitTypeDef ADC_CommonInitStructure;
   DMA_InitTypeDef       DMA_InitStructure;
   GPIO_InitTypeDef      GPIO_InitStructure;
 
   /* Enable ADC3, DMA2 and GPIO clocks ****************************************/
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2 | RCC_AHB1Periph_GPIOC, ENABLE);
- 800392e:	2101      	movs	r1, #1
- 8003930:	483b      	ldr	r0, [pc, #236]	; (8003a20 <ADC3_CH12_DMA_Config+0xf8>)
- 8003932:	f7fe f92d 	bl	8001b90 <RCC_AHB1PeriphClockCmd>
+ 800393e:	2101      	movs	r1, #1
+ 8003940:	483b      	ldr	r0, [pc, #236]	; (8003a30 <ADC3_CH12_DMA_Config+0xf8>)
+ 8003942:	f7fe f925 	bl	8001b90 <RCC_AHB1PeriphClockCmd>
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC3, ENABLE);
- 8003936:	2101      	movs	r1, #1
- 8003938:	f44f 6080 	mov.w	r0, #1024	; 0x400
- 800393c:	f7fe f968 	bl	8001c10 <RCC_APB2PeriphClockCmd>
+ 8003946:	2101      	movs	r1, #1
+ 8003948:	f44f 6080 	mov.w	r0, #1024	; 0x400
+ 800394c:	f7fe f960 	bl	8001c10 <RCC_APB2PeriphClockCmd>
 
   /* DMA2 Stream0 channel0 configuration **************************************/
   DMA_InitStructure.DMA_Channel = DMA_Channel_2;
- 8003940:	f04f 6380 	mov.w	r3, #67108864	; 0x4000000
- 8003944:	60fb      	str	r3, [r7, #12]
+ 8003950:	f04f 6380 	mov.w	r3, #67108864	; 0x4000000
+ 8003954:	60fb      	str	r3, [r7, #12]
   DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC3_DR_ADDRESS;
- 8003946:	4b37      	ldr	r3, [pc, #220]	; (8003a24 <ADC3_CH12_DMA_Config+0xfc>)
- 8003948:	613b      	str	r3, [r7, #16]
+ 8003956:	4b37      	ldr	r3, [pc, #220]	; (8003a34 <ADC3_CH12_DMA_Config+0xfc>)
+ 8003958:	613b      	str	r3, [r7, #16]
   DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&ADC3ConvertedValue;
- 800394a:	4b37      	ldr	r3, [pc, #220]	; (8003a28 <ADC3_CH12_DMA_Config+0x100>)
- 800394c:	617b      	str	r3, [r7, #20]
+ 800395a:	4b37      	ldr	r3, [pc, #220]	; (8003a38 <ADC3_CH12_DMA_Config+0x100>)
+ 800395c:	617b      	str	r3, [r7, #20]
   DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
- 800394e:	2300      	movs	r3, #0
- 8003950:	61bb      	str	r3, [r7, #24]
+ 800395e:	2300      	movs	r3, #0
+ 8003960:	61bb      	str	r3, [r7, #24]
   DMA_InitStructure.DMA_BufferSize = 1;
- 8003952:	2301      	movs	r3, #1
- 8003954:	61fb      	str	r3, [r7, #28]
+ 8003962:	2301      	movs	r3, #1
+ 8003964:	61fb      	str	r3, [r7, #28]
   DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
- 8003956:	2300      	movs	r3, #0
- 8003958:	623b      	str	r3, [r7, #32]
+ 8003966:	2300      	movs	r3, #0
+ 8003968:	623b      	str	r3, [r7, #32]
   DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
- 800395a:	2300      	movs	r3, #0
- 800395c:	627b      	str	r3, [r7, #36]	; 0x24
+ 800396a:	2300      	movs	r3, #0
+ 800396c:	627b      	str	r3, [r7, #36]	; 0x24
   DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
- 800395e:	f44f 6300 	mov.w	r3, #2048	; 0x800
- 8003962:	62bb      	str	r3, [r7, #40]	; 0x28
+ 800396e:	f44f 6300 	mov.w	r3, #2048	; 0x800
+ 8003972:	62bb      	str	r3, [r7, #40]	; 0x28
   DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
- 8003964:	f44f 5300 	mov.w	r3, #8192	; 0x2000
- 8003968:	62fb      	str	r3, [r7, #44]	; 0x2c
+ 8003974:	f44f 5300 	mov.w	r3, #8192	; 0x2000
+ 8003978:	62fb      	str	r3, [r7, #44]	; 0x2c
   DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
- 800396a:	f44f 7380 	mov.w	r3, #256	; 0x100
- 800396e:	633b      	str	r3, [r7, #48]	; 0x30
+ 800397a:	f44f 7380 	mov.w	r3, #256	; 0x100
+ 800397e:	633b      	str	r3, [r7, #48]	; 0x30
   DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
- 8003970:	2300      	movs	r3, #0
- 8003972:	637b      	str	r3, [r7, #52]	; 0x34
-  DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
- 8003974:	2300      	movs	r3, #0
- 8003976:	63bb      	str	r3, [r7, #56]	; 0x38
-  DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;
- 8003978:	2301      	movs	r3, #1
- 800397a:	63fb      	str	r3, [r7, #60]	; 0x3c
-  DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
- 800397c:	2300      	movs	r3, #0
- 800397e:	643b      	str	r3, [r7, #64]	; 0x40
-  DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
  8003980:	2300      	movs	r3, #0
- 8003982:	647b      	str	r3, [r7, #68]	; 0x44
+ 8003982:	637b      	str	r3, [r7, #52]	; 0x34
+  DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
+ 8003984:	2300      	movs	r3, #0
+ 8003986:	63bb      	str	r3, [r7, #56]	; 0x38
+  DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;
+ 8003988:	2301      	movs	r3, #1
+ 800398a:	63fb      	str	r3, [r7, #60]	; 0x3c
+  DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+ 800398c:	2300      	movs	r3, #0
+ 800398e:	643b      	str	r3, [r7, #64]	; 0x40
+  DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+ 8003990:	2300      	movs	r3, #0
+ 8003992:	647b      	str	r3, [r7, #68]	; 0x44
   DMA_Init(DMA2_Stream0, &DMA_InitStructure);
- 8003984:	f107 030c 	add.w	r3, r7, #12
- 8003988:	4619      	mov	r1, r3
- 800398a:	4828      	ldr	r0, [pc, #160]	; (8003a2c <ADC3_CH12_DMA_Config+0x104>)
- 800398c:	f7fd fb8e 	bl	80010ac <DMA_Init>
+ 8003994:	f107 030c 	add.w	r3, r7, #12
+ 8003998:	4619      	mov	r1, r3
+ 800399a:	4828      	ldr	r0, [pc, #160]	; (8003a3c <ADC3_CH12_DMA_Config+0x104>)
+ 800399c:	f7fd fb86 	bl	80010ac <DMA_Init>
   DMA_Cmd(DMA2_Stream0, ENABLE);
- 8003990:	2101      	movs	r1, #1
- 8003992:	4826      	ldr	r0, [pc, #152]	; (8003a2c <ADC3_CH12_DMA_Config+0x104>)
- 8003994:	f7fd fbe2 	bl	800115c <DMA_Cmd>
+ 80039a0:	2101      	movs	r1, #1
+ 80039a2:	4826      	ldr	r0, [pc, #152]	; (8003a3c <ADC3_CH12_DMA_Config+0x104>)
+ 80039a4:	f7fd fbda 	bl	800115c <DMA_Cmd>
 
   /* Configure ADC3 Channel12 pin as analog input ******************************/
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
- 8003998:	2304      	movs	r3, #4
- 800399a:	607b      	str	r3, [r7, #4]
+ 80039a8:	2304      	movs	r3, #4
+ 80039aa:	607b      	str	r3, [r7, #4]
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
- 800399c:	2303      	movs	r3, #3
- 800399e:	723b      	strb	r3, [r7, #8]
+ 80039ac:	2303      	movs	r3, #3
+ 80039ae:	723b      	strb	r3, [r7, #8]
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
- 80039a0:	2300      	movs	r3, #0
- 80039a2:	72fb      	strb	r3, [r7, #11]
+ 80039b0:	2300      	movs	r3, #0
+ 80039b2:	72fb      	strb	r3, [r7, #11]
   GPIO_Init(GPIOC, &GPIO_InitStructure);
- 80039a4:	1d3b      	adds	r3, r7, #4
- 80039a6:	4619      	mov	r1, r3
- 80039a8:	4821      	ldr	r0, [pc, #132]	; (8003a30 <ADC3_CH12_DMA_Config+0x108>)
- 80039aa:	f7fd fd09 	bl	80013c0 <GPIO_Init>
+ 80039b4:	1d3b      	adds	r3, r7, #4
+ 80039b6:	4619      	mov	r1, r3
+ 80039b8:	4821      	ldr	r0, [pc, #132]	; (8003a40 <ADC3_CH12_DMA_Config+0x108>)
+ 80039ba:	f7fd fd01 	bl	80013c0 <GPIO_Init>
 
   /* ADC Common Init **********************************************************/
   ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
- 80039ae:	2300      	movs	r3, #0
- 80039b0:	64bb      	str	r3, [r7, #72]	; 0x48
+ 80039be:	2300      	movs	r3, #0
+ 80039c0:	64bb      	str	r3, [r7, #72]	; 0x48
   ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div2;
- 80039b2:	2300      	movs	r3, #0
- 80039b4:	64fb      	str	r3, [r7, #76]	; 0x4c
+ 80039c2:	2300      	movs	r3, #0
+ 80039c4:	64fb      	str	r3, [r7, #76]	; 0x4c
   ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
- 80039b6:	2300      	movs	r3, #0
- 80039b8:	653b      	str	r3, [r7, #80]	; 0x50
+ 80039c6:	2300      	movs	r3, #0
+ 80039c8:	653b      	str	r3, [r7, #80]	; 0x50
   ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
- 80039ba:	2300      	movs	r3, #0
- 80039bc:	657b      	str	r3, [r7, #84]	; 0x54
+ 80039ca:	2300      	movs	r3, #0
+ 80039cc:	657b      	str	r3, [r7, #84]	; 0x54
   ADC_CommonInit(&ADC_CommonInitStructure);
- 80039be:	f107 0348 	add.w	r3, r7, #72	; 0x48
- 80039c2:	4618      	mov	r0, r3
- 80039c4:	f7fd f8d2 	bl	8000b6c <ADC_CommonInit>
+ 80039ce:	f107 0348 	add.w	r3, r7, #72	; 0x48
+ 80039d2:	4618      	mov	r0, r3
+ 80039d4:	f7fd f8ca 	bl	8000b6c <ADC_CommonInit>
 
   /* ADC3 Init ****************************************************************/
   ADC_InitStructure.ADC_Resolution = ADC_Resolution_8b;
- 80039c8:	f04f 7300 	mov.w	r3, #33554432	; 0x2000000
- 80039cc:	65bb      	str	r3, [r7, #88]	; 0x58
+ 80039d8:	f04f 7300 	mov.w	r3, #33554432	; 0x2000000
+ 80039dc:	65bb      	str	r3, [r7, #88]	; 0x58
   ADC_InitStructure.ADC_ScanConvMode = DISABLE;
- 80039ce:	2300      	movs	r3, #0
- 80039d0:	f887 305c 	strb.w	r3, [r7, #92]	; 0x5c
-  ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
- 80039d4:	2301      	movs	r3, #1
- 80039d6:	f887 305d 	strb.w	r3, [r7, #93]	; 0x5d
-  ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
- 80039da:	2300      	movs	r3, #0
- 80039dc:	663b      	str	r3, [r7, #96]	; 0x60
-  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
  80039de:	2300      	movs	r3, #0
- 80039e0:	66bb      	str	r3, [r7, #104]	; 0x68
+ 80039e0:	f887 305c 	strb.w	r3, [r7, #92]	; 0x5c
+  ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+ 80039e4:	2301      	movs	r3, #1
+ 80039e6:	f887 305d 	strb.w	r3, [r7, #93]	; 0x5d
+  ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+ 80039ea:	2300      	movs	r3, #0
+ 80039ec:	663b      	str	r3, [r7, #96]	; 0x60
+  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+ 80039ee:	2300      	movs	r3, #0
+ 80039f0:	66bb      	str	r3, [r7, #104]	; 0x68
   ADC_InitStructure.ADC_NbrOfConversion = 1;
- 80039e2:	2301      	movs	r3, #1
- 80039e4:	f887 306c 	strb.w	r3, [r7, #108]	; 0x6c
+ 80039f2:	2301      	movs	r3, #1
+ 80039f4:	f887 306c 	strb.w	r3, [r7, #108]	; 0x6c
   ADC_Init(ADC3, &ADC_InitStructure);
- 80039e8:	f107 0358 	add.w	r3, r7, #88	; 0x58
- 80039ec:	4619      	mov	r1, r3
- 80039ee:	4811      	ldr	r0, [pc, #68]	; (8003a34 <ADC3_CH12_DMA_Config+0x10c>)
- 80039f0:	f7fd f866 	bl	8000ac0 <ADC_Init>
+ 80039f8:	f107 0358 	add.w	r3, r7, #88	; 0x58
+ 80039fc:	4619      	mov	r1, r3
+ 80039fe:	4811      	ldr	r0, [pc, #68]	; (8003a44 <ADC3_CH12_DMA_Config+0x10c>)
+ 8003a00:	f7fd f85e 	bl	8000ac0 <ADC_Init>
 
   /* ADC3 regular channel12 configuration *************************************/
   ADC_RegularChannelConfig(ADC3, ADC_Channel_12, 1, ADC_SampleTime_3Cycles);
- 80039f4:	2300      	movs	r3, #0
- 80039f6:	2201      	movs	r2, #1
- 80039f8:	210c      	movs	r1, #12
- 80039fa:	480e      	ldr	r0, [pc, #56]	; (8003a34 <ADC3_CH12_DMA_Config+0x10c>)
- 80039fc:	f7fd f8fa 	bl	8000bf4 <ADC_RegularChannelConfig>
+ 8003a04:	2300      	movs	r3, #0
+ 8003a06:	2201      	movs	r2, #1
+ 8003a08:	210c      	movs	r1, #12
+ 8003a0a:	480e      	ldr	r0, [pc, #56]	; (8003a44 <ADC3_CH12_DMA_Config+0x10c>)
+ 8003a0c:	f7fd f8f2 	bl	8000bf4 <ADC_RegularChannelConfig>
 
  /* Enable DMA request after last transfer (Single-ADC mode) */
   ADC_DMARequestAfterLastTransferCmd(ADC3, ENABLE);
- 8003a00:	2101      	movs	r1, #1
- 8003a02:	480c      	ldr	r0, [pc, #48]	; (8003a34 <ADC3_CH12_DMA_Config+0x10c>)
- 8003a04:	f7fd f9ec 	bl	8000de0 <ADC_DMARequestAfterLastTransferCmd>
+ 8003a10:	2101      	movs	r1, #1
+ 8003a12:	480c      	ldr	r0, [pc, #48]	; (8003a44 <ADC3_CH12_DMA_Config+0x10c>)
+ 8003a14:	f7fd f9e4 	bl	8000de0 <ADC_DMARequestAfterLastTransferCmd>
 
   /* Enable ADC3 DMA */
   ADC_DMACmd(ADC3, ENABLE);
- 8003a08:	2101      	movs	r1, #1
- 8003a0a:	480a      	ldr	r0, [pc, #40]	; (8003a34 <ADC3_CH12_DMA_Config+0x10c>)
- 8003a0c:	f7fd f9cc 	bl	8000da8 <ADC_DMACmd>
+ 8003a18:	2101      	movs	r1, #1
+ 8003a1a:	480a      	ldr	r0, [pc, #40]	; (8003a44 <ADC3_CH12_DMA_Config+0x10c>)
+ 8003a1c:	f7fd f9c4 	bl	8000da8 <ADC_DMACmd>
 
   /* Enable ADC3 */
   ADC_Cmd(ADC3, ENABLE);
- 8003a10:	2101      	movs	r1, #1
- 8003a12:	4808      	ldr	r0, [pc, #32]	; (8003a34 <ADC3_CH12_DMA_Config+0x10c>)
- 8003a14:	f7fd f8d2 	bl	8000bbc <ADC_Cmd>
+ 8003a20:	2101      	movs	r1, #1
+ 8003a22:	4808      	ldr	r0, [pc, #32]	; (8003a44 <ADC3_CH12_DMA_Config+0x10c>)
+ 8003a24:	f7fd f8ca 	bl	8000bbc <ADC_Cmd>
 }
- 8003a18:	bf00      	nop
- 8003a1a:	3770      	adds	r7, #112	; 0x70
- 8003a1c:	46bd      	mov	sp, r7
- 8003a1e:	bd80      	pop	{r7, pc}
- 8003a20:	00400004 	.word	0x00400004
- 8003a24:	4001224c 	.word	0x4001224c
- 8003a28:	2000008c 	.word	0x2000008c
- 8003a2c:	40026410 	.word	0x40026410
- 8003a30:	40020800 	.word	0x40020800
- 8003a34:	40012200 	.word	0x40012200
+ 8003a28:	bf00      	nop
+ 8003a2a:	3770      	adds	r7, #112	; 0x70
+ 8003a2c:	46bd      	mov	sp, r7
+ 8003a2e:	bd80      	pop	{r7, pc}
+ 8003a30:	00400004 	.word	0x00400004
+ 8003a34:	4001224c 	.word	0x4001224c
+ 8003a38:	20000088 	.word	0x20000088
+ 8003a3c:	40026410 	.word	0x40026410
+ 8003a40:	40020800 	.word	0x40020800
+ 8003a44:	40012200 	.word	0x40012200
 
-08003a38 <Reset_Handler>:
+08003a48 <Reset_Handler>:
 
     .section  .text.Reset_Handler
   .weak  Reset_Handler
   .type  Reset_Handler, %function
 Reset_Handler:  
   ldr   sp, =_estack    /* Atollic update: set stack pointer */
- 8003a38:	f8df d034 	ldr.w	sp, [pc, #52]	; 8003a70 <LoopFillZerobss+0x14>
+ 8003a48:	f8df d034 	ldr.w	sp, [pc, #52]	; 8003a80 <LoopFillZerobss+0x14>
 
 /* Copy the data segment initializers from flash to SRAM */  
   movs  r1, #0
- 8003a3c:	2100      	movs	r1, #0
+ 8003a4c:	2100      	movs	r1, #0
   b  LoopCopyDataInit
- 8003a3e:	e003      	b.n	8003a48 <LoopCopyDataInit>
+ 8003a4e:	e003      	b.n	8003a58 <LoopCopyDataInit>
 
-08003a40 <CopyDataInit>:
+08003a50 <CopyDataInit>:
 
 CopyDataInit:
   ldr  r3, =_sidata
- 8003a40:	4b0c      	ldr	r3, [pc, #48]	; (8003a74 <LoopFillZerobss+0x18>)
+ 8003a50:	4b0c      	ldr	r3, [pc, #48]	; (8003a84 <LoopFillZerobss+0x18>)
   ldr  r3, [r3, r1]
- 8003a42:	585b      	ldr	r3, [r3, r1]
+ 8003a52:	585b      	ldr	r3, [r3, r1]
   str  r3, [r0, r1]
- 8003a44:	5043      	str	r3, [r0, r1]
+ 8003a54:	5043      	str	r3, [r0, r1]
   adds  r1, r1, #4
- 8003a46:	3104      	adds	r1, #4
+ 8003a56:	3104      	adds	r1, #4
 
-08003a48 <LoopCopyDataInit>:
+08003a58 <LoopCopyDataInit>:
     
 LoopCopyDataInit:
   ldr  r0, =_sdata
- 8003a48:	480b      	ldr	r0, [pc, #44]	; (8003a78 <LoopFillZerobss+0x1c>)
+ 8003a58:	480b      	ldr	r0, [pc, #44]	; (8003a88 <LoopFillZerobss+0x1c>)
   ldr  r3, =_edata
- 8003a4a:	4b0c      	ldr	r3, [pc, #48]	; (8003a7c <LoopFillZerobss+0x20>)
+ 8003a5a:	4b0c      	ldr	r3, [pc, #48]	; (8003a8c <LoopFillZerobss+0x20>)
   adds  r2, r0, r1
- 8003a4c:	1842      	adds	r2, r0, r1
+ 8003a5c:	1842      	adds	r2, r0, r1
   cmp  r2, r3
- 8003a4e:	429a      	cmp	r2, r3
+ 8003a5e:	429a      	cmp	r2, r3
   bcc  CopyDataInit
- 8003a50:	d3f6      	bcc.n	8003a40 <CopyDataInit>
+ 8003a60:	d3f6      	bcc.n	8003a50 <CopyDataInit>
   ldr  r2, =_sbss
- 8003a52:	4a0b      	ldr	r2, [pc, #44]	; (8003a80 <LoopFillZerobss+0x24>)
+ 8003a62:	4a0b      	ldr	r2, [pc, #44]	; (8003a90 <LoopFillZerobss+0x24>)
   b  LoopFillZerobss
- 8003a54:	e002      	b.n	8003a5c <LoopFillZerobss>
+ 8003a64:	e002      	b.n	8003a6c <LoopFillZerobss>
 
-08003a56 <FillZerobss>:
+08003a66 <FillZerobss>:
 /* Zero fill the bss segment. */  
 FillZerobss:
   movs  r3, #0
- 8003a56:	2300      	movs	r3, #0
+ 8003a66:	2300      	movs	r3, #0
   str  r3, [r2], #4
- 8003a58:	f842 3b04 	str.w	r3, [r2], #4
+ 8003a68:	f842 3b04 	str.w	r3, [r2], #4
 
-08003a5c <LoopFillZerobss>:
+08003a6c <LoopFillZerobss>:
     
 LoopFillZerobss:
   ldr  r3, = _ebss
- 8003a5c:	4b09      	ldr	r3, [pc, #36]	; (8003a84 <LoopFillZerobss+0x28>)
+ 8003a6c:	4b09      	ldr	r3, [pc, #36]	; (8003a94 <LoopFillZerobss+0x28>)
   cmp  r2, r3
- 8003a5e:	429a      	cmp	r2, r3
+ 8003a6e:	429a      	cmp	r2, r3
   bcc  FillZerobss
- 8003a60:	d3f9      	bcc.n	8003a56 <FillZerobss>
+ 8003a70:	d3f9      	bcc.n	8003a66 <FillZerobss>
 
 /* Call the clock system intitialization function.*/
   bl  SystemInit   
- 8003a62:	f000 f85b 	bl	8003b1c <SystemInit>
+ 8003a72:	f000 f85b 	bl	8003b2c <SystemInit>
 /* Call static constructors */
     bl __libc_init_array
- 8003a66:	f000 f95f 	bl	8003d28 <__libc_init_array>
+ 8003a76:	f000 f95f 	bl	8003d38 <__libc_init_array>
 /* Call the application's entry point.*/
   bl  main
- 8003a6a:	f7ff fa3b 	bl	8002ee4 <main>
+ 8003a7a:	f7ff fa33 	bl	8002ee4 <main>
   bx  lr    
- 8003a6e:	4770      	bx	lr
+ 8003a7e:	4770      	bx	lr
 
     .section  .text.Reset_Handler
   .weak  Reset_Handler
   .type  Reset_Handler, %function
 Reset_Handler:  
   ldr   sp, =_estack    /* Atollic update: set stack pointer */
- 8003a70:	20020000 	.word	0x20020000
+ 8003a80:	20020000 	.word	0x20020000
 /* Copy the data segment initializers from flash to SRAM */  
   movs  r1, #0
   b  LoopCopyDataInit
 
 CopyDataInit:
   ldr  r3, =_sidata
- 8003a74:	080045b0 	.word	0x080045b0
+ 8003a84:	080045c0 	.word	0x080045c0
   ldr  r3, [r3, r1]
   str  r3, [r0, r1]
   adds  r1, r1, #4
     
 LoopCopyDataInit:
   ldr  r0, =_sdata
- 8003a78:	20000000 	.word	0x20000000
+ 8003a88:	20000000 	.word	0x20000000
   ldr  r3, =_edata
- 8003a7c:	20000068 	.word	0x20000068
+ 8003a8c:	20000064 	.word	0x20000064
   adds  r2, r0, r1
   cmp  r2, r3
   bcc  CopyDataInit
   ldr  r2, =_sbss
- 8003a80:	20000068 	.word	0x20000068
+ 8003a90:	20000064 	.word	0x20000064
 FillZerobss:
   movs  r3, #0
   str  r3, [r2], #4
     
 LoopFillZerobss:
   ldr  r3, = _ebss
- 8003a84:	20000310 	.word	0x20000310
+ 8003a94:	2000030c 	.word	0x2000030c
 
-08003a88 <ADC_IRQHandler>:
+08003a98 <ADC_IRQHandler>:
  * @retval None       
 */
     .section  .text.Default_Handler,"ax",%progbits
 Default_Handler:
 Infinite_Loop:
   b  Infinite_Loop
- 8003a88:	e7fe      	b.n	8003a88 <ADC_IRQHandler>
+ 8003a98:	e7fe      	b.n	8003a98 <ADC_IRQHandler>
 	...
 
-08003a8c <NMI_Handler>:
+08003a9c <NMI_Handler>:
   * @brief   This function handles NMI exception.
   * @param  None
   * @retval None
   */
 void NMI_Handler(void)
 {
- 8003a8c:	b480      	push	{r7}
- 8003a8e:	af00      	add	r7, sp, #0
+ 8003a9c:	b480      	push	{r7}
+ 8003a9e:	af00      	add	r7, sp, #0
 }
- 8003a90:	bf00      	nop
- 8003a92:	46bd      	mov	sp, r7
- 8003a94:	f85d 7b04 	ldr.w	r7, [sp], #4
- 8003a98:	4770      	bx	lr
- 8003a9a:	bf00      	nop
+ 8003aa0:	bf00      	nop
+ 8003aa2:	46bd      	mov	sp, r7
+ 8003aa4:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8003aa8:	4770      	bx	lr
+ 8003aaa:	bf00      	nop
 
-08003a9c <HardFault_Handler>:
+08003aac <HardFault_Handler>:
   * @brief  This function handles Hard Fault exception.
   * @param  None
   * @retval None
   */
 void HardFault_Handler(void)
 {
- 8003a9c:	b480      	push	{r7}
- 8003a9e:	af00      	add	r7, sp, #0
+ 8003aac:	b480      	push	{r7}
+ 8003aae:	af00      	add	r7, sp, #0
   /* Go to infinite loop when Hard Fault exception occurs */
   while (1)
   {
   }
- 8003aa0:	e7fe      	b.n	8003aa0 <HardFault_Handler+0x4>
- 8003aa2:	bf00      	nop
+ 8003ab0:	e7fe      	b.n	8003ab0 <HardFault_Handler+0x4>
+ 8003ab2:	bf00      	nop
 
-08003aa4 <MemManage_Handler>:
+08003ab4 <MemManage_Handler>:
   * @brief  This function handles Memory Manage exception.
   * @param  None
   * @retval None
   */
 void MemManage_Handler(void)
 {
- 8003aa4:	b480      	push	{r7}
- 8003aa6:	af00      	add	r7, sp, #0
+ 8003ab4:	b480      	push	{r7}
+ 8003ab6:	af00      	add	r7, sp, #0
   /* Go to infinite loop when Memory Manage exception occurs */
   while (1)
   {
   }
- 8003aa8:	e7fe      	b.n	8003aa8 <MemManage_Handler+0x4>
- 8003aaa:	bf00      	nop
+ 8003ab8:	e7fe      	b.n	8003ab8 <MemManage_Handler+0x4>
+ 8003aba:	bf00      	nop
 
-08003aac <BusFault_Handler>:
+08003abc <BusFault_Handler>:
   * @brief  This function handles Bus Fault exception.
   * @param  None
   * @retval None
   */
 void BusFault_Handler(void)
 {
- 8003aac:	b480      	push	{r7}
- 8003aae:	af00      	add	r7, sp, #0
+ 8003abc:	b480      	push	{r7}
+ 8003abe:	af00      	add	r7, sp, #0
   /* Go to infinite loop when Bus Fault exception occurs */
   while (1)
   {
   }
- 8003ab0:	e7fe      	b.n	8003ab0 <BusFault_Handler+0x4>
- 8003ab2:	bf00      	nop
+ 8003ac0:	e7fe      	b.n	8003ac0 <BusFault_Handler+0x4>
+ 8003ac2:	bf00      	nop
 
-08003ab4 <UsageFault_Handler>:
+08003ac4 <UsageFault_Handler>:
   * @brief  This function handles Usage Fault exception.
   * @param  None
   * @retval None
   */
 void UsageFault_Handler(void)
 {
- 8003ab4:	b480      	push	{r7}
- 8003ab6:	af00      	add	r7, sp, #0
+ 8003ac4:	b480      	push	{r7}
+ 8003ac6:	af00      	add	r7, sp, #0
   /* Go to infinite loop when Usage Fault exception occurs */
   while (1)
   {
   }
- 8003ab8:	e7fe      	b.n	8003ab8 <UsageFault_Handler+0x4>
- 8003aba:	bf00      	nop
+ 8003ac8:	e7fe      	b.n	8003ac8 <UsageFault_Handler+0x4>
+ 8003aca:	bf00      	nop
 
-08003abc <SVC_Handler>:
+08003acc <SVC_Handler>:
   * @brief  This function handles SVCall exception.
   * @param  None
   * @retval None
   */
 void SVC_Handler(void)
-{
- 8003abc:	b480      	push	{r7}
- 8003abe:	af00      	add	r7, sp, #0
-}
- 8003ac0:	bf00      	nop
- 8003ac2:	46bd      	mov	sp, r7
- 8003ac4:	f85d 7b04 	ldr.w	r7, [sp], #4
- 8003ac8:	4770      	bx	lr
- 8003aca:	bf00      	nop
-
-08003acc <DebugMon_Handler>:
-  * @brief  This function handles Debug Monitor exception.
-  * @param  None
-  * @retval None
-  */
-void DebugMon_Handler(void)
 {
  8003acc:	b480      	push	{r7}
  8003ace:	af00      	add	r7, sp, #0
@@ -10130,12 +10122,12 @@ void DebugMon_Handler(void)
  8003ad8:	4770      	bx	lr
  8003ada:	bf00      	nop
 
-08003adc <PendSV_Handler>:
-  * @brief  This function handles PendSVC exception.
+08003adc <DebugMon_Handler>:
+  * @brief  This function handles Debug Monitor exception.
   * @param  None
   * @retval None
   */
-void PendSV_Handler(void)
+void DebugMon_Handler(void)
 {
  8003adc:	b480      	push	{r7}
  8003ade:	af00      	add	r7, sp, #0
@@ -10146,20 +10138,15 @@ void PendSV_Handler(void)
  8003ae8:	4770      	bx	lr
  8003aea:	bf00      	nop
 
-08003aec <SysTick_Handler>:
-  * @brief  This function handles SysTick Handler.
+08003aec <PendSV_Handler>:
+  * @brief  This function handles PendSVC exception.
   * @param  None
   * @retval None
   */
-void SysTick_Handler(void)
+void PendSV_Handler(void)
 {
  8003aec:	b480      	push	{r7}
  8003aee:	af00      	add	r7, sp, #0
-//		// f1 = ADC3ConvertedValue * 10;
-//
-//		/*  update the duration between each note   */
-//		// TimingDelay = (uint32_t)(5.f + 50.f * ((float)ADC3ConvertedValue) / 255.f);
-//	}
 }
  8003af0:	bf00      	nop
  8003af2:	46bd      	mov	sp, r7
@@ -10167,16 +10154,20 @@ void SysTick_Handler(void)
  8003af8:	4770      	bx	lr
  8003afa:	bf00      	nop
 
-08003afc <EXTI0_IRQHandler>:
-  * @brief  This function handles External line 0 interrupt request.
+08003afc <SysTick_Handler>:
+  * @brief  This function handles SysTick Handler.
   * @param  None
   * @retval None
   */
-void EXTI0_IRQHandler(void)
+void SysTick_Handler(void)
 {
  8003afc:	b480      	push	{r7}
  8003afe:	af00      	add	r7, sp, #0
-
+//		// f1 = ADC3ConvertedValue * 10;
+//
+//		/*  update the duration between each note   */
+//		// TimingDelay = (uint32_t)(5.f + 50.f * ((float)ADC3ConvertedValue) / 255.f);
+//	}
 }
  8003b00:	bf00      	nop
  8003b02:	46bd      	mov	sp, r7
@@ -10184,16 +10175,16 @@ void EXTI0_IRQHandler(void)
  8003b08:	4770      	bx	lr
  8003b0a:	bf00      	nop
 
-08003b0c <TIM4_IRQHandler>:
-  * @brief  This function handles TIM4 global interrupt request.
+08003b0c <EXTI0_IRQHandler>:
+  * @brief  This function handles External line 0 interrupt request.
   * @param  None
   * @retval None
   */
-void TIM4_IRQHandler(void)
+void EXTI0_IRQHandler(void)
 {
  8003b0c:	b480      	push	{r7}
  8003b0e:	af00      	add	r7, sp, #0
-  
+
 }
  8003b10:	bf00      	nop
  8003b12:	46bd      	mov	sp, r7
@@ -10201,381 +10192,398 @@ void TIM4_IRQHandler(void)
  8003b18:	4770      	bx	lr
  8003b1a:	bf00      	nop
 
-08003b1c <SystemInit>:
+08003b1c <TIM4_IRQHandler>:
+  * @brief  This function handles TIM4 global interrupt request.
+  * @param  None
+  * @retval None
+  */
+void TIM4_IRQHandler(void)
+{
+ 8003b1c:	b480      	push	{r7}
+ 8003b1e:	af00      	add	r7, sp, #0
+  
+}
+ 8003b20:	bf00      	nop
+ 8003b22:	46bd      	mov	sp, r7
+ 8003b24:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8003b28:	4770      	bx	lr
+ 8003b2a:	bf00      	nop
+
+08003b2c <SystemInit>:
   *         SystemFrequency variable.
   * @param  None
   * @retval None
   */
 void SystemInit(void)
 {
- 8003b1c:	b580      	push	{r7, lr}
- 8003b1e:	af00      	add	r7, sp, #0
+ 8003b2c:	b580      	push	{r7, lr}
+ 8003b2e:	af00      	add	r7, sp, #0
   /* FPU settings ------------------------------------------------------------*/
   //#if ((__FPU_PRESENT == 1) && (__FPU_USED == 1))
     SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 Full Access */
- 8003b20:	4a16      	ldr	r2, [pc, #88]	; (8003b7c <SystemInit+0x60>)
- 8003b22:	4b16      	ldr	r3, [pc, #88]	; (8003b7c <SystemInit+0x60>)
- 8003b24:	f8d3 3088 	ldr.w	r3, [r3, #136]	; 0x88
- 8003b28:	f443 0370 	orr.w	r3, r3, #15728640	; 0xf00000
- 8003b2c:	f8c2 3088 	str.w	r3, [r2, #136]	; 0x88
+ 8003b30:	4a16      	ldr	r2, [pc, #88]	; (8003b8c <SystemInit+0x60>)
+ 8003b32:	4b16      	ldr	r3, [pc, #88]	; (8003b8c <SystemInit+0x60>)
+ 8003b34:	f8d3 3088 	ldr.w	r3, [r3, #136]	; 0x88
+ 8003b38:	f443 0370 	orr.w	r3, r3, #15728640	; 0xf00000
+ 8003b3c:	f8c2 3088 	str.w	r3, [r2, #136]	; 0x88
   //#endif
   /* Reset the RCC clock configuration to the default reset state ------------*/
   /* Set HSION bit */
   RCC->CR |= (uint32_t)0x00000001;
- 8003b30:	4a13      	ldr	r2, [pc, #76]	; (8003b80 <SystemInit+0x64>)
- 8003b32:	4b13      	ldr	r3, [pc, #76]	; (8003b80 <SystemInit+0x64>)
- 8003b34:	681b      	ldr	r3, [r3, #0]
- 8003b36:	f043 0301 	orr.w	r3, r3, #1
- 8003b3a:	6013      	str	r3, [r2, #0]
+ 8003b40:	4a13      	ldr	r2, [pc, #76]	; (8003b90 <SystemInit+0x64>)
+ 8003b42:	4b13      	ldr	r3, [pc, #76]	; (8003b90 <SystemInit+0x64>)
+ 8003b44:	681b      	ldr	r3, [r3, #0]
+ 8003b46:	f043 0301 	orr.w	r3, r3, #1
+ 8003b4a:	6013      	str	r3, [r2, #0]
 
   /* Reset CFGR register */
   RCC->CFGR = 0x00000000;
- 8003b3c:	4b10      	ldr	r3, [pc, #64]	; (8003b80 <SystemInit+0x64>)
- 8003b3e:	2200      	movs	r2, #0
- 8003b40:	609a      	str	r2, [r3, #8]
+ 8003b4c:	4b10      	ldr	r3, [pc, #64]	; (8003b90 <SystemInit+0x64>)
+ 8003b4e:	2200      	movs	r2, #0
+ 8003b50:	609a      	str	r2, [r3, #8]
 
   /* Reset HSEON, CSSON and PLLON bits */
   RCC->CR &= (uint32_t)0xFEF6FFFF;
- 8003b42:	4a0f      	ldr	r2, [pc, #60]	; (8003b80 <SystemInit+0x64>)
- 8003b44:	4b0e      	ldr	r3, [pc, #56]	; (8003b80 <SystemInit+0x64>)
- 8003b46:	681b      	ldr	r3, [r3, #0]
- 8003b48:	f023 7384 	bic.w	r3, r3, #17301504	; 0x1080000
- 8003b4c:	f423 3380 	bic.w	r3, r3, #65536	; 0x10000
- 8003b50:	6013      	str	r3, [r2, #0]
+ 8003b52:	4a0f      	ldr	r2, [pc, #60]	; (8003b90 <SystemInit+0x64>)
+ 8003b54:	4b0e      	ldr	r3, [pc, #56]	; (8003b90 <SystemInit+0x64>)
+ 8003b56:	681b      	ldr	r3, [r3, #0]
+ 8003b58:	f023 7384 	bic.w	r3, r3, #17301504	; 0x1080000
+ 8003b5c:	f423 3380 	bic.w	r3, r3, #65536	; 0x10000
+ 8003b60:	6013      	str	r3, [r2, #0]
 
   /* Reset PLLCFGR register */
   RCC->PLLCFGR = 0x24003010;
- 8003b52:	4b0b      	ldr	r3, [pc, #44]	; (8003b80 <SystemInit+0x64>)
- 8003b54:	4a0b      	ldr	r2, [pc, #44]	; (8003b84 <SystemInit+0x68>)
- 8003b56:	605a      	str	r2, [r3, #4]
+ 8003b62:	4b0b      	ldr	r3, [pc, #44]	; (8003b90 <SystemInit+0x64>)
+ 8003b64:	4a0b      	ldr	r2, [pc, #44]	; (8003b94 <SystemInit+0x68>)
+ 8003b66:	605a      	str	r2, [r3, #4]
 
   /* Reset HSEBYP bit */
   RCC->CR &= (uint32_t)0xFFFBFFFF;
- 8003b58:	4a09      	ldr	r2, [pc, #36]	; (8003b80 <SystemInit+0x64>)
- 8003b5a:	4b09      	ldr	r3, [pc, #36]	; (8003b80 <SystemInit+0x64>)
- 8003b5c:	681b      	ldr	r3, [r3, #0]
- 8003b5e:	f423 2380 	bic.w	r3, r3, #262144	; 0x40000
- 8003b62:	6013      	str	r3, [r2, #0]
+ 8003b68:	4a09      	ldr	r2, [pc, #36]	; (8003b90 <SystemInit+0x64>)
+ 8003b6a:	4b09      	ldr	r3, [pc, #36]	; (8003b90 <SystemInit+0x64>)
+ 8003b6c:	681b      	ldr	r3, [r3, #0]
+ 8003b6e:	f423 2380 	bic.w	r3, r3, #262144	; 0x40000
+ 8003b72:	6013      	str	r3, [r2, #0]
 
   /* Disable all interrupts */
   RCC->CIR = 0x00000000;
- 8003b64:	4b06      	ldr	r3, [pc, #24]	; (8003b80 <SystemInit+0x64>)
- 8003b66:	2200      	movs	r2, #0
- 8003b68:	60da      	str	r2, [r3, #12]
+ 8003b74:	4b06      	ldr	r3, [pc, #24]	; (8003b90 <SystemInit+0x64>)
+ 8003b76:	2200      	movs	r2, #0
+ 8003b78:	60da      	str	r2, [r3, #12]
   SystemInit_ExtMemCtl(); 
 #endif /* DATA_IN_ExtSRAM */
          
   /* Configure the System clock source, PLL Multiplier and Divider factors, 
      AHB/APBx prescalers and Flash settings ----------------------------------*/
   SetSysClock();
- 8003b6a:	f000 f80d 	bl	8003b88 <SetSysClock>
+ 8003b7a:	f000 f80d 	bl	8003b98 <SetSysClock>
 
   /* Configure the Vector Table location add offset address ------------------*/
 #ifdef VECT_TAB_SRAM
   SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
 #else
   SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
- 8003b6e:	4b03      	ldr	r3, [pc, #12]	; (8003b7c <SystemInit+0x60>)
- 8003b70:	f04f 6200 	mov.w	r2, #134217728	; 0x8000000
- 8003b74:	609a      	str	r2, [r3, #8]
+ 8003b7e:	4b03      	ldr	r3, [pc, #12]	; (8003b8c <SystemInit+0x60>)
+ 8003b80:	f04f 6200 	mov.w	r2, #134217728	; 0x8000000
+ 8003b84:	609a      	str	r2, [r3, #8]
 #endif
 }
- 8003b76:	bf00      	nop
- 8003b78:	bd80      	pop	{r7, pc}
- 8003b7a:	bf00      	nop
- 8003b7c:	e000ed00 	.word	0xe000ed00
- 8003b80:	40023800 	.word	0x40023800
- 8003b84:	24003010 	.word	0x24003010
+ 8003b86:	bf00      	nop
+ 8003b88:	bd80      	pop	{r7, pc}
+ 8003b8a:	bf00      	nop
+ 8003b8c:	e000ed00 	.word	0xe000ed00
+ 8003b90:	40023800 	.word	0x40023800
+ 8003b94:	24003010 	.word	0x24003010
 
-08003b88 <SetSysClock>:
+08003b98 <SetSysClock>:
   *         is reset to the default reset state (done in SystemInit() function).   
   * @param  None
   * @retval None
   */
 static void SetSysClock(void)
 {
- 8003b88:	b480      	push	{r7}
- 8003b8a:	b083      	sub	sp, #12
- 8003b8c:	af00      	add	r7, sp, #0
+ 8003b98:	b480      	push	{r7}
+ 8003b9a:	b083      	sub	sp, #12
+ 8003b9c:	af00      	add	r7, sp, #0
 /******************************************************************************/
 /*            PLL (clocked by HSE) used as System clock source                */
 /******************************************************************************/
   __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
- 8003b8e:	2300      	movs	r3, #0
- 8003b90:	607b      	str	r3, [r7, #4]
- 8003b92:	2300      	movs	r3, #0
- 8003b94:	603b      	str	r3, [r7, #0]
+ 8003b9e:	2300      	movs	r3, #0
+ 8003ba0:	607b      	str	r3, [r7, #4]
+ 8003ba2:	2300      	movs	r3, #0
+ 8003ba4:	603b      	str	r3, [r7, #0]
   
   /* Enable HSE */
   RCC->CR |= ((uint32_t)RCC_CR_HSEON);
- 8003b96:	4a41      	ldr	r2, [pc, #260]	; (8003c9c <SetSysClock+0x114>)
- 8003b98:	4b40      	ldr	r3, [pc, #256]	; (8003c9c <SetSysClock+0x114>)
- 8003b9a:	681b      	ldr	r3, [r3, #0]
- 8003b9c:	f443 3380 	orr.w	r3, r3, #65536	; 0x10000
- 8003ba0:	6013      	str	r3, [r2, #0]
+ 8003ba6:	4a41      	ldr	r2, [pc, #260]	; (8003cac <SetSysClock+0x114>)
+ 8003ba8:	4b40      	ldr	r3, [pc, #256]	; (8003cac <SetSysClock+0x114>)
+ 8003baa:	681b      	ldr	r3, [r3, #0]
+ 8003bac:	f443 3380 	orr.w	r3, r3, #65536	; 0x10000
+ 8003bb0:	6013      	str	r3, [r2, #0]
  
   /* Wait till HSE is ready and if Time out is reached exit */
   do
   {
     HSEStatus = RCC->CR & RCC_CR_HSERDY;
- 8003ba2:	4b3e      	ldr	r3, [pc, #248]	; (8003c9c <SetSysClock+0x114>)
- 8003ba4:	681b      	ldr	r3, [r3, #0]
- 8003ba6:	f403 3300 	and.w	r3, r3, #131072	; 0x20000
- 8003baa:	603b      	str	r3, [r7, #0]
+ 8003bb2:	4b3e      	ldr	r3, [pc, #248]	; (8003cac <SetSysClock+0x114>)
+ 8003bb4:	681b      	ldr	r3, [r3, #0]
+ 8003bb6:	f403 3300 	and.w	r3, r3, #131072	; 0x20000
+ 8003bba:	603b      	str	r3, [r7, #0]
     StartUpCounter++;
- 8003bac:	687b      	ldr	r3, [r7, #4]
- 8003bae:	3301      	adds	r3, #1
- 8003bb0:	607b      	str	r3, [r7, #4]
+ 8003bbc:	687b      	ldr	r3, [r7, #4]
+ 8003bbe:	3301      	adds	r3, #1
+ 8003bc0:	607b      	str	r3, [r7, #4]
   } while((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
- 8003bb2:	683b      	ldr	r3, [r7, #0]
- 8003bb4:	2b00      	cmp	r3, #0
- 8003bb6:	d103      	bne.n	8003bc0 <SetSysClock+0x38>
- 8003bb8:	687b      	ldr	r3, [r7, #4]
- 8003bba:	f5b3 6fa0 	cmp.w	r3, #1280	; 0x500
- 8003bbe:	d1f0      	bne.n	8003ba2 <SetSysClock+0x1a>
+ 8003bc2:	683b      	ldr	r3, [r7, #0]
+ 8003bc4:	2b00      	cmp	r3, #0
+ 8003bc6:	d103      	bne.n	8003bd0 <SetSysClock+0x38>
+ 8003bc8:	687b      	ldr	r3, [r7, #4]
+ 8003bca:	f5b3 6fa0 	cmp.w	r3, #1280	; 0x500
+ 8003bce:	d1f0      	bne.n	8003bb2 <SetSysClock+0x1a>
 
   if ((RCC->CR & RCC_CR_HSERDY) != RESET)
- 8003bc0:	4b36      	ldr	r3, [pc, #216]	; (8003c9c <SetSysClock+0x114>)
- 8003bc2:	681b      	ldr	r3, [r3, #0]
- 8003bc4:	f403 3300 	and.w	r3, r3, #131072	; 0x20000
- 8003bc8:	2b00      	cmp	r3, #0
- 8003bca:	d002      	beq.n	8003bd2 <SetSysClock+0x4a>
+ 8003bd0:	4b36      	ldr	r3, [pc, #216]	; (8003cac <SetSysClock+0x114>)
+ 8003bd2:	681b      	ldr	r3, [r3, #0]
+ 8003bd4:	f403 3300 	and.w	r3, r3, #131072	; 0x20000
+ 8003bd8:	2b00      	cmp	r3, #0
+ 8003bda:	d002      	beq.n	8003be2 <SetSysClock+0x4a>
   {
     HSEStatus = (uint32_t)0x01;
- 8003bcc:	2301      	movs	r3, #1
- 8003bce:	603b      	str	r3, [r7, #0]
- 8003bd0:	e001      	b.n	8003bd6 <SetSysClock+0x4e>
+ 8003bdc:	2301      	movs	r3, #1
+ 8003bde:	603b      	str	r3, [r7, #0]
+ 8003be0:	e001      	b.n	8003be6 <SetSysClock+0x4e>
   }
   else
   {
     HSEStatus = (uint32_t)0x00;
- 8003bd2:	2300      	movs	r3, #0
- 8003bd4:	603b      	str	r3, [r7, #0]
+ 8003be2:	2300      	movs	r3, #0
+ 8003be4:	603b      	str	r3, [r7, #0]
   }
 
   if (HSEStatus == (uint32_t)0x01)
- 8003bd6:	683b      	ldr	r3, [r7, #0]
- 8003bd8:	2b01      	cmp	r3, #1
- 8003bda:	d142      	bne.n	8003c62 <SetSysClock+0xda>
+ 8003be6:	683b      	ldr	r3, [r7, #0]
+ 8003be8:	2b01      	cmp	r3, #1
+ 8003bea:	d142      	bne.n	8003c72 <SetSysClock+0xda>
   {
     /* Select regulator voltage output Scale 1 mode, System frequency up to 168 MHz */
     RCC->APB1ENR |= RCC_APB1ENR_PWREN;
- 8003bdc:	4a2f      	ldr	r2, [pc, #188]	; (8003c9c <SetSysClock+0x114>)
- 8003bde:	4b2f      	ldr	r3, [pc, #188]	; (8003c9c <SetSysClock+0x114>)
- 8003be0:	6c1b      	ldr	r3, [r3, #64]	; 0x40
- 8003be2:	f043 5380 	orr.w	r3, r3, #268435456	; 0x10000000
- 8003be6:	6413      	str	r3, [r2, #64]	; 0x40
+ 8003bec:	4a2f      	ldr	r2, [pc, #188]	; (8003cac <SetSysClock+0x114>)
+ 8003bee:	4b2f      	ldr	r3, [pc, #188]	; (8003cac <SetSysClock+0x114>)
+ 8003bf0:	6c1b      	ldr	r3, [r3, #64]	; 0x40
+ 8003bf2:	f043 5380 	orr.w	r3, r3, #268435456	; 0x10000000
+ 8003bf6:	6413      	str	r3, [r2, #64]	; 0x40
     PWR->CR |= PWR_CR_VOS;
- 8003be8:	4a2d      	ldr	r2, [pc, #180]	; (8003ca0 <SetSysClock+0x118>)
- 8003bea:	4b2d      	ldr	r3, [pc, #180]	; (8003ca0 <SetSysClock+0x118>)
- 8003bec:	681b      	ldr	r3, [r3, #0]
- 8003bee:	f443 4340 	orr.w	r3, r3, #49152	; 0xc000
- 8003bf2:	6013      	str	r3, [r2, #0]
+ 8003bf8:	4a2d      	ldr	r2, [pc, #180]	; (8003cb0 <SetSysClock+0x118>)
+ 8003bfa:	4b2d      	ldr	r3, [pc, #180]	; (8003cb0 <SetSysClock+0x118>)
+ 8003bfc:	681b      	ldr	r3, [r3, #0]
+ 8003bfe:	f443 4340 	orr.w	r3, r3, #49152	; 0xc000
+ 8003c02:	6013      	str	r3, [r2, #0]
 
     /* HCLK = SYSCLK / 1*/
     RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
- 8003bf4:	4a29      	ldr	r2, [pc, #164]	; (8003c9c <SetSysClock+0x114>)
- 8003bf6:	4b29      	ldr	r3, [pc, #164]	; (8003c9c <SetSysClock+0x114>)
- 8003bf8:	689b      	ldr	r3, [r3, #8]
- 8003bfa:	6093      	str	r3, [r2, #8]
+ 8003c04:	4a29      	ldr	r2, [pc, #164]	; (8003cac <SetSysClock+0x114>)
+ 8003c06:	4b29      	ldr	r3, [pc, #164]	; (8003cac <SetSysClock+0x114>)
+ 8003c08:	689b      	ldr	r3, [r3, #8]
+ 8003c0a:	6093      	str	r3, [r2, #8]
       
     /* PCLK2 = HCLK / 2*/
     RCC->CFGR |= RCC_CFGR_PPRE2_DIV2;
- 8003bfc:	4a27      	ldr	r2, [pc, #156]	; (8003c9c <SetSysClock+0x114>)
- 8003bfe:	4b27      	ldr	r3, [pc, #156]	; (8003c9c <SetSysClock+0x114>)
- 8003c00:	689b      	ldr	r3, [r3, #8]
- 8003c02:	f443 4300 	orr.w	r3, r3, #32768	; 0x8000
- 8003c06:	6093      	str	r3, [r2, #8]
+ 8003c0c:	4a27      	ldr	r2, [pc, #156]	; (8003cac <SetSysClock+0x114>)
+ 8003c0e:	4b27      	ldr	r3, [pc, #156]	; (8003cac <SetSysClock+0x114>)
+ 8003c10:	689b      	ldr	r3, [r3, #8]
+ 8003c12:	f443 4300 	orr.w	r3, r3, #32768	; 0x8000
+ 8003c16:	6093      	str	r3, [r2, #8]
     
     /* PCLK1 = HCLK / 4*/
     RCC->CFGR |= RCC_CFGR_PPRE1_DIV4;
- 8003c08:	4a24      	ldr	r2, [pc, #144]	; (8003c9c <SetSysClock+0x114>)
- 8003c0a:	4b24      	ldr	r3, [pc, #144]	; (8003c9c <SetSysClock+0x114>)
- 8003c0c:	689b      	ldr	r3, [r3, #8]
- 8003c0e:	f443 53a0 	orr.w	r3, r3, #5120	; 0x1400
- 8003c12:	6093      	str	r3, [r2, #8]
+ 8003c18:	4a24      	ldr	r2, [pc, #144]	; (8003cac <SetSysClock+0x114>)
+ 8003c1a:	4b24      	ldr	r3, [pc, #144]	; (8003cac <SetSysClock+0x114>)
+ 8003c1c:	689b      	ldr	r3, [r3, #8]
+ 8003c1e:	f443 53a0 	orr.w	r3, r3, #5120	; 0x1400
+ 8003c22:	6093      	str	r3, [r2, #8]
 
     /* Configure the main PLL */
     RCC->PLLCFGR = PLL_M | (PLL_N << 6) | (((PLL_P >> 1) -1) << 16) |
- 8003c14:	4b21      	ldr	r3, [pc, #132]	; (8003c9c <SetSysClock+0x114>)
- 8003c16:	4a23      	ldr	r2, [pc, #140]	; (8003ca4 <SetSysClock+0x11c>)
- 8003c18:	605a      	str	r2, [r3, #4]
+ 8003c24:	4b21      	ldr	r3, [pc, #132]	; (8003cac <SetSysClock+0x114>)
+ 8003c26:	4a23      	ldr	r2, [pc, #140]	; (8003cb4 <SetSysClock+0x11c>)
+ 8003c28:	605a      	str	r2, [r3, #4]
                    (RCC_PLLCFGR_PLLSRC_HSE) | (PLL_Q << 24);
 
     /* Enable the main PLL */
     RCC->CR |= RCC_CR_PLLON;
- 8003c1a:	4a20      	ldr	r2, [pc, #128]	; (8003c9c <SetSysClock+0x114>)
- 8003c1c:	4b1f      	ldr	r3, [pc, #124]	; (8003c9c <SetSysClock+0x114>)
- 8003c1e:	681b      	ldr	r3, [r3, #0]
- 8003c20:	f043 7380 	orr.w	r3, r3, #16777216	; 0x1000000
- 8003c24:	6013      	str	r3, [r2, #0]
+ 8003c2a:	4a20      	ldr	r2, [pc, #128]	; (8003cac <SetSysClock+0x114>)
+ 8003c2c:	4b1f      	ldr	r3, [pc, #124]	; (8003cac <SetSysClock+0x114>)
+ 8003c2e:	681b      	ldr	r3, [r3, #0]
+ 8003c30:	f043 7380 	orr.w	r3, r3, #16777216	; 0x1000000
+ 8003c34:	6013      	str	r3, [r2, #0]
 
     /* Wait till the main PLL is ready */
     while((RCC->CR & RCC_CR_PLLRDY) == 0)
- 8003c26:	bf00      	nop
- 8003c28:	4b1c      	ldr	r3, [pc, #112]	; (8003c9c <SetSysClock+0x114>)
- 8003c2a:	681b      	ldr	r3, [r3, #0]
- 8003c2c:	f003 7300 	and.w	r3, r3, #33554432	; 0x2000000
- 8003c30:	2b00      	cmp	r3, #0
- 8003c32:	d0f9      	beq.n	8003c28 <SetSysClock+0xa0>
+ 8003c36:	bf00      	nop
+ 8003c38:	4b1c      	ldr	r3, [pc, #112]	; (8003cac <SetSysClock+0x114>)
+ 8003c3a:	681b      	ldr	r3, [r3, #0]
+ 8003c3c:	f003 7300 	and.w	r3, r3, #33554432	; 0x2000000
+ 8003c40:	2b00      	cmp	r3, #0
+ 8003c42:	d0f9      	beq.n	8003c38 <SetSysClock+0xa0>
     {
     }
    
     /* Configure Flash prefetch, Instruction cache, Data cache and wait state */
     FLASH->ACR = FLASH_ACR_ICEN |FLASH_ACR_DCEN |FLASH_ACR_LATENCY_5WS;
- 8003c34:	4b1c      	ldr	r3, [pc, #112]	; (8003ca8 <SetSysClock+0x120>)
- 8003c36:	f240 6205 	movw	r2, #1541	; 0x605
- 8003c3a:	601a      	str	r2, [r3, #0]
+ 8003c44:	4b1c      	ldr	r3, [pc, #112]	; (8003cb8 <SetSysClock+0x120>)
+ 8003c46:	f240 6205 	movw	r2, #1541	; 0x605
+ 8003c4a:	601a      	str	r2, [r3, #0]
 
     /* Select the main PLL as system clock source */
     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
- 8003c3c:	4a17      	ldr	r2, [pc, #92]	; (8003c9c <SetSysClock+0x114>)
- 8003c3e:	4b17      	ldr	r3, [pc, #92]	; (8003c9c <SetSysClock+0x114>)
- 8003c40:	689b      	ldr	r3, [r3, #8]
- 8003c42:	f023 0303 	bic.w	r3, r3, #3
- 8003c46:	6093      	str	r3, [r2, #8]
+ 8003c4c:	4a17      	ldr	r2, [pc, #92]	; (8003cac <SetSysClock+0x114>)
+ 8003c4e:	4b17      	ldr	r3, [pc, #92]	; (8003cac <SetSysClock+0x114>)
+ 8003c50:	689b      	ldr	r3, [r3, #8]
+ 8003c52:	f023 0303 	bic.w	r3, r3, #3
+ 8003c56:	6093      	str	r3, [r2, #8]
     RCC->CFGR |= RCC_CFGR_SW_PLL;
- 8003c48:	4a14      	ldr	r2, [pc, #80]	; (8003c9c <SetSysClock+0x114>)
- 8003c4a:	4b14      	ldr	r3, [pc, #80]	; (8003c9c <SetSysClock+0x114>)
- 8003c4c:	689b      	ldr	r3, [r3, #8]
- 8003c4e:	f043 0302 	orr.w	r3, r3, #2
- 8003c52:	6093      	str	r3, [r2, #8]
+ 8003c58:	4a14      	ldr	r2, [pc, #80]	; (8003cac <SetSysClock+0x114>)
+ 8003c5a:	4b14      	ldr	r3, [pc, #80]	; (8003cac <SetSysClock+0x114>)
+ 8003c5c:	689b      	ldr	r3, [r3, #8]
+ 8003c5e:	f043 0302 	orr.w	r3, r3, #2
+ 8003c62:	6093      	str	r3, [r2, #8]
 
     /* Wait till the main PLL is used as system clock source */
     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS ) != RCC_CFGR_SWS_PLL);
- 8003c54:	bf00      	nop
- 8003c56:	4b11      	ldr	r3, [pc, #68]	; (8003c9c <SetSysClock+0x114>)
- 8003c58:	689b      	ldr	r3, [r3, #8]
- 8003c5a:	f003 030c 	and.w	r3, r3, #12
- 8003c5e:	2b08      	cmp	r3, #8
- 8003c60:	d1f9      	bne.n	8003c56 <SetSysClock+0xce>
+ 8003c64:	bf00      	nop
+ 8003c66:	4b11      	ldr	r3, [pc, #68]	; (8003cac <SetSysClock+0x114>)
+ 8003c68:	689b      	ldr	r3, [r3, #8]
+ 8003c6a:	f003 030c 	and.w	r3, r3, #12
+ 8003c6e:	2b08      	cmp	r3, #8
+ 8003c70:	d1f9      	bne.n	8003c66 <SetSysClock+0xce>
 
 /******************************************************************************/
 /*                          I2S clock configuration                           */
 /******************************************************************************/
   /* PLLI2S clock used as I2S clock source */
   RCC->CFGR &= ~RCC_CFGR_I2SSRC;
- 8003c62:	4a0e      	ldr	r2, [pc, #56]	; (8003c9c <SetSysClock+0x114>)
- 8003c64:	4b0d      	ldr	r3, [pc, #52]	; (8003c9c <SetSysClock+0x114>)
- 8003c66:	689b      	ldr	r3, [r3, #8]
- 8003c68:	f423 0300 	bic.w	r3, r3, #8388608	; 0x800000
- 8003c6c:	6093      	str	r3, [r2, #8]
+ 8003c72:	4a0e      	ldr	r2, [pc, #56]	; (8003cac <SetSysClock+0x114>)
+ 8003c74:	4b0d      	ldr	r3, [pc, #52]	; (8003cac <SetSysClock+0x114>)
+ 8003c76:	689b      	ldr	r3, [r3, #8]
+ 8003c78:	f423 0300 	bic.w	r3, r3, #8388608	; 0x800000
+ 8003c7c:	6093      	str	r3, [r2, #8]
 
   /* Configure PLLI2S */
   RCC->PLLI2SCFGR = (PLLI2S_N << 6) | (PLLI2S_R << 28);
- 8003c6e:	4b0b      	ldr	r3, [pc, #44]	; (8003c9c <SetSysClock+0x114>)
- 8003c70:	4a0e      	ldr	r2, [pc, #56]	; (8003cac <SetSysClock+0x124>)
- 8003c72:	f8c3 2084 	str.w	r2, [r3, #132]	; 0x84
+ 8003c7e:	4b0b      	ldr	r3, [pc, #44]	; (8003cac <SetSysClock+0x114>)
+ 8003c80:	4a0e      	ldr	r2, [pc, #56]	; (8003cbc <SetSysClock+0x124>)
+ 8003c82:	f8c3 2084 	str.w	r2, [r3, #132]	; 0x84
 
   /* Enable PLLI2S */
   RCC->CR |= ((uint32_t)RCC_CR_PLLI2SON);
- 8003c76:	4a09      	ldr	r2, [pc, #36]	; (8003c9c <SetSysClock+0x114>)
- 8003c78:	4b08      	ldr	r3, [pc, #32]	; (8003c9c <SetSysClock+0x114>)
- 8003c7a:	681b      	ldr	r3, [r3, #0]
- 8003c7c:	f043 6380 	orr.w	r3, r3, #67108864	; 0x4000000
- 8003c80:	6013      	str	r3, [r2, #0]
+ 8003c86:	4a09      	ldr	r2, [pc, #36]	; (8003cac <SetSysClock+0x114>)
+ 8003c88:	4b08      	ldr	r3, [pc, #32]	; (8003cac <SetSysClock+0x114>)
+ 8003c8a:	681b      	ldr	r3, [r3, #0]
+ 8003c8c:	f043 6380 	orr.w	r3, r3, #67108864	; 0x4000000
+ 8003c90:	6013      	str	r3, [r2, #0]
 
   /* Wait till PLLI2S is ready */
   while((RCC->CR & RCC_CR_PLLI2SRDY) == 0)
- 8003c82:	bf00      	nop
- 8003c84:	4b05      	ldr	r3, [pc, #20]	; (8003c9c <SetSysClock+0x114>)
- 8003c86:	681b      	ldr	r3, [r3, #0]
- 8003c88:	f003 6300 	and.w	r3, r3, #134217728	; 0x8000000
- 8003c8c:	2b00      	cmp	r3, #0
- 8003c8e:	d0f9      	beq.n	8003c84 <SetSysClock+0xfc>
+ 8003c92:	bf00      	nop
+ 8003c94:	4b05      	ldr	r3, [pc, #20]	; (8003cac <SetSysClock+0x114>)
+ 8003c96:	681b      	ldr	r3, [r3, #0]
+ 8003c98:	f003 6300 	and.w	r3, r3, #134217728	; 0x8000000
+ 8003c9c:	2b00      	cmp	r3, #0
+ 8003c9e:	d0f9      	beq.n	8003c94 <SetSysClock+0xfc>
   {
   }
 }
- 8003c90:	bf00      	nop
- 8003c92:	370c      	adds	r7, #12
- 8003c94:	46bd      	mov	sp, r7
- 8003c96:	f85d 7b04 	ldr.w	r7, [sp], #4
- 8003c9a:	4770      	bx	lr
- 8003c9c:	40023800 	.word	0x40023800
- 8003ca0:	40007000 	.word	0x40007000
- 8003ca4:	07405408 	.word	0x07405408
- 8003ca8:	40023c00 	.word	0x40023c00
- 8003cac:	30004080 	.word	0x30004080
+ 8003ca0:	bf00      	nop
+ 8003ca2:	370c      	adds	r7, #12
+ 8003ca4:	46bd      	mov	sp, r7
+ 8003ca6:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8003caa:	4770      	bx	lr
+ 8003cac:	40023800 	.word	0x40023800
+ 8003cb0:	40007000 	.word	0x40007000
+ 8003cb4:	07405408 	.word	0x07405408
+ 8003cb8:	40023c00 	.word	0x40023c00
+ 8003cbc:	30004080 	.word	0x30004080
 
-08003cb0 <arm_sin_f32>:
- 8003cb0:	ed9f 7a1a 	vldr	s14, [pc, #104]	; 8003d1c <arm_sin_f32+0x6c>
- 8003cb4:	eeb5 0ac0 	vcmpe.f32	s0, #0.0
- 8003cb8:	ee20 7a07 	vmul.f32	s14, s0, s14
- 8003cbc:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8003cc0:	eefd 7ac7 	vcvt.s32.f32	s15, s14
- 8003cc4:	d504      	bpl.n	8003cd0 <arm_sin_f32+0x20>
- 8003cc6:	ee17 3a90 	vmov	r3, s15
- 8003cca:	3b01      	subs	r3, #1
- 8003ccc:	ee07 3a90 	vmov	s15, r3
- 8003cd0:	eef8 7ae7 	vcvt.f32.s32	s15, s15
- 8003cd4:	eddf 6a12 	vldr	s13, [pc, #72]	; 8003d20 <arm_sin_f32+0x70>
- 8003cd8:	4a12      	ldr	r2, [pc, #72]	; (8003d24 <arm_sin_f32+0x74>)
- 8003cda:	ee77 7a67 	vsub.f32	s15, s14, s15
- 8003cde:	eeb7 0a00 	vmov.f32	s0, #112	; 0x3f800000  1.0
- 8003ce2:	ee67 7aa6 	vmul.f32	s15, s15, s13
- 8003ce6:	eefc 6ae7 	vcvt.u32.f32	s13, s15
- 8003cea:	ee16 3a90 	vmov	r3, s13
- 8003cee:	f3c3 0308 	ubfx	r3, r3, #0, #9
- 8003cf2:	ee06 3a90 	vmov	s13, r3
- 8003cf6:	eeb8 7a66 	vcvt.f32.u32	s14, s13
- 8003cfa:	eb02 0183 	add.w	r1, r2, r3, lsl #2
- 8003cfe:	ee77 7ac7 	vsub.f32	s15, s15, s14
- 8003d02:	edd1 6a00 	vldr	s13, [r1]
- 8003d06:	ed91 7a01 	vldr	s14, [r1, #4]
- 8003d0a:	ee30 0a67 	vsub.f32	s0, s0, s15
- 8003d0e:	ee67 7a87 	vmul.f32	s15, s15, s14
- 8003d12:	ee20 0a26 	vmul.f32	s0, s0, s13
- 8003d16:	ee30 0a27 	vadd.f32	s0, s0, s15
- 8003d1a:	4770      	bx	lr
- 8003d1c:	3e22f983 	.word	0x3e22f983
- 8003d20:	44000000 	.word	0x44000000
- 8003d24:	08003da4 	.word	0x08003da4
+08003cc0 <arm_sin_f32>:
+ 8003cc0:	ed9f 7a1a 	vldr	s14, [pc, #104]	; 8003d2c <arm_sin_f32+0x6c>
+ 8003cc4:	eeb5 0ac0 	vcmpe.f32	s0, #0.0
+ 8003cc8:	ee20 7a07 	vmul.f32	s14, s0, s14
+ 8003ccc:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8003cd0:	eefd 7ac7 	vcvt.s32.f32	s15, s14
+ 8003cd4:	d504      	bpl.n	8003ce0 <arm_sin_f32+0x20>
+ 8003cd6:	ee17 3a90 	vmov	r3, s15
+ 8003cda:	3b01      	subs	r3, #1
+ 8003cdc:	ee07 3a90 	vmov	s15, r3
+ 8003ce0:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 8003ce4:	eddf 6a12 	vldr	s13, [pc, #72]	; 8003d30 <arm_sin_f32+0x70>
+ 8003ce8:	4a12      	ldr	r2, [pc, #72]	; (8003d34 <arm_sin_f32+0x74>)
+ 8003cea:	ee77 7a67 	vsub.f32	s15, s14, s15
+ 8003cee:	eeb7 0a00 	vmov.f32	s0, #112	; 0x3f800000  1.0
+ 8003cf2:	ee67 7aa6 	vmul.f32	s15, s15, s13
+ 8003cf6:	eefc 6ae7 	vcvt.u32.f32	s13, s15
+ 8003cfa:	ee16 3a90 	vmov	r3, s13
+ 8003cfe:	f3c3 0308 	ubfx	r3, r3, #0, #9
+ 8003d02:	ee06 3a90 	vmov	s13, r3
+ 8003d06:	eeb8 7a66 	vcvt.f32.u32	s14, s13
+ 8003d0a:	eb02 0183 	add.w	r1, r2, r3, lsl #2
+ 8003d0e:	ee77 7ac7 	vsub.f32	s15, s15, s14
+ 8003d12:	edd1 6a00 	vldr	s13, [r1]
+ 8003d16:	ed91 7a01 	vldr	s14, [r1, #4]
+ 8003d1a:	ee30 0a67 	vsub.f32	s0, s0, s15
+ 8003d1e:	ee67 7a87 	vmul.f32	s15, s15, s14
+ 8003d22:	ee20 0a26 	vmul.f32	s0, s0, s13
+ 8003d26:	ee30 0a27 	vadd.f32	s0, s0, s15
+ 8003d2a:	4770      	bx	lr
+ 8003d2c:	3e22f983 	.word	0x3e22f983
+ 8003d30:	44000000 	.word	0x44000000
+ 8003d34:	08003db4 	.word	0x08003db4
 
-08003d28 <__libc_init_array>:
- 8003d28:	b570      	push	{r4, r5, r6, lr}
- 8003d2a:	4b0e      	ldr	r3, [pc, #56]	; (8003d64 <__libc_init_array+0x3c>)
- 8003d2c:	4c0e      	ldr	r4, [pc, #56]	; (8003d68 <__libc_init_array+0x40>)
- 8003d2e:	1ae4      	subs	r4, r4, r3
- 8003d30:	10a4      	asrs	r4, r4, #2
- 8003d32:	2500      	movs	r5, #0
- 8003d34:	461e      	mov	r6, r3
- 8003d36:	42a5      	cmp	r5, r4
- 8003d38:	d004      	beq.n	8003d44 <__libc_init_array+0x1c>
- 8003d3a:	f856 3025 	ldr.w	r3, [r6, r5, lsl #2]
- 8003d3e:	4798      	blx	r3
- 8003d40:	3501      	adds	r5, #1
- 8003d42:	e7f8      	b.n	8003d36 <__libc_init_array+0xe>
- 8003d44:	f000 f816 	bl	8003d74 <_init>
- 8003d48:	4c08      	ldr	r4, [pc, #32]	; (8003d6c <__libc_init_array+0x44>)
- 8003d4a:	4b09      	ldr	r3, [pc, #36]	; (8003d70 <__libc_init_array+0x48>)
- 8003d4c:	1ae4      	subs	r4, r4, r3
- 8003d4e:	10a4      	asrs	r4, r4, #2
- 8003d50:	2500      	movs	r5, #0
- 8003d52:	461e      	mov	r6, r3
- 8003d54:	42a5      	cmp	r5, r4
- 8003d56:	d004      	beq.n	8003d62 <__libc_init_array+0x3a>
- 8003d58:	f856 3025 	ldr.w	r3, [r6, r5, lsl #2]
- 8003d5c:	4798      	blx	r3
- 8003d5e:	3501      	adds	r5, #1
- 8003d60:	e7f8      	b.n	8003d54 <__libc_init_array+0x2c>
- 8003d62:	bd70      	pop	{r4, r5, r6, pc}
- 8003d64:	080045a8 	.word	0x080045a8
- 8003d68:	080045a8 	.word	0x080045a8
- 8003d6c:	080045ac 	.word	0x080045ac
- 8003d70:	080045a8 	.word	0x080045a8
+08003d38 <__libc_init_array>:
+ 8003d38:	b570      	push	{r4, r5, r6, lr}
+ 8003d3a:	4b0e      	ldr	r3, [pc, #56]	; (8003d74 <__libc_init_array+0x3c>)
+ 8003d3c:	4c0e      	ldr	r4, [pc, #56]	; (8003d78 <__libc_init_array+0x40>)
+ 8003d3e:	1ae4      	subs	r4, r4, r3
+ 8003d40:	10a4      	asrs	r4, r4, #2
+ 8003d42:	2500      	movs	r5, #0
+ 8003d44:	461e      	mov	r6, r3
+ 8003d46:	42a5      	cmp	r5, r4
+ 8003d48:	d004      	beq.n	8003d54 <__libc_init_array+0x1c>
+ 8003d4a:	f856 3025 	ldr.w	r3, [r6, r5, lsl #2]
+ 8003d4e:	4798      	blx	r3
+ 8003d50:	3501      	adds	r5, #1
+ 8003d52:	e7f8      	b.n	8003d46 <__libc_init_array+0xe>
+ 8003d54:	f000 f816 	bl	8003d84 <_init>
+ 8003d58:	4c08      	ldr	r4, [pc, #32]	; (8003d7c <__libc_init_array+0x44>)
+ 8003d5a:	4b09      	ldr	r3, [pc, #36]	; (8003d80 <__libc_init_array+0x48>)
+ 8003d5c:	1ae4      	subs	r4, r4, r3
+ 8003d5e:	10a4      	asrs	r4, r4, #2
+ 8003d60:	2500      	movs	r5, #0
+ 8003d62:	461e      	mov	r6, r3
+ 8003d64:	42a5      	cmp	r5, r4
+ 8003d66:	d004      	beq.n	8003d72 <__libc_init_array+0x3a>
+ 8003d68:	f856 3025 	ldr.w	r3, [r6, r5, lsl #2]
+ 8003d6c:	4798      	blx	r3
+ 8003d6e:	3501      	adds	r5, #1
+ 8003d70:	e7f8      	b.n	8003d64 <__libc_init_array+0x2c>
+ 8003d72:	bd70      	pop	{r4, r5, r6, pc}
+ 8003d74:	080045b8 	.word	0x080045b8
+ 8003d78:	080045b8 	.word	0x080045b8
+ 8003d7c:	080045bc 	.word	0x080045bc
+ 8003d80:	080045b8 	.word	0x080045b8
 
-08003d74 <_init>:
- 8003d74:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
- 8003d76:	bf00      	nop
- 8003d78:	bcf8      	pop	{r3, r4, r5, r6, r7}
- 8003d7a:	bc08      	pop	{r3}
- 8003d7c:	469e      	mov	lr, r3
- 8003d7e:	4770      	bx	lr
+08003d84 <_init>:
+ 8003d84:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8003d86:	bf00      	nop
+ 8003d88:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8003d8a:	bc08      	pop	{r3}
+ 8003d8c:	469e      	mov	lr, r3
+ 8003d8e:	4770      	bx	lr
 
-08003d80 <_fini>:
- 8003d80:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
- 8003d82:	bf00      	nop
- 8003d84:	bcf8      	pop	{r3, r4, r5, r6, r7}
- 8003d86:	bc08      	pop	{r3}
- 8003d88:	469e      	mov	lr, r3
- 8003d8a:	4770      	bx	lr
+08003d90 <_fini>:
+ 8003d90:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8003d92:	bf00      	nop
+ 8003d94:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8003d96:	bc08      	pop	{r3}
+ 8003d98:	469e      	mov	lr, r3
+ 8003d9a:	4770      	bx	lr

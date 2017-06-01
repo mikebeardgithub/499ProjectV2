@@ -76,9 +76,9 @@ volatile uint16_t freq_lfo = 2;						// Moderate LFO frequency
 // volatile uint16_t freq_vco = 375.0;				// Pure sine if BUFF_LEN is 128
 volatile uint16_t sample_count = 0.0;
 
-uint16_t wav_vco = WAVE_SINE;
+uint16_t wav_vco = WAVE_SAWTOOTH;
 uint16_t wav_lfo = WAVE_SINE;
-uint16_t mod_type = MOD_FM;
+uint16_t mod_type = MOD_NONE;
 
 /*
  * square()
@@ -277,7 +277,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
-			buffer_vco[i] = 4000 * sawtooth((sample_count+i) % samples_cycle);
+			buffer_vco[i] = 40 * sawtooth(samples_cycle - ((sample_count+i) % samples_cycle));
 		}
 	}
 
@@ -409,7 +409,7 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
-			buffer_vco[i] = 4000 * sawtooth((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle);
+			buffer_vco[i] = 40 * sawtooth(samples_cycle - ((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle));
 		}
 	}
 
