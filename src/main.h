@@ -11,8 +11,6 @@
  * https://github.com/MrBlueXav/horrorophone-eclipse-with-makefile
  */
 
-
-
 #ifndef MAIN_H_
 #define MAIN_H_
 
@@ -29,6 +27,7 @@
 #include <stdio.h>
 #include "stm32f4xx_it.h"
 
+/* TODO: Used by Horrorophone project -- remove and test */
 #define _2PI                    6.283185307f
 // #define _PI						3.14159265f
 // #define _INVPI					0.3183098861f
@@ -36,15 +35,31 @@
 #define SAMPLERATE              48000
 
 #define VOL                     80
+#define BUFF_LEN                64
+
+/* TODO: Used by Horrorophone project -- remove and test */
 #define BUFF_LEN_DIV4           16
 #define BUFF_LEN_DIV2           32
-#define BUFF_LEN                64
+
 
 #define MOV_AVG_BUFF_LEN		128
 #define ON                      1
 #define OFF                     0
 
+
 #define ADC3_DR_ADDRESS     ((uint32_t)0x4001224C)
+
+/* Defines for wave shapes */
+#define WAVE_NONE				0
+#define WAVE_SINE				1
+#define WAVE_SQUARE				2
+#define WAVE_SAWTOOTH			3
+#define WAVE_NOISE				4
+
+/* Defines for modulation types */
+#define MOD_NONE				0
+#define MOD_AM					1
+#define MOD_FM					2
 
 
 #endif /* MAIN_H_ */

@@ -75,13 +75,41 @@ volatile float32_t freq_lfo = 2.7;
 // float32_t freq_vco = 375.0;					// Pure sine if BUFF_LEN is 128
 volatile uint16_t sample_count = 0.0;
 
+uint16_t wav_vco = WAVE_SQUARE;
+uint16_t wav_lfo = WAVE_SINE;
+uint16_t mod_type = MOD_NONE;
 
-uint16_t wav_vco_sin = 0;
-uint16_t wav_vco_square = 1;
-uint16_t wav_lfo_sin = 1;
-uint16_t wav_lfo_square = 0;
-uint16_t mod_am = 0;
-uint16_t mod_fm = 0;
+/*
+ * square()
+ * Returns 0 if 0.0 < angle < 0.5
+ * Returns 1 if 0.5 < angle < 1.0
+ *
+ * Parameter angle: value from 0.0 to 1.0.
+ */
+uint16_t square(float32_t angle)
+{
+	if(fmod(angle, 1) < 0.5)
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+}
+
+/*
+ * sawtooth()
+ * Returns value ranging linearly from 0 to 1, depending on angle.
+ * For angle equals 0, returns 0.
+ * For angle equals 1, returns 1
+ *
+ * Parameter angle: value from 0.0 to 1.0.
+ */
+float32_t sawtooth(float32_t angle)
+{
+	return angle;
+}
 
 
 /**
@@ -188,25 +216,33 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 //	mov_avg_index = (mov_avg_index + 1) % MOV_AVG_BUFF_LEN;							// Increment index
 //	freq_vco = 4.0 * ( (float32_t)  mov_avg_sum)/MOV_AVG_BUFF_LEN;
 
+	// TODO: test frequency accuracy.  Might need to remove 2*PI
+
+	volatile int i = 0;
+
 	// freq_vco = (float32_t) ADC3ConvertedValue;
 	// freq_lfo = (float32_t) ADC3ConvertedValue/100;
-	volatile float32_t angle_vco = freq_vco*2*PI/SAMPLERATE;
-	volatile float32_t angle_lfo = freq_lfo*2*PI/SAMPLERATE;
+	volatile float32_t angle_vco = freq_vco*PI/SAMPLERATE;
+	volatile float32_t angle_lfo = freq_lfo*PI/SAMPLERATE;
 
+	// For square
 	// Fill buffer from 0 to BUFF_LEN/2
-	volatile int i = 0;
 	volatile int samples_cycle = 0;
-	volatile int samples_half_cycle = 0;
+	// volatile int samples_half_cycle = 0;
+	volatile float32_t angle_vco_norm = freq_vco/SAMPLERATE;
 
 	// VCO Waveform
-	if(wav_vco_sin == 1)
+	// TODO: to save cpu cycles, consider calculating one cycle of the sine wave and then copying it into the rest of the buffer.
+	if(wav_vco == WAVE_SINE)
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
 			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+i)*angle_vco);
 		}
 	}
-	else if(wav_vco_square == 1)
+
+	// Square - needs work
+	else if(wav_vco == WAVE_SQUARE)
 	{
 		/*
 		 * In a single square pulse cycle, there are n samples, each of which is 1/48000s long.
@@ -218,48 +254,66 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 		 */
 
 		samples_cycle = SAMPLERATE/freq_vco;
-		samples_half_cycle = samples_cycle/2;
+		// samples_half_cycle = samples_cycle/2;
 
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
+			// TODO: debug this line.
+			buffer_vco[i] = 4000 * square((sample_count+i) % samples_cycle * angle_vco);
+		}
+	}
 
-			if((sample_count+i)%samples_cycle < samples_half_cycle)
-			{
-				buffer_vco[i] = 4000;
-			}
-			else
-			{
-				buffer_vco[i] = 0000;
-			}
-			//buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+i)*angle_vco);
+	// Sawtooth - not tested
+	else if(wav_vco == WAVE_SAWTOOTH)
+	{
+		samples_cycle = SAMPLERATE/freq_vco;
+
+		for(i = 0; i < BUFF_LEN_DIV2; i++)
+		{
+			buffer_vco[i] = 4000 * sawtooth((sample_count+i) % samples_cycle * angle_vco);
 		}
 	}
 
 	// LFO Waveform
-	if(wav_lfo_sin == 1)
+	// TODO: the amplitude depends on whether it's used for AM (low value) or FM (high value).
+	if(wav_lfo == WAVE_SINE)
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
-			buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((sample_count+i)*angle_lfo);
+			buffer_lfo_float[i] = 0.4 + 0.4*arm_sin_f32((sample_count+i)*angle_lfo);
+			// buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((sample_count+i)*angle_lfo);
 		}
 	}
 
 	// VCO-LFO modulation
-	if(mod_am == 1)
+	if(mod_type == MOD_AM)
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
 			buffer_output[i] = buffer_vco[i] * buffer_lfo_float[i];
 		}
 	}
-	else if(mod_fm == 1)
+
+	// FM for sine wave VCO.
+	else if(wav_vco == WAVE_SINE && mod_type == MOD_FM)
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
-			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+i)*angle_vco + buffer_lfo_float[i]);
+			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+i)*angle_vco + 40*buffer_lfo_float[i]);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
+
+	// FM for square wave VCO.
+	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
+	{
+		for(i = 0; i < BUFF_LEN_DIV2; i++)
+		{
+			buffer_vco[i] = 4000 * square((sample_count+i)*angle_vco + buffer_lfo_float[i]);
+			buffer_output[i] = buffer_vco[i];
+		}
+	}
+
 	// No modulation
 	else
 	{
@@ -285,27 +339,30 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 
 	// freq_vco = (float32_t) ADC3ConvertedValue;
 	// freq_lfo = (float32_t) ADC3ConvertedValue/100;
-	volatile float32_t angle_vco = freq_vco*2*PI/SAMPLERATE;
-	volatile float32_t angle_lfo = freq_lfo*2*PI/SAMPLERATE;
+	volatile float32_t angle_vco = freq_vco*PI/SAMPLERATE;
+	volatile float32_t angle_lfo = freq_lfo*PI/SAMPLERATE;
 
 	// float32_t  sinOutput;
 	volatile int i = 0;
 	volatile int samples_cycle = 0;
-	volatile int samples_half_cycle = 0;
+	// volatile int samples_half_cycle = 0;
+	volatile float32_t angle_vco_norm = freq_vco/SAMPLERATE;
 
 	// TODO: remove after testing.
 	// memset(buffer_vco, 0, sizeof(buffer_vco));
 	// memset(buffer_output, 0, sizeof(buffer_output));
 
 	// VCO Waveform
-	if(wav_vco_sin == 1)
+	if(wav_vco == WAVE_SINE)
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
 			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_vco);
 		}
 	}
-	else if(wav_vco_square == 1)
+
+	// SQUARE - Needs work
+	else if(wav_vco == WAVE_SQUARE)
 	{
 		/*
 		 * In a single square pulse cycle, there are n samples, each of which is 1/48000s long.
@@ -317,46 +374,61 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 		 */
 
 		samples_cycle = SAMPLERATE/freq_vco;
-		samples_half_cycle = samples_cycle/2;
+		// samples_half_cycle = samples_cycle/2;
 
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
+			// buffer_vco[i+BUFF_LEN_DIV2] = 4000 * square((sample_count+i)*angle_vco);
+			buffer_vco[i] = 4000 * square((sample_count+i) % samples_cycle * angle_vco);
+		}
+	}
 
-			if((sample_count+i)%samples_cycle < samples_half_cycle)
-			{
-				buffer_vco[i+BUFF_LEN_DIV2] = 4000;
-			}
-			else
-			{
-				buffer_vco[i+BUFF_LEN_DIV2] = 0000;
-			}
-			//buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+i)*angle_vco);
+	// Sawtooth - not tested
+	else if(wav_vco == WAVE_SAWTOOTH)
+	{
+		samples_cycle = SAMPLERATE/freq_vco;
+
+		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
+		{
+			buffer_vco[i] = 4000 * sawtooth((sample_count+i) % samples_cycle * angle_vco);
 		}
 	}
 
 	// LFO Waveform
-	if(wav_lfo_sin == 1)
+	if(wav_lfo == WAVE_SINE)
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
-			// buffer_lfo_float[i] = 0.4 + 0.4*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_lfo);
-			buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_lfo);
+			buffer_lfo_float[i] = 0.4 + 0.4*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_lfo);
+			// buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_lfo);
 		}
 	}
 
 	// VCO-LFO modulation
-	if(mod_am == 1)
+	if(mod_type == MOD_AM)
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
 			buffer_output[i] = buffer_vco[i] * buffer_lfo_float[i];
 		}
 	}
-	else if(mod_fm == 1)
+
+	// FM for sine wave VCO.
+	else if(wav_vco == WAVE_SINE && mod_type == MOD_FM)
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
-			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_vco + buffer_lfo_float[i]);
+			buffer_vco[i] = 2000 + 2000*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_vco + 40*buffer_lfo_float[i]);
+			buffer_output[i] = buffer_vco[i];
+		}
+	}
+
+	// FM for square wave VCO.
+	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
+	{
+		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
+		{
+			buffer_vco[i+BUFF_LEN_DIV2] = 4000 * square((sample_count+i)*angle_vco + buffer_lfo_float[i]);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -467,6 +539,9 @@ void ADC3_CH12_DMA_Config(void)
 }
 
 
+
+
+// TODO: Delete these functions.
 //---------------------------------------------------------------------------
 /**************
 * returns a random float between 0 and 1
