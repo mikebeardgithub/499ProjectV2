@@ -69,13 +69,14 @@ volatile uint16_t mov_avg_index = 0;
 volatile uint16_t mov_avg_sum;
 
 // Good test frequency: freq_vco = 410
-volatile float32_t freq_vco = 250.0;
-// volatile float32_t freq_vco = 750.0;
-volatile float32_t freq_lfo = 2.7;
-// float32_t freq_vco = 375.0;					// Pure sine if BUFF_LEN is 128
+volatile uint16_t freq_vco = 500.0;
+// volatile uint16_t freq_vco = 750.0;
+volatile uint16_t freq_lfo = 2;						// Moderate LFO frequency
+// volatile uint16_t freq_lfo = 501;				// For testing LFO
+// volatile uint16_t freq_vco = 375.0;				// Pure sine if BUFF_LEN is 128
 volatile uint16_t sample_count = 0.0;
 
-uint16_t wav_vco = WAVE_SQUARE;
+uint16_t wav_vco = WAVE_SINE;
 uint16_t wav_lfo = WAVE_SINE;
 uint16_t mod_type = MOD_FM;
 
@@ -107,9 +108,9 @@ uint16_t square(uint16_t current_sample, uint16_t samples_half_cycle)
  *
  * Parameter angle: value from 0.0 to 1.0.
  */
-float32_t sawtooth(float32_t angle)
+float32_t sawtooth(uint16_t current_sample)
 {
-	return angle;
+	return current_sample;
 }
 
 
@@ -219,10 +220,15 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 
 	// TODO: test frequency accuracy.  Might need to remove 2*PI
 	// TODO: Consider using arm_sin_q15 instead of arm_sin_f32.  However, results might cause clipping.
+	// TODO: Store vco default amplitude in global and set with a defined value.
+
+	// Odd frequencies cause beating.
+	if (freq_vco % 2) { /* x is odd */  freq_vco +=1; }
+	if (freq_lfo % 2) { /* x is odd */  freq_lfo +=1; }
 
 	volatile int i = 0;
 
-	// freq_vco = (float32_t) ADC3ConvertedValue;
+	// freq_vco = 2 * ADC3ConvertedValue;
 	// freq_lfo = (float32_t) ADC3ConvertedValue/100;
 	volatile float32_t angle_vco = freq_vco*PI/SAMPLERATE;
 	volatile float32_t angle_lfo = freq_lfo*PI/SAMPLERATE;
@@ -243,7 +249,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 		}
 	}
 
-	// Square - needs work
+	// Square
 	else if(wav_vco == WAVE_SQUARE)
 	{
 		/*
@@ -260,11 +266,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
-			// TODO: debug this line.
-			// Square expects a value from 0.0 to 1.0
-			// buffer_vco[i] = 4000 * square((sample_count+i) % samples_cycle * angle_vco_norm);
 			buffer_vco[i] = 4000 * square((sample_count+i) % samples_cycle, samples_half_cycle);
-
 		}
 	}
 
@@ -275,19 +277,25 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
-			buffer_vco[i] = 4000 * sawtooth((sample_count+i) % samples_cycle * angle_vco);
+			buffer_vco[i] = 4000 * sawtooth((sample_count+i) % samples_cycle);
 		}
 	}
 
 	// LFO Waveform
 	// TODO: the amplitude depends on whether it's used for AM (low value) or FM (high value).
+	// TODO: figure out how to allow for sub 2 hz frequencies
 	if(wav_lfo == WAVE_SINE)
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
-			buffer_lfo_float[i] = 0.4 + 0.4*arm_sin_f32((sample_count+i)*angle_lfo);
-			// buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((sample_count+i)*angle_lfo);
+			// buffer_lfo_float[i] = 0.4 + 0.4*arm_sin_f32((sample_count+i)*angle_lfo);		// Small amplitude for AM mod of sine
+			buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((sample_count+i)*angle_lfo);	// Large amplitude for FM mod of sine
+			// buffer_lfo_float[i] = 10.0 + 10.0*arm_sin_f32((sample_count+i)*angle_lfo);		// Medium amplitude for FM mod of square
 		}
+	}
+	else if(wav_lfo == WAVE_NONE)
+	{
+		// TODO: fill lfo buffer with zeros.
 	}
 
 	// VCO-LFO modulation
@@ -312,7 +320,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 	// FM for square wave VCO.
 	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
 	{
-		samples_cycle = samples_cycle + 100 * buffer_lfo_float[i];
+		samples_cycle = samples_cycle + buffer_lfo_float[i];
 		samples_half_cycle = samples_cycle / 2;
 
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
@@ -345,7 +353,11 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 	// Turns off yellow LED -- indicates no error occurred.
 	STM_EVAL_LEDOff(LED3);
 
-	// freq_vco = (float32_t) ADC3ConvertedValue;
+	// Odd frequencies cause beating.
+	if (freq_vco % 2) { /* x is odd */  freq_vco +=1; }
+	if (freq_lfo % 2) { /* x is odd */  freq_lfo +=1; }
+
+	// freq_vco = 2 * ADC3ConvertedValue;
 	// freq_lfo = (float32_t) ADC3ConvertedValue/100;
 	volatile float32_t angle_vco = freq_vco*PI/SAMPLERATE;
 	volatile float32_t angle_lfo = freq_lfo*PI/SAMPLERATE;
@@ -369,7 +381,7 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 		}
 	}
 
-	// SQUARE - Needs work
+	// SQUARE
 	else if(wav_vco == WAVE_SQUARE)
 	{
 		/*
@@ -386,8 +398,6 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
-			// buffer_vco[i+BUFF_LEN_DIV2] = 4000 * square((sample_count+i)*angle_vco);
-			// buffer_vco[i] = 4000 * square((sample_count+i) % samples_cycle * angle_vco_norm);
 			buffer_vco[i] = 4000 * square((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle, samples_half_cycle);
 		}
 	}
@@ -399,7 +409,7 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
-			buffer_vco[i] = 4000 * sawtooth((sample_count+i) % samples_cycle * angle_vco);
+			buffer_vco[i] = 4000 * sawtooth((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle);
 		}
 	}
 
@@ -408,8 +418,9 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
-			buffer_lfo_float[i] = 0.4 + 0.4*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_lfo);
-			// buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_lfo);
+			// buffer_lfo_float[i] = 0.4 + 0.4*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_lfo);
+			buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_lfo);
+			// buffer_lfo_float[i] = 10.0 + 10.0*arm_sin_f32((sample_count+i)*angle_lfo);		// Medium amplitude for FM mod of square
 		}
 	}
 
@@ -435,7 +446,7 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 	// FM for square wave VCO.
 	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
 	{
-		samples_cycle = samples_cycle + 100 * buffer_lfo_float[i];
+		samples_cycle = samples_cycle + buffer_lfo_float[i];
 		samples_half_cycle = samples_cycle / 2;
 
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
