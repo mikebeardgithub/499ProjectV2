@@ -77,7 +77,7 @@ volatile uint16_t sample_count = 0.0;
 
 uint16_t wav_vco = WAVE_SQUARE;
 uint16_t wav_lfo = WAVE_SINE;
-uint16_t mod_type = MOD_AM;
+uint16_t mod_type = MOD_FM;
 
 /*
  * square()
@@ -312,9 +312,12 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 	// FM for square wave VCO.
 	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
 	{
+		samples_cycle = samples_cycle + 100 * buffer_lfo_float[i];
+		samples_half_cycle = samples_cycle / 2;
+
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
-			// buffer_vco[i] = 4000 * square((sample_count+i)*angle_vco + buffer_lfo_float[i]);
+			buffer_vco[i] = 4000 * square((sample_count+i) % samples_cycle, samples_half_cycle);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -432,9 +435,13 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 	// FM for square wave VCO.
 	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
 	{
+		samples_cycle = samples_cycle + 100 * buffer_lfo_float[i];
+		samples_half_cycle = samples_cycle / 2;
+
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
-			// buffer_vco[i+BUFF_LEN_DIV2] = 4000 * square((sample_count+i)*angle_vco + buffer_lfo_float[i]);
+			// buffer_vco[i] = 4000 * square((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle, samples_half_cycle);
+			buffer_vco[i] = 4000 * square((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle, samples_half_cycle);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
