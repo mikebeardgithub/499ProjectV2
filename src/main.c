@@ -76,9 +76,9 @@ volatile uint16_t freq_lfo = 2;						// Moderate LFO frequency
 // volatile uint16_t freq_vco = 375.0;				// Pure sine if BUFF_LEN is 128
 volatile uint16_t sample_count = 0.0;
 
-uint16_t wav_vco = WAVE_SINE;
-uint16_t wav_lfo = WAVE_SQUARE;
-uint16_t mod_type = MOD_AM;
+uint16_t wav_vco = WAVE_SQUARE;
+uint16_t wav_lfo = WAVE_SINE;
+uint16_t mod_type = MOD_FM;
 
 float32_t vco_amp = VCO_AMP;
 float32_t lfo_amp = LFO_AMP_AM;
@@ -355,13 +355,21 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 		{
 			// Adjust samples_cycle ONLY in-between cycles.
 			// If start of new cycle, adjust cycle length.
+			/*
 			if( ((sample_count+i) % (samples_cycle + (uint16_t)buffer_lfo_float[i])) == 0)
 			{
 				samples_cycle = samples_cycle + buffer_lfo_float[i];
 				samples_half_cycle = samples_cycle / 2;
 			}
+			*/
 
-			buffer_vco[i] = vco_amp * square((sample_count+i) % samples_cycle, samples_half_cycle);
+			// buffer_vco[i] = vco_amp * square((sample_count+i) % samples_cycle, samples_half_cycle);
+			// buffer_vco[i] = vco_amp * square( (sample_count+i) % ( samples_cycle + 1*(uint16_t)buffer_lfo_float[i] ), ( samples_cycle + 1*(uint16_t)buffer_lfo_float[i])/2 );
+
+			// No modulation
+			// buffer_vco[i] = vco_amp * square( (sample_count+i) % ( samples_cycle ), ( samples_cycle )/2 );
+
+			buffer_vco[i] = vco_amp * square( (sample_count+i) % ( (uint16_t)(samples_cycle + 20*buffer_lfo_float[i]) ), ( samples_cycle + 20*buffer_lfo_float[i])/2 );
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -517,12 +525,20 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 		{
 			// If start of new cycle
 			// Note: we need (i-BUFF_LEN_DIV2), since i is increased by BUFF_LEN_DIV2 in order to access correct location in buffer.
+			/*
 			if( ((sample_count+(i-BUFF_LEN_DIV2)) % (samples_cycle + (uint16_t)buffer_lfo_float[i])) == 0)
 			{
 				samples_cycle = samples_cycle + buffer_lfo_float[i];
 				samples_half_cycle = samples_cycle / 2;
 			}
-			buffer_vco[i] = vco_amp * square((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle, samples_half_cycle);
+			*/
+			// buffer_vco[i] = vco_amp * square((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle, samples_half_cycle);
+			// buffer_vco[i] = vco_amp * square((sample_count+(i-BUFF_LEN_DIV2)) % ( samples_cycle + (uint16_t)buffer_lfo_float[i] ), ( samples_half_cycle + (uint16_t)buffer_lfo_float[i])/2 );
+
+			// No modulation
+			//buffer_vco[i] = vco_amp * square( (sample_count+(i-BUFF_LEN_DIV2)) % ( samples_cycle ), ( samples_cycle )/2 );
+
+			buffer_vco[i] = vco_amp * square( (sample_count+(i-BUFF_LEN_DIV2)) % ( (uint16_t)(samples_cycle + 20*buffer_lfo_float[i]) ), ( samples_cycle + 20*buffer_lfo_float[i])/2 );
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
