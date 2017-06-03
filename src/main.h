@@ -61,5 +61,9 @@
 #define MOD_AM					1
 #define MOD_FM					2
 
+#define VCO_AMP					4000
+#define LFO_AMP_AM				0.4
+#define LFO_AMP_FM				40
+#define LFO_AMP_FM2				10
 
 #endif /* MAIN_H_ */
