@@ -79,12 +79,19 @@ volatile uint16_t sample_count = 0;
 
 uint16_t adsr = 1;
 
-uint16_t wav_vco = WAVE_SINE;
-uint16_t wav_lfo = WAVE_SQUARE;
+uint16_t wav_vco = WAVE_SQUARE;
+uint16_t wav_lfo = WAVE_SINE;
 uint16_t mod_type = MOD_FM;
 
 float32_t vco_amp = VCO_AMP;
 float32_t lfo_amp = LFO_AMP_FM;
+
+float32_t square_min = 0.0;
+float32_t square_max = 1.0;
+
+
+float32_t fm_mod_level = 1.0;
+
 
 /*
  * square()
@@ -98,11 +105,11 @@ float32_t square(uint16_t current_sample, uint16_t samples_half_cycle)
 	// if(fmod(angle, 1) < 0.5)
 	if (current_sample < samples_half_cycle)
 	{
-		return 0.5;
+		return square_min;
 	}
 	else
 	{
-		return 1;
+		return square_max;
 	}
 }
 
@@ -379,7 +386,8 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
-			buffer_vco[i] = vco_amp * square( (sample_count+i) % ( (uint16_t)(samples_cycle + 20*buffer_lfo_float[i]) ), ( samples_cycle + 20*buffer_lfo_float[i])/2 );
+			// buffer_vco[i] = vco_amp * square( (sample_count+i) % ( (uint16_t)(samples_cycle + 20*buffer_lfo_float[i]) ), ( samples_cycle + 20*buffer_lfo_float[i])/2 );
+			buffer_vco[i] = vco_amp * square( (sample_count+i) % ( (uint16_t)(samples_cycle*fm_mod_level*buffer_lfo_float[i]) ), ( samples_cycle*fm_mod_level*buffer_lfo_float[i])/2 );
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -567,7 +575,8 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
-			buffer_vco[i] = vco_amp * square( (sample_count+(i-BUFF_LEN_DIV2)) % ( (uint16_t)(samples_cycle + 20*buffer_lfo_float[i]) ), ( samples_cycle + 20*buffer_lfo_float[i])/2 );
+			// buffer_vco[i] = vco_amp * square( (sample_count+(i-BUFF_LEN_DIV2)) % ( (uint16_t)(samples_cycle + 20*buffer_lfo_float[i]) ), ( samples_cycle + 20*buffer_lfo_float[i])/2 );
+			buffer_vco[i] = vco_amp * square( (sample_count+(i-BUFF_LEN_DIV2)) % ( (uint16_t)(samples_cycle*fm_mod_level*buffer_lfo_float[i]) ), ( samples_cycle*fm_mod_level*buffer_lfo_float[i])/2 );
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
