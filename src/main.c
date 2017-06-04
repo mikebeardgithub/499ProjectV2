@@ -63,6 +63,7 @@ volatile uint16_t buffer_vco[BUFF_LEN] = {0};
 // volatile uint16_t buffer_lfo[BUFF_LEN] = {0};
 volatile float32_t buffer_lfo_float[BUFF_LEN] = {0};
 volatile uint16_t buffer_output[BUFF_LEN] = {0};
+volatile uint16_t buffer_adsr[BUFF_LEN] = {0};			// Attack, sustain, decay, release
 
 volatile uint16_t mov_avg [MOV_AVG_BUFF_LEN] = {0};
 volatile uint16_t mov_avg_index = 0;
@@ -74,14 +75,16 @@ volatile uint16_t freq_vco = 700;
 volatile uint16_t freq_lfo = 2;						// Moderate LFO frequency
 // volatile uint16_t freq_lfo = 501;				// For testing LFO
 // volatile uint16_t freq_vco = 375.0;				// Pure sine if BUFF_LEN is 128
-volatile uint16_t sample_count = 0.0;
+volatile uint16_t sample_count = 0;
 
-uint16_t wav_vco = WAVE_SQUARE;
-uint16_t wav_lfo = WAVE_SINE;
+uint16_t adsr = 1;
+
+uint16_t wav_vco = WAVE_SINE;
+uint16_t wav_lfo = WAVE_SQUARE;
 uint16_t mod_type = MOD_FM;
 
 float32_t vco_amp = VCO_AMP;
-float32_t lfo_amp = LFO_AMP_AM;
+float32_t lfo_amp = LFO_AMP_FM;
 
 /*
  * square()
@@ -90,12 +93,12 @@ float32_t lfo_amp = LFO_AMP_AM;
  *
  * Parameter angle: value from 0.0 to 1.0.
  */
-uint16_t square(uint16_t current_sample, uint16_t samples_half_cycle)
+float32_t square(uint16_t current_sample, uint16_t samples_half_cycle)
 {
 	// if(fmod(angle, 1) < 0.5)
 	if (current_sample < samples_half_cycle)
 	{
-		return 0;
+		return 0.5;
 	}
 	else
 	{
@@ -242,7 +245,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 	volatile int samples_half_cycle = 0;
 	// volatile float32_t angle_vco_norm = freq_vco/SAMPLERATE;
 
-	// VCO Waveform
+	// Sine VCO
 	// TODO: to save cpu cycles, consider calculating one cycle of the sine wave and then copying it into the rest of the buffer.
 	if(wav_vco == WAVE_SINE)
 	{
@@ -252,7 +255,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 		}
 	}
 
-	// Square
+	// Square VCO
 	else if(wav_vco == WAVE_SQUARE && mod_type != MOD_FM)
 	{
 		/*
@@ -273,8 +276,8 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 		}
 	}
 
-	// Sawtooth - not tested
-	else if(wav_vco == WAVE_SAWTOOTH)
+	// Sawtooth VCO
+	else if(wav_vco == WAVE_SAWTOOTH && mod_type != MOD_FM)
 	{
 		samples_cycle = SAMPLERATE/freq_vco;
 
@@ -285,7 +288,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 		}
 	}
 
-	// LFO Waveform
+	// SINE LFO
 	// TODO: the amplitude depends on whether it's used for AM (low value) or FM (high value).
 	// TODO: figure out how to allow for sub 2 hz frequencies
 	// 			manually set angle_lfo very low and see what happens.
@@ -299,6 +302,9 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 			buffer_lfo_float[i] = lfo_amp + lfo_amp*arm_sin_f32((sample_count+i)*angle_lfo);
 		}
 	}
+
+	// Square LFO
+	// TODO: amplitude adjustment -- so it's not just 000011111, but could be 0.2 0.2 0.2 0.6 0.6 0.6
 	else if(wav_lfo == WAVE_SQUARE)
 	{
 		samples_cycle = SAMPLERATE/freq_lfo;
@@ -309,6 +315,8 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 			buffer_lfo_float[i] = square((sample_count+i) % samples_cycle, samples_half_cycle);
 		}
 	}
+
+	// Sawtooth LFO
 	else if(wav_lfo == WAVE_SAWTOOTH)
 	{
 		samples_cycle = SAMPLERATE/freq_lfo;
@@ -320,10 +328,22 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 			buffer_lfo_float[i] = (1/(float32_t)samples_cycle) * sawtooth((sample_count+i) % samples_cycle);
 		}
 	}
+
+	// No LFO
 	else if(wav_lfo == WAVE_NONE)
 	{
 		// TODO: fill lfo buffer with zeros.
 	}
+
+	// ADSR: Attack decay sustain release
+	if(adsr)
+	{
+		for(i = 0; i < BUFF_LEN_DIV2; i++)
+		{
+			buffer_adsr[i] = 0;
+		}
+	}
+
 
 	// VCO-LFO modulation
 	if(mod_type == MOD_AM)
@@ -335,17 +355,23 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 	}
 
 	// FM for sine wave VCO.
+	// TODO: doesn't FM modulate sine wave with square wave
 	else if(wav_vco == WAVE_SINE && mod_type == MOD_FM)
 	{
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
-			buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+i)*angle_vco + 40*buffer_lfo_float[i]);
+			// Using 40 for sine modulated with sine
+			// buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+i)*angle_vco + 40*buffer_lfo_float[i]);
+			// buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+i)*angle_vco*buffer_lfo_float[i]);
+
+			// For modulating with square wave
+			buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+i)*angle_vco * buffer_lfo_float[i]);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
 
 	// FM for square wave VCO.
-	// TODO: Fix this.
+	// TODO: Fix glitchiness.
 	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
 	{
 		samples_cycle = SAMPLERATE/freq_vco;
@@ -353,23 +379,22 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 
 		for(i = 0; i < BUFF_LEN_DIV2; i++)
 		{
-			// Adjust samples_cycle ONLY in-between cycles.
-			// If start of new cycle, adjust cycle length.
-			/*
-			if( ((sample_count+i) % (samples_cycle + (uint16_t)buffer_lfo_float[i])) == 0)
-			{
-				samples_cycle = samples_cycle + buffer_lfo_float[i];
-				samples_half_cycle = samples_cycle / 2;
-			}
-			*/
-
-			// buffer_vco[i] = vco_amp * square((sample_count+i) % samples_cycle, samples_half_cycle);
-			// buffer_vco[i] = vco_amp * square( (sample_count+i) % ( samples_cycle + 1*(uint16_t)buffer_lfo_float[i] ), ( samples_cycle + 1*(uint16_t)buffer_lfo_float[i])/2 );
-
-			// No modulation
-			// buffer_vco[i] = vco_amp * square( (sample_count+i) % ( samples_cycle ), ( samples_cycle )/2 );
-
 			buffer_vco[i] = vco_amp * square( (sample_count+i) % ( (uint16_t)(samples_cycle + 20*buffer_lfo_float[i]) ), ( samples_cycle + 20*buffer_lfo_float[i])/2 );
+			buffer_output[i] = buffer_vco[i];
+		}
+	}
+
+	// FM for sawtooth wave VCO.
+	else if(wav_vco == WAVE_SAWTOOTH && mod_type == MOD_FM)
+	{
+		samples_cycle = SAMPLERATE/freq_vco;
+		samples_half_cycle = samples_cycle/2;
+
+		for(i = 0; i < BUFF_LEN_DIV2; i++)
+		{
+			// buffer_vco[i] = 40 * sawtooth(  samples_cycle - ((sample_count+i) % samples_cycle));
+
+			buffer_vco[i] = 40 * sawtooth( samples_cycle - (sample_count+i) % ( (uint16_t)(samples_cycle + 20*buffer_lfo_float[i]) ));
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -419,7 +444,7 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 	// memset(buffer_vco, 0, sizeof(buffer_vco));
 	// memset(buffer_output, 0, sizeof(buffer_output));
 
-	// VCO Waveform
+	// Sine VCO
 	if(wav_vco == WAVE_SINE)
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
@@ -455,7 +480,7 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 		}
 	}
 
-	// Sawtooth
+	// Sawtooth VCO
 	else if(wav_vco == WAVE_SAWTOOTH)
 	{
 		samples_cycle = SAMPLERATE/freq_vco;
@@ -467,12 +492,13 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 		}
 	}
 
-	// LFO Waveform
+	// SINE LFO
 	if(wav_lfo == WAVE_SINE)
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
-			buffer_lfo_float[i] = lfo_amp + lfo_amp*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_lfo);		// Medium amplitude for FM mod of square
+			buffer_lfo_float[i] = lfo_amp + lfo_amp*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_lfo);
+
 		}
 	}
 	else if(wav_lfo == WAVE_SQUARE)
@@ -485,6 +511,8 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 			buffer_lfo_float[i] = square((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle, samples_half_cycle);
 		}
 	}
+
+	// Sawtooth LFO
 	else if(wav_lfo == WAVE_SAWTOOTH)
 	{
 		samples_cycle = SAMPLERATE/freq_lfo;
@@ -496,6 +524,17 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 			buffer_lfo_float[i] = (1/(float32_t)samples_cycle) * (float32_t) sawtooth((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle);
 		}
 	}
+
+	// Envelope
+	if(adsr)
+	{
+		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
+		{
+			buffer_adsr[i] = 0;
+		}
+	}
+
+
 	// VCO-LFO modulation
 	if(mod_type == MOD_AM)
 	{
@@ -510,7 +549,12 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 	{
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
-			buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_vco + 40*buffer_lfo_float[i]);
+			// Using 40 for modulating with sine wave.
+			// buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_vco + 40*buffer_lfo_float[i]);
+			// buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_vco*buffer_lfo_float[i]);
+
+			// For modulating with square wave
+			buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+(i-BUFF_LEN_DIV2))*angle_vco * buffer_lfo_float[i]);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -523,22 +567,20 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
 
 		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
 		{
-			// If start of new cycle
-			// Note: we need (i-BUFF_LEN_DIV2), since i is increased by BUFF_LEN_DIV2 in order to access correct location in buffer.
-			/*
-			if( ((sample_count+(i-BUFF_LEN_DIV2)) % (samples_cycle + (uint16_t)buffer_lfo_float[i])) == 0)
-			{
-				samples_cycle = samples_cycle + buffer_lfo_float[i];
-				samples_half_cycle = samples_cycle / 2;
-			}
-			*/
-			// buffer_vco[i] = vco_amp * square((sample_count+(i-BUFF_LEN_DIV2)) % samples_cycle, samples_half_cycle);
-			// buffer_vco[i] = vco_amp * square((sample_count+(i-BUFF_LEN_DIV2)) % ( samples_cycle + (uint16_t)buffer_lfo_float[i] ), ( samples_half_cycle + (uint16_t)buffer_lfo_float[i])/2 );
-
-			// No modulation
-			//buffer_vco[i] = vco_amp * square( (sample_count+(i-BUFF_LEN_DIV2)) % ( samples_cycle ), ( samples_cycle )/2 );
-
 			buffer_vco[i] = vco_amp * square( (sample_count+(i-BUFF_LEN_DIV2)) % ( (uint16_t)(samples_cycle + 20*buffer_lfo_float[i]) ), ( samples_cycle + 20*buffer_lfo_float[i])/2 );
+			buffer_output[i] = buffer_vco[i];
+		}
+	}
+
+	else if(wav_vco == WAVE_SAWTOOTH && mod_type == MOD_FM)
+	{
+		samples_cycle = SAMPLERATE/freq_vco;
+		samples_half_cycle = samples_cycle/2;
+
+		for(i = BUFF_LEN_DIV2; i < BUFF_LEN; i++)
+		{
+			// buffer_vco[i] = vco_amp * sawtooth( (sample_count+(i-BUFF_LEN_DIV2)) % ( (uint16_t)(samples_cycle + 20*buffer_lfo_float[i]) ), ( samples_cycle + 20*buffer_lfo_float[i])/2 );
+			buffer_vco[i] = 40 * sawtooth( samples_cycle - (sample_count+(i-BUFF_LEN_DIV2)) % ( (uint16_t)(samples_cycle + 20*buffer_lfo_float[i]) ));
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
