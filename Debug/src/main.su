@@ -2,10 +2,10 @@ main.c:105:11:square	16	static
 main.c:137:11:sawtooth	24	static
 main.c:154:5:main	16	static
 main.c:225:10:Codec_TIMEOUT_UserCallback	8	static
-main.c:236:6:EVAL_AUDIO_HalfTransfer_CallBack	72	static
-main.c:451:6:EVAL_AUDIO_TransferComplete_CallBack	72	static
-main.c:638:10:EVAL_AUDIO_GetSampleCallBack	4	static
-main.c:645:6:EVAL_AUDIO_Error_CallBack	16	static
-main.c:658:6:ADC3_CH12_DMA_Config	120	static
-main.c:731:7:randomNum	4	static
-main.c:737:6:TimingDelay_Decrement	4	static
+main.c:236:6:EVAL_AUDIO_HalfTransfer_CallBack	56	static
+main.c:451:6:EVAL_AUDIO_TransferComplete_CallBack	56	static
+main.c:637:10:EVAL_AUDIO_GetSampleCallBack	4	static
+main.c:644:6:EVAL_AUDIO_Error_CallBack	16	static
+main.c:657:6:ADC3_CH12_DMA_Config	120	static
+main.c:730:7:randomNum	4	static
+main.c:736:6:TimingDelay_Decrement	4	static
