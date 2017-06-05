@@ -16,6 +16,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <math.h>
+#include "arm_math.h"
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -65,5 +66,9 @@
 #define LFO_AMP_AM				0.4
 #define LFO_AMP_FM				0.5
 #define LFO_AMP_FM2				10
+
+float32_t square(uint16_t current_sample, uint16_t samples_half_cycle);
+float32_t sawtooth(uint16_t current_sample, uint16_t samples_cycle);
+void generate_waveforms(uint16_t start, uint16_t end);
 
 #endif /* MAIN_H_ */

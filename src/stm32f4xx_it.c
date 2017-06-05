@@ -137,19 +137,7 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
-	//f1 = 30 + 5000.f * ((float)ADC3ConvertedValue) / 255.f;
-//	// TimingDelay_Decrement();
-//	if (TimingDelay == 0)
-//	{
-//		/* choose a random note  */
-//		// f1 = 2000.0f*randomNum() + 50.0f;
-//
-//		// Mike
-//		// f1 = ADC3ConvertedValue * 10;
-//
-//		/*  update the duration between each note   */
-//		// TimingDelay = (uint32_t)(5.f + 50.f * ((float)ADC3ConvertedValue) / 255.f);
-//	}
+
 }
 
 
