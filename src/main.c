@@ -48,22 +48,22 @@ SOFTWARE.
 void ADC3_CH12_DMA_Config(void);
 
 /* Globals */
-int sample;
-float           		pass = 1.f ;
-float           		phase2 = 0.0f , phase2Step;
-// float           		f1 = FREQ1 , f2 = FREQ2 , freq;
-__IO uint16_t 			ADC3ConvertedValue = 0;
-RCC_ClocksTypeDef       RCC_Clocks;
-GPIO_InitTypeDef        GPIO_InitStructure;
-uint8_t                 state = OFF;
-__IO uint32_t 			TimingDelay = 50;
+// int sample;
+float           		pass = 1.f ;					// From horrorophone
+// float           		phase2 = 0.0f , phase2Step;		// From horrorophone
+// float           		f1 = FREQ1 , f2 = FREQ2 , freq;	// From horrorophone
+__IO uint16_t 			ADC3ConvertedValue = 0;			// From horrorophone
+// RCC_ClocksTypeDef    RCC_Clocks;						// From horrorophone -turned off - might be needed.
+GPIO_InitTypeDef        GPIO_InitStructure;				// From horrorophone
+uint8_t                 state = OFF;					// From horrorophone
+__IO uint32_t 			TimingDelay = 50;				// From horrorophone
 
 
 volatile uint16_t buffer_vco[BUFF_LEN] = {0};
 // volatile uint16_t buffer_lfo[BUFF_LEN] = {0};
 volatile float32_t buffer_lfo_float[BUFF_LEN] = {0};
 volatile uint16_t buffer_output[BUFF_LEN] = {0};
-volatile uint16_t buffer_adsr[BUFF_LEN] = {0};			// Attack, sustain, decay, release
+volatile float32_t buffer_adsr[BUFF_LEN] = {0};			// Attack, sustain, decay, release
 
 volatile uint16_t mov_avg [MOV_AVG_BUFF_LEN] = {0};
 volatile uint16_t mov_avg_index = 0;
@@ -75,26 +75,42 @@ volatile uint16_t freq_vco = 700;
 volatile uint16_t freq_lfo = 2;						// Moderate LFO frequency
 // volatile uint16_t freq_lfo = 501;				// For testing LFO
 // volatile uint16_t freq_vco = 375.0;				// Pure sine if BUFF_LEN is 128
-volatile uint16_t sample_count = 0;
+
+// volatile uint16_t sample_count = 0;
+volatile uint32_t sample_count = 0;
 
 uint16_t adsr = 1;
 
 uint16_t wav_vco = WAVE_SINE;
-uint16_t wav_lfo = WAVE_SINE;
-uint16_t mod_type = MOD_FM;
+uint16_t wav_lfo = WAVE_NONE;
+uint16_t mod_type = MOD_NONE;
 
 float32_t vco_amp = VCO_AMP;
-float32_t lfo_amp = 6.0;
+float32_t lfo_amp = 0.25;
+float32_t lfo_offset = 0.5;
 
 float32_t square_min = 0.4;
 float32_t square_max = 1.0;
 
-float32_t sawtooth_min = 0.0;
-float32_t sawtooth_max = 1.0;
+float32_t sawtooth_vco_min = 0.0;
+float32_t sawtooth_vco_max = 1.0;
 
-float32_t fm_mod_level = 1.0;
+float32_t sawtooth_lfo_min = 0.2;
+float32_t sawtooth_lfo_max = 0.5;
 
+float32_t fm_mod_level = 1.1;
 
+// ADSR - Attack Decay Sustain Release
+uint32_t a_start = 0;
+uint32_t d_start = 12000;		// So attack is 12000 samples
+uint32_t s_start = 18000;		// So decay is 6000 samples
+uint32_t r_start = 54000;		// So sustain is 12000 samples
+uint32_t r_end =   60000;		// release is FOUR_SECOND - r_start samples
+
+uint32_t attack_len =  12000;
+uint32_t decay_len =   6000;
+uint32_t sustain_len = 36000;
+uint32_t release_len = 6000;
 
 
 /**
@@ -121,26 +137,26 @@ int main(void)
   */
 
    /* Initialize LEDS */
-   STM_EVAL_LEDInit(LED3); // orange LED
-   STM_EVAL_LEDInit(LED4); // green LED
-   STM_EVAL_LEDInit(LED5); // red LED
-   STM_EVAL_LEDInit(LED6); // blue LED
+   STM_EVAL_LEDInit(LED3); // orange LED		// From Horrorophone
+   STM_EVAL_LEDInit(LED4); // green LED			// From Horrorophone
+   STM_EVAL_LEDInit(LED5); // red LED			// From Horrorophone
+   STM_EVAL_LEDInit(LED6); // blue LED			// From Horrorophone
 
    /* Green Led On: start of application */
-   STM_EVAL_LEDOn(LED4);
+   STM_EVAL_LEDOn(LED4);						// From Horrorophone
 
    /* ADC3 configuration *******************************************************/
     /*  - Enable peripheral clocks                                              */
     /*  - DMA2_Stream0 channel2 configuration                                   */
     /*  - Configure ADC Channel12 pin as analog input  : PC2                    */
     /*  - Configure ADC3 Channel12                                              */
-    ADC3_CH12_DMA_Config();
+    ADC3_CH12_DMA_Config();						// From Horrorophone
 
     /* Start ADC3 Software Conversion */
-    ADC_SoftwareStartConv(ADC3);
+    ADC_SoftwareStartConv(ADC3);				// From Horrorophone
 
 	/* Initialize User Button */
-	STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_GPIO);
+	STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_GPIO);		// From Horrorophone
 
 	retVal = EVAL_AUDIO_Init( OUTPUT_DEVICE_AUTO, VOL, SAMPLERATE);
 	retVal = EVAL_AUDIO_Play(buffer_output, BUFF_LEN);
@@ -150,7 +166,7 @@ int main(void)
   {
 	i++;
 
-
+	// From Horrorophone
     if (STM_EVAL_PBGetState(BUTTON_USER) && (state == OFF))
     {
       state = ON;
@@ -180,6 +196,8 @@ int main(void)
 float32_t square(uint16_t current_sample, uint16_t samples_half_cycle)
 {
 	// if(fmod(angle, 1) < 0.5)
+
+	// TOOD: check frequency of this.
 	if (current_sample < samples_half_cycle)
 	{
 		return square_min;
@@ -209,13 +227,31 @@ float32_t square(uint16_t current_sample, uint16_t samples_half_cycle)
 
  *
  */
-float32_t sawtooth(uint16_t current_sample, uint16_t samples_cycle)
+float32_t sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
 {
-	float32_t m = (sawtooth_max - sawtooth_min)/samples_cycle;
+	float32_t m = 0.0;
+	float32_t val = 0.0;
 
 	// y = mx + b
-	return (m * current_sample + sawtooth_min);
-	// return (float32_t) current_sample;
+//	m = (max - min)/samples_cycle;
+//	val = m * current_sample + min;
+
+	m = (min - max)/samples_cycle;
+	val = max - (m * current_sample + min);
+
+	return val;
+}
+
+float32_t rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
+{
+	float32_t m = 0.0;
+	float32_t val = 0.0;
+
+	// y = mx + b
+	m = (max - min)/samples_cycle;
+	val = max - m * current_sample + min;
+
+	return val;
 }
 
 
@@ -323,7 +359,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		 *
 		 */
 
-		samples_cycle = SAMPLERATE/freq_vco;
+		samples_cycle = 2*(SAMPLERATE/freq_vco);
 		samples_half_cycle = samples_cycle/2;
 
 		for(i = start; i < end; i++)
@@ -335,12 +371,12 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// Sawtooth VCO
 	else if(wav_vco == WAVE_SAWTOOTH && mod_type != MOD_FM)
 	{
-		samples_cycle = SAMPLERATE/freq_vco;
+		samples_cycle = 2*(SAMPLERATE/freq_vco);
 
 		for(i = start; i < end; i++)
 		{
 			// TODO: store amplitude in a variable.
-			buffer_vco[i] = 4000 * sawtooth(samples_cycle - ((sample_count+(i-start)) % samples_cycle), samples_cycle);
+			buffer_vco[i] = vco_amp * sawtooth(samples_cycle - ((sample_count+(i-start)) % samples_cycle), samples_cycle, sawtooth_vco_min, sawtooth_vco_max);
 		}
 	}
 
@@ -355,7 +391,12 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			// buffer_lfo_float[i] = 0.4 + 0.4*arm_sin_f32((sample_count+i)*angle_lfo);		// Small amplitude for AM mod of sine
 			// buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((sample_count+i)*angle_lfo);	// Large amplitude for FM mod of sine
 			// buffer_lfo_float[i] = 10 + 10*arm_sin_f32((sample_count+i)*angle_lfo);		// Medium amplitude for FM mod of square
-			buffer_lfo_float[i] = lfo_amp + lfo_amp*arm_sin_f32((sample_count+(i-start))*angle_lfo);
+
+			// TODO: uncomment after testing.
+			buffer_lfo_float[i] = lfo_offset + lfo_amp*arm_sin_f32((sample_count+(i-start))*angle_lfo);
+
+			// TODO: testing for FM mod of sawtooth
+			// buffer_lfo_float[i] = 0.5 + 0.25*arm_sin_f32((sample_count+(i-start))*angle_lfo);
 		}
 	}
 
@@ -363,7 +404,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// TODO: amplitude adjustment -- so it's not just 000011111, but could be 0.2 0.2 0.2 0.6 0.6 0.6
 	else if(wav_lfo == WAVE_SQUARE)
 	{
-		samples_cycle = SAMPLERATE/freq_lfo;
+		samples_cycle = 2*(SAMPLERATE/freq_lfo);
 		samples_half_cycle = samples_cycle/2;
 
 		for(i = start; i < end; i++)
@@ -375,13 +416,13 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// Sawtooth LFO
 	else if(wav_lfo == WAVE_SAWTOOTH)
 	{
-		samples_cycle = SAMPLERATE/freq_lfo;
+		samples_cycle = 2*(SAMPLERATE/freq_lfo);
 
 		for(i = start; i < end; i++)
 		{
-			// TODO: store amplitude in a variable.
-			// TODO: outputs zeros.
-			buffer_lfo_float[i] = sawtooth((sample_count+(i-start)) % samples_cycle, samples_cycle);
+			// TODO: For FM modulation, sawtooth shape LFO is one way
+			// 	     For AM modulation, sawtooth shape is the other way
+			buffer_lfo_float[i] = sawtooth(samples_cycle - (sample_count+(i-start)) % samples_cycle, samples_cycle, sawtooth_lfo_min, sawtooth_lfo_max);
 		}
 	}
 
@@ -391,18 +432,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		// TODO: fill lfo buffer with zeros.
 	}
 
-	// ADSR: Attack decay sustain release
-	//
-	if(adsr)
-	{
-		for(i = start; i < end; i++)
-		{
-			buffer_adsr[i] = 0;
-		}
-	}
-
-
-	// VCO-LFO modulation
+	// AM modulation
 	if(mod_type == MOD_AM)
 	{
 		for(i = start; i < end; i++)
@@ -418,13 +448,14 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		for(i = start; i < end; i++)
 		{
 			// Using 40 for sine modulated with sine
-			buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco + 40*buffer_lfo_float[i]);
+			// buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco + 40*buffer_lfo_float[i]);
 
-			// For modulating with square wave
-			// buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco * buffer_lfo_float[i]);
+			// For modulating with square and sawtooth wave
+			buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco * buffer_lfo_float[i]);
 
 			// For modulating with sawtooth wave
 			// buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco*buffer_lfo_float[i]);
+
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -433,7 +464,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// TODO: Fix glitchiness.
 	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
 	{
-		samples_cycle = SAMPLERATE/freq_vco;
+		samples_cycle = 2*(SAMPLERATE/freq_vco);
 		samples_half_cycle = samples_cycle/2;
 
 		for(i = start; i < end; i++)
@@ -447,14 +478,22 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// FM for sawtooth wave VCO.
 	else if(wav_vco == WAVE_SAWTOOTH && mod_type == MOD_FM)
 	{
-		samples_cycle = SAMPLERATE/freq_vco;
+		samples_cycle = 2*(SAMPLERATE/freq_vco);
 		// samples_half_cycle = samples_cycle/2;
 
 		for(i = start; i < end; i++)
 		{
 			// buffer_vco[i] = 40 * sawtooth(  samples_cycle - ((sample_count+i) % samples_cycle));
 
-			buffer_vco[i] = vco_amp * sawtooth( samples_cycle - (sample_count+(i-start)) % ( (uint16_t)(samples_cycle*buffer_lfo_float[i]) ), samples_cycle*fm_mod_level*buffer_lfo_float[i]);
+			// During call to sawtooth, I think we do
+			//		samples_cycle - (sample_count+(i-start)) ...
+			// Because, otherwise the sawtooth waveform appears backwards.
+			buffer_vco[i] = vco_amp * sawtooth( samples_cycle - (sample_count+(i-start)) % ( (uint16_t)(samples_cycle*fm_mod_level*buffer_lfo_float[i]) ), samples_cycle*fm_mod_level*buffer_lfo_float[i], sawtooth_vco_min, sawtooth_vco_max);
+
+			if(buffer_vco[i] > 4000)
+			{
+				int test = 1;
+			}
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -468,12 +507,58 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		}
 	}
 
+	// ADSR: Attack decay sustain release
+	// The waveform contains 4 segments.
+	if(adsr)
+	{
+		for(i = start; i < end; i++)
+		{
+			if(sample_count+(i-start) < d_start)
+			{
+				// Attack
+				// buffer_adsr[i] = 0.2;
+
+				buffer_adsr[i] = sawtooth((sample_count+(i-start)) % d_start, d_start, 0.0, 1.0);
+
+			}
+			else if(sample_count+(i-start) < s_start)
+			{
+				// Decay
+				// buffer_adsr[i] = 0.4;
+				buffer_adsr[i] = rampdown((sample_count+(i-start)) % s_start-d_start, s_start-d_start, 0.5, 1.0);
+			}
+			else if(sample_count+(i-start) < r_start)
+			{
+				// Sustain
+				// buffer_adsr[i] = 0.6;
+				// buffer_adsr[i] = sawtooth((sample_count+(i-start)) % samples_cycle, r_start-s_start, 0.5, 0.5);
+				buffer_adsr[i] = 0.5;
+			}
+			else if(sample_count+(i-start) < r_end)
+			{
+				// Release
+				// buffer_adsr[i] = 1.0;
+				// rampdown(current sample, samples/cycle, min value, max value)
+				buffer_adsr[i] = rampdown( ( sample_count+(i-start) ) % r_end-r_start, r_end-r_start, 0.0, 0.5);
+			}
+			else
+			{
+				buffer_adsr[i] = 0;
+			}
+
+			buffer_output[i] = buffer_output[i] * buffer_adsr[i];
+		}
+	}
 
 	// Remember lfo phase and resume next run of callback.
 	// TODO: This line may be causing problems.
 	//		 Might be able to rollover at end of (vfo? lfo?) waveform instead of samplerate.
 	// 		However.. might need to also account for size of integer.
-	sample_count = (sample_count + (i-start)) % SAMPLERATE;
+	// Also, % SAMPLERATE limits counting to 1 second's worth of samples.
+
+	// sample_count = (sample_count + (i-start)) % SAMPLERATE;
+	sample_count = (sample_count + (i-start)) % FOUR_SECOND;
+
 	return;
 }
 
@@ -494,14 +579,13 @@ void EVAL_AUDIO_Error_CallBack(void* pData)
 	STM_EVAL_LEDOn(LED3);
 }
 
-
-
-
 /**
   * @brief  ADC3 channel12 with DMA configuration
   * @param  None
   * @retval None
   */
+
+// TODO: See what can be removed fro this function.
 void ADC3_CH12_DMA_Config(void)
 {
   ADC_InitTypeDef       ADC_InitStructure;
@@ -575,12 +659,13 @@ void ADC3_CH12_DMA_Config(void)
 /**************
 * returns a random float between 0 and 1
 *****************/
+/*
 float randomNum(void)
   {
 		return 0.5;
   }
-
-
+*/
+/*
 void TimingDelay_Decrement(void)
 {
   if (TimingDelay != 0x00)
@@ -588,3 +673,4 @@ void TimingDelay_Decrement(void)
     TimingDelay--;
   }
 }
+*/

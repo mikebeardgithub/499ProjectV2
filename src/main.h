@@ -5,7 +5,6 @@
  *      Author: admin
  */
 
-
 /*
  * This file was downloaded and adapted from the project found here:
  * https://github.com/MrBlueXav/horrorophone-eclipse-with-makefile
@@ -34,6 +33,7 @@
 // #define _INVPI					0.3183098861f
 // #define SAMPLERATE              48000
 #define SAMPLERATE              48000
+#define FOUR_SECOND				192000			// Four seconds worth of samples.
 
 #define VOL                     80
 #define BUFF_LEN                64
@@ -68,7 +68,8 @@
 #define LFO_AMP_FM2				10
 
 float32_t square(uint16_t current_sample, uint16_t samples_half_cycle);
-float32_t sawtooth(uint16_t current_sample, uint16_t samples_cycle);
+float32_t sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max);
+float32_t rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max);
 void generate_waveforms(uint16_t start, uint16_t end);
 
 #endif /* MAIN_H_ */
