@@ -81,13 +81,13 @@ volatile uint32_t sample_count = 0;
 
 uint16_t adsr = 0;
 
-uint16_t wav_vco = WAVE_SINE;
-uint16_t wav_lfo = WAVE_TRIANGLE;
+uint16_t wav_vco = WAVE_TRIANGLE;
+uint16_t wav_lfo = WAVE_SINE;
 uint16_t mod_type = MOD_FM;
 
 float32_t vco_amp = VCO_AMP;
 float32_t lfo_amp = 1.0;
-float32_t lfo_offset = 4.0;
+float32_t lfo_offset = 2.0;
 
 float32_t square_min = 0.4;
 float32_t square_max = 1.0;
@@ -448,6 +448,12 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// SINE LFO
 	if(wav_lfo == WAVE_SINE)
 	{
+		if(wav_vco == WAVE_SAWTOOTH || wav_vco == WAVE_TRIANGLE)
+		{
+			lfo_offset = 0.5;
+			lfo_amp = 0.25;
+		}
+
 		for(i = start; i < end; i++)
 		{
 			// buffer_lfo_float[i] = 0.4 + 0.4*arm_sin_f32((sample_count+i)*angle_lfo);		// Small amplitude for AM mod of sine
@@ -607,29 +613,20 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// FM for sawtooth wave VCO.
 	else if(wav_vco == WAVE_SAWTOOTH && mod_type == MOD_FM)
 	{
-		// samples_cycle = 2*(SAMPLERATE/freq_vco);
-		// samples_half_cycle = samples_cycle/2;
-
 		for(i = start; i < end; i++)
 		{
 			// buffer_vco[i] = 40 * sawtooth(  samples_cycle - ((sample_count+i) % samples_cycle));
 
-			// During call to sawtooth, I think we do
+			// During call to sawtooth, I think do...
 			//		samples_cycle - (sample_count+(i-start)) ...
 			// Because, otherwise the sawtooth waveform appears backwards.
 			buffer_vco[i] = vco_amp * sawtooth( samples_cycle_vco - (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), samples_cycle_vco*fm_mod_level*buffer_lfo_float[i], sawtooth_vco_min, sawtooth_vco_max);
-
-			// TODO: For testing....
-			// I believe this is working...
-			if(buffer_vco[i] > 4000)
-			{
-				int test = 1;
-			}
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
 
 	// FM for triangle wave VCO.
+	// TODO: fix this...
 	else if(wav_vco == WAVE_TRIANGLE && mod_type == MOD_FM)
 	{
 		// samples_half_cycle = SAMPLERATE/freq_vco;
@@ -638,11 +635,6 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		for(i = start; i < end; i++)
 		{
 			buffer_vco[i] = vco_amp * triangle( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), samples_half_cycle_vco*fm_mod_level*buffer_lfo_float[i], 1.0);
-
-			if(buffer_vco[i] > 4000)
-			{
-				int test = 1;
-			}
 			buffer_output[i] = buffer_vco[i];
 		}
 	}

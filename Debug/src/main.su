@@ -7,7 +7,7 @@ main.c:275:11:triangle_integral	32	static
 main.c:308:10:Codec_TIMEOUT_UserCallback	8	static
 main.c:319:6:EVAL_AUDIO_HalfTransfer_CallBack	16	static
 main.c:337:6:EVAL_AUDIO_TransferComplete_CallBack	16	static
-main.c:346:6:generate_waveforms	64	static
-main.c:720:10:EVAL_AUDIO_GetSampleCallBack	4	static
-main.c:727:6:EVAL_AUDIO_Error_CallBack	16	static
-main.c:739:6:ADC3_CH12_DMA_Config	120	static
+main.c:346:6:generate_waveforms	56	static
+main.c:712:10:EVAL_AUDIO_GetSampleCallBack	4	static
+main.c:719:6:EVAL_AUDIO_Error_CallBack	16	static
+main.c:731:6:ADC3_CH12_DMA_Config	120	static
