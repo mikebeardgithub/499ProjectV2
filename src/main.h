@@ -33,7 +33,9 @@
 // #define _INVPI					0.3183098861f
 // #define SAMPLERATE              48000
 #define SAMPLERATE              48000
-#define FOUR_SECOND				192000			// Four seconds worth of samples.
+#define TWO_SECOND				192000			// Two seconds worth of samples (per channel).
+#define FIVE_SECOND				480000			// Four seconds worth of samples (per channel).
+#define TEN_SECOND				960000			// Four seconds worth of samples (per channel).
 
 #define VOL                     80
 #define BUFF_LEN                64
@@ -55,7 +57,8 @@
 #define WAVE_SINE				1
 #define WAVE_SQUARE				2
 #define WAVE_SAWTOOTH			3
-#define WAVE_NOISE				4
+#define WAVE_TRIANGLE			4
+#define WAVE_NOISE				5
 
 /* Defines for modulation types */
 #define MOD_NONE				0
@@ -70,6 +73,7 @@
 float32_t square(uint16_t current_sample, uint16_t samples_half_cycle);
 float32_t sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max);
 float32_t rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max);
+float32_t triangle(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp);
 void generate_waveforms(uint16_t start, uint16_t end);
 
 #endif /* MAIN_H_ */
