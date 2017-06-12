@@ -5,15 +5,15 @@ Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
   0 .isr_vector   00000188  08000000  08000000  00010000  2**0
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  1 .text         00003960  08000188  08000188  00010188  2**2
+  1 .text         0000395c  08000188  08000188  00010188  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .rodata       0000081c  08003ae8  08003ae8  00013ae8  2**2
+  2 .rodata       0000081c  08003ae4  08003ae4  00013ae4  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  3 .init_array   00000004  08004304  08004304  00014304  2**2
+  3 .init_array   00000004  08004300  08004300  00014300  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  4 .fini_array   00000004  08004308  08004308  00014308  2**2
+  4 .fini_array   00000004  08004304  08004304  00014304  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  5 .data         0000009c  20000000  0800430c  00020000  2**2
+  5 .data         0000009c  20000000  08004308  00020000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
   6 .ccmram       00000000  10000000  10000000  0002009c  2**0
                   CONTENTS
@@ -23,23 +23,23 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
   9 .ARM.attributes 0000002e  00000000  00000000  0002009c  2**0
                   CONTENTS, READONLY
- 10 .debug_info   0000873e  00000000  00000000  000200ca  2**0
+ 10 .debug_info   0000889b  00000000  00000000  000200ca  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_abbrev 00001896  00000000  00000000  00028808  2**0
+ 11 .debug_abbrev 0000190e  00000000  00000000  00028965  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_aranges 00000aa0  00000000  00000000  0002a0a0  2**3
+ 12 .debug_aranges 00000aa0  00000000  00000000  0002a278  2**3
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_ranges 00000970  00000000  00000000  0002ab40  2**3
+ 13 .debug_ranges 00000970  00000000  00000000  0002ad18  2**3
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_line   0000415d  00000000  00000000  0002b4b0  2**0
+ 14 .debug_line   00004251  00000000  00000000  0002b688  2**0
                   CONTENTS, READONLY, DEBUGGING
- 15 .debug_str    00003ac2  00000000  00000000  0002f60d  2**0
+ 15 .debug_str    00003b09  00000000  00000000  0002f8d9  2**0
                   CONTENTS, READONLY, DEBUGGING
- 16 .comment      000000ee  00000000  00000000  000330cf  2**0
+ 16 .comment      000000ee  00000000  00000000  000333e2  2**0
                   CONTENTS, READONLY
- 17 .debug_frame  00002b2c  00000000  00000000  000331c0  2**2
+ 17 .debug_frame  00002b2c  00000000  00000000  000334d0  2**2
                   CONTENTS, READONLY, DEBUGGING
- 18 .debug_loc    000000c8  00000000  00000000  00035cec  2**0
+ 18 .debug_loc    000000c8  00000000  00000000  00035ffc  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -58,7 +58,7 @@ Disassembly of section .text:
  800019e:	bd10      	pop	{r4, pc}
  80001a0:	2000009c 	.word	0x2000009c
  80001a4:	00000000 	.word	0x00000000
- 80001a8:	08003ad0 	.word	0x08003ad0
+ 80001a8:	08003acc 	.word	0x08003acc
 
 080001ac <frame_dummy>:
  80001ac:	b508      	push	{r3, lr}
@@ -70,7 +70,7 @@ Disassembly of section .text:
  80001ba:	bd08      	pop	{r3, pc}
  80001bc:	00000000 	.word	0x00000000
  80001c0:	200000a0 	.word	0x200000a0
- 80001c4:	08003ad0 	.word	0x08003ad0
+ 80001c4:	08003acc 	.word	0x08003acc
 
 080001c8 <NVIC_Init>:
   * @param  NVIC_InitStruct: pointer to a NVIC_InitTypeDef structure that contains
@@ -5089,8 +5089,8 @@ void STM_EVAL_LEDInit(Led_TypeDef Led)
  800193e:	3710      	adds	r7, #16
  8001940:	46bd      	mov	sp, r7
  8001942:	bd80      	pop	{r7, pc}
- 8001944:	08003af0 	.word	0x08003af0
- 8001948:	08003ae8 	.word	0x08003ae8
+ 8001944:	08003aec 	.word	0x08003aec
+ 8001948:	08003ae4 	.word	0x08003ae4
  800194c:	20000010 	.word	0x20000010
 
 08001950 <STM_EVAL_LEDOn>:
@@ -5120,7 +5120,7 @@ void STM_EVAL_LEDOn(Led_TypeDef Led)
  8001972:	f85d 7b04 	ldr.w	r7, [sp], #4
  8001976:	4770      	bx	lr
  8001978:	20000010 	.word	0x20000010
- 800197c:	08003ae8 	.word	0x08003ae8
+ 800197c:	08003ae4 	.word	0x08003ae4
 
 08001980 <STM_EVAL_LEDOff>:
   *     @arg LED5
@@ -5149,7 +5149,7 @@ void STM_EVAL_LEDOff(Led_TypeDef Led)
  80019a2:	f85d 7b04 	ldr.w	r7, [sp], #4
  80019a6:	4770      	bx	lr
  80019a8:	20000010 	.word	0x20000010
- 80019ac:	08003ae8 	.word	0x08003ae8
+ 80019ac:	08003ae4 	.word	0x08003ae4
 
 080019b0 <STM_EVAL_PBInit>:
   *     @arg BUTTON_MODE_EXTI: Button will be connected to EXTI line with interrupt
@@ -7973,7 +7973,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002904:	edd7 7a08 	vldr	s15, [r7, #32]
  8002908:	ee67 7a27 	vmul.f32	s15, s14, s15
  800290c:	eeb0 0a67 	vmov.f32	s0, s15
- 8002910:	f001 f87c 	bl	8003a0c <arm_sin_f32>
+ 8002910:	f001 f87a 	bl	8003a08 <arm_sin_f32>
  8002914:	eeb0 7a40 	vmov.f32	s14, s0
  8002918:	4b77      	ldr	r3, [pc, #476]	; (8002af8 <generate_waveforms+0x2a8>)
  800291a:	edd3 7a00 	vldr	s15, [r3]
@@ -8031,7 +8031,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002960:	627b      	str	r3, [r7, #36]	; 0x24
  8002962:	e027      	b.n	80029b4 <generate_waveforms+0x164>
 		{
-			buffer_vco[i] = vco_amp * square((sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco);
+			buffer_vco[i] = vco_amp * gen_square((sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco);
  8002964:	6a7c      	ldr	r4, [r7, #36]	; 0x24
  8002966:	6a7a      	ldr	r2, [r7, #36]	; 0x24
  8002968:	88fb      	ldrh	r3, [r7, #6]
@@ -8049,7 +8049,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002984:	b292      	uxth	r2, r2
  8002986:	4611      	mov	r1, r2
  8002988:	4618      	mov	r0, r3
- 800298a:	f000 fde7 	bl	800355c <square>
+ 800298a:	f000 fde7 	bl	800355c <gen_square>
  800298e:	eeb0 7a40 	vmov.f32	s14, s0
  8002992:	4b59      	ldr	r3, [pc, #356]	; (8002af8 <generate_waveforms+0x2a8>)
  8002994:	edd3 7a00 	vldr	s15, [r3]
@@ -8080,7 +8080,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// Square VCO
 	else if(wav_vco == WAVE_SQUARE && mod_type != MOD_FM)
  80029bc:	e077      	b.n	8002aae <generate_waveforms+0x25e>
-			buffer_vco[i] = vco_amp * square((sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco);
+			buffer_vco[i] = vco_amp * gen_square((sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco);
 		}
 	}
 
@@ -8103,7 +8103,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  80029d2:	e030      	b.n	8002a36 <generate_waveforms+0x1e6>
 		{
 			// TODO: store amplitude in a variable.
-			buffer_vco[i] = vco_amp * sawtooth(samples_cycle_vco - ((sample_count+(i-start)) % samples_cycle_vco), samples_cycle_vco, sawtooth_vco_min, sawtooth_vco_max);
+			buffer_vco[i] = vco_amp * gen_sawtooth(samples_cycle_vco - ((sample_count+(i-start)) % samples_cycle_vco), samples_cycle_vco, sawtooth_vco_min, sawtooth_vco_max);
  80029d4:	6a7c      	ldr	r4, [r7, #36]	; 0x24
  80029d6:	6979      	ldr	r1, [r7, #20]
  80029d8:	6a7a      	ldr	r2, [r7, #36]	; 0x24
@@ -8126,7 +8126,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002a02:	eef0 0a47 	vmov.f32	s1, s14
  8002a06:	eeb0 0a67 	vmov.f32	s0, s15
  8002a0a:	4610      	mov	r0, r2
- 8002a0c:	f000 fdc4 	bl	8003598 <sawtooth>
+ 8002a0c:	f000 fdc4 	bl	8003598 <gen_sawtooth>
  8002a10:	eeb0 7a40 	vmov.f32	s14, s0
  8002a14:	4b38      	ldr	r3, [pc, #224]	; (8002af8 <generate_waveforms+0x2a8>)
  8002a16:	edd3 7a00 	vldr	s15, [r3]
@@ -8150,7 +8150,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002a38:	6a7b      	ldr	r3, [r7, #36]	; 0x24
  8002a3a:	429a      	cmp	r2, r3
  8002a3c:	dcca      	bgt.n	80029d4 <generate_waveforms+0x184>
-			buffer_vco[i] = vco_amp * square((sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco);
+			buffer_vco[i] = vco_amp * gen_square((sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco);
 		}
 	}
 
@@ -8158,7 +8158,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	else if(wav_vco == WAVE_SAWTOOTH && mod_type != MOD_FM)
  8002a3e:	e036      	b.n	8002aae <generate_waveforms+0x25e>
 			// TODO: store amplitude in a variable.
-			buffer_vco[i] = vco_amp * sawtooth(samples_cycle_vco - ((sample_count+(i-start)) % samples_cycle_vco), samples_cycle_vco, sawtooth_vco_min, sawtooth_vco_max);
+			buffer_vco[i] = vco_amp * gen_sawtooth(samples_cycle_vco - ((sample_count+(i-start)) % samples_cycle_vco), samples_cycle_vco, sawtooth_vco_min, sawtooth_vco_max);
 		}
 	}
 
@@ -8182,7 +8182,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		{
 			// TODO: store amplitude in a variable.
 			// TODO: offset for triangle...?
-			buffer_vco[i] = vco_amp * triangle( (sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco, 1.0);
+			buffer_vco[i] = vco_amp * gen_triangle( (sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco, 1.0);
  8002a56:	6a7c      	ldr	r4, [r7, #36]	; 0x24
  8002a58:	6a7a      	ldr	r2, [r7, #36]	; 0x24
  8002a5a:	88fb      	ldrh	r3, [r7, #6]
@@ -8199,7 +8199,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002a74:	eeb7 0a00 	vmov.f32	s0, #112	; 0x3f800000  1.0
  8002a78:	4611      	mov	r1, r2
  8002a7a:	4618      	mov	r0, r3
- 8002a7c:	f000 fe00 	bl	8003680 <triangle>
+ 8002a7c:	f000 fe00 	bl	8003680 <gen_triangle>
  8002a80:	eeb0 7a40 	vmov.f32	s14, s0
  8002a84:	4b1c      	ldr	r3, [pc, #112]	; (8002af8 <generate_waveforms+0x2a8>)
  8002a86:	edd3 7a00 	vldr	s15, [r3]
@@ -8291,7 +8291,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002b2c:	edd7 7a07 	vldr	s15, [r7, #28]
  8002b30:	ee67 7a27 	vmul.f32	s15, s14, s15
  8002b34:	eeb0 0a67 	vmov.f32	s0, s15
- 8002b38:	f000 ff68 	bl	8003a0c <arm_sin_f32>
+ 8002b38:	f000 ff66 	bl	8003a08 <arm_sin_f32>
  8002b3c:	eeb0 7a40 	vmov.f32	s14, s0
  8002b40:	4ba4      	ldr	r3, [pc, #656]	; (8002dd4 <generate_waveforms+0x584>)
  8002b42:	edd3 7a00 	vldr	s15, [r3]
@@ -8336,7 +8336,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002b78:	627b      	str	r3, [r7, #36]	; 0x24
  8002b7a:	e01e      	b.n	8002bba <generate_waveforms+0x36a>
 		{
-			buffer_lfo_float[i] = square((sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo);
+			buffer_lfo_float[i] = gen_square((sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo);
  8002b7c:	6a7c      	ldr	r4, [r7, #36]	; 0x24
  8002b7e:	6a7a      	ldr	r2, [r7, #36]	; 0x24
  8002b80:	88fb      	ldrh	r3, [r7, #6]
@@ -8354,7 +8354,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002b9c:	b292      	uxth	r2, r2
  8002b9e:	4611      	mov	r1, r2
  8002ba0:	4618      	mov	r0, r3
- 8002ba2:	f000 fcdb 	bl	800355c <square>
+ 8002ba2:	f000 fcdb 	bl	800355c <gen_square>
  8002ba6:	eef0 7a40 	vmov.f32	s15, s0
  8002baa:	4a8c      	ldr	r2, [pc, #560]	; (8002ddc <generate_waveforms+0x58c>)
  8002bac:	00a3      	lsls	r3, r4, #2
@@ -8374,7 +8374,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002bbe:	429a      	cmp	r2, r3
  8002bc0:	dcdc      	bgt.n	8002b7c <generate_waveforms+0x32c>
  8002bc2:	e0cc      	b.n	8002d5e <generate_waveforms+0x50e>
-			buffer_lfo_float[i] = square((sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo);
+			buffer_lfo_float[i] = gen_square((sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo);
 		}
 	}
 
@@ -8402,7 +8402,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			{
 				// buffer_lfo_float[i] = sawtooth(samples_cycle - (sample_count+(i-start)) % samples_cycle, samples_cycle, sawtooth_lfo_min, sawtooth_lfo_max);
 
-				buffer_lfo_float[i] = sawtooth((sample_count+(i-start)) % samples_cycle_lfo, samples_cycle_lfo, sawtooth_lfo_min, sawtooth_lfo_max);
+				buffer_lfo_float[i] = gen_sawtooth((sample_count+(i-start)) % samples_cycle_lfo, samples_cycle_lfo, sawtooth_lfo_min, sawtooth_lfo_max);
  8002bda:	6a7c      	ldr	r4, [r7, #36]	; 0x24
  8002bdc:	6a7a      	ldr	r2, [r7, #36]	; 0x24
  8002bde:	88fb      	ldrh	r3, [r7, #6]
@@ -8423,7 +8423,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002c04:	eef0 0a47 	vmov.f32	s1, s14
  8002c08:	eeb0 0a67 	vmov.f32	s0, s15
  8002c0c:	4610      	mov	r0, r2
- 8002c0e:	f000 fcc3 	bl	8003598 <sawtooth>
+ 8002c0e:	f000 fcc3 	bl	8003598 <gen_sawtooth>
  8002c12:	eef0 7a40 	vmov.f32	s15, s0
  8002c16:	4a71      	ldr	r2, [pc, #452]	; (8002ddc <generate_waveforms+0x58c>)
  8002c18:	00a3      	lsls	r3, r4, #2
@@ -8453,7 +8453,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002c32:	627b      	str	r3, [r7, #36]	; 0x24
  8002c34:	e039      	b.n	8002caa <generate_waveforms+0x45a>
 			{
-				buffer_lfo_float[i] = sawtooth((sample_count+(i-start)) % samples_cycle_lfo, samples_cycle_lfo, sawtooth_lfo_min, sawtooth_lfo_max);
+				buffer_lfo_float[i] = gen_sawtooth((sample_count+(i-start)) % samples_cycle_lfo, samples_cycle_lfo, sawtooth_lfo_min, sawtooth_lfo_max);
  8002c36:	6a7c      	ldr	r4, [r7, #36]	; 0x24
  8002c38:	6a7a      	ldr	r2, [r7, #36]	; 0x24
  8002c3a:	88fb      	ldrh	r3, [r7, #6]
@@ -8474,7 +8474,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002c60:	eef0 0a47 	vmov.f32	s1, s14
  8002c64:	eeb0 0a67 	vmov.f32	s0, s15
  8002c68:	4610      	mov	r0, r2
- 8002c6a:	f000 fc95 	bl	8003598 <sawtooth>
+ 8002c6a:	f000 fc95 	bl	8003598 <gen_sawtooth>
  8002c6e:	eef0 7a40 	vmov.f32	s15, s0
  8002c72:	4a5a      	ldr	r2, [pc, #360]	; (8002ddc <generate_waveforms+0x58c>)
  8002c74:	00a3      	lsls	r3, r4, #2
@@ -8538,7 +8538,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			{
 				// TODO: change 1.0 to variable.
 				// 			Variable for min/max
-				buffer_lfo_float[i] = triangle( (sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo, 1.0);
+				buffer_lfo_float[i] = gen_triangle( (sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo, 1.0);
  8002cca:	6a7c      	ldr	r4, [r7, #36]	; 0x24
  8002ccc:	6a7a      	ldr	r2, [r7, #36]	; 0x24
  8002cce:	88fb      	ldrh	r3, [r7, #6]
@@ -8555,7 +8555,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002ce8:	eeb7 0a00 	vmov.f32	s0, #112	; 0x3f800000  1.0
  8002cec:	4611      	mov	r1, r2
  8002cee:	4618      	mov	r0, r3
- 8002cf0:	f000 fcc6 	bl	8003680 <triangle>
+ 8002cf0:	f000 fcc6 	bl	8003680 <gen_triangle>
  8002cf4:	eef0 7a40 	vmov.f32	s15, s0
  8002cf8:	4a38      	ldr	r2, [pc, #224]	; (8002ddc <generate_waveforms+0x58c>)
  8002cfa:	00a3      	lsls	r3, r4, #2
@@ -8587,7 +8587,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			{
 				// TODO: change 1.0 to variable.
 				// 			Variable for min/max
-				buffer_lfo_float[i] = triangle_integral( (sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo, 1.0);
+				buffer_lfo_float[i] = gen_triangle_integral( (sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo, 1.0);
  8002d18:	6a7c      	ldr	r4, [r7, #36]	; 0x24
  8002d1a:	6a7a      	ldr	r2, [r7, #36]	; 0x24
  8002d1c:	88fb      	ldrh	r3, [r7, #6]
@@ -8604,7 +8604,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002d36:	eeb7 0a00 	vmov.f32	s0, #112	; 0x3f800000  1.0
  8002d3a:	4611      	mov	r1, r2
  8002d3c:	4618      	mov	r0, r3
- 8002d3e:	f000 fcdb 	bl	80036f8 <triangle_integral>
+ 8002d3e:	f000 fcd9 	bl	80036f4 <gen_triangle_integral>
  8002d42:	eef0 7a40 	vmov.f32	s15, s0
  8002d46:	4a25      	ldr	r2, [pc, #148]	; (8002ddc <generate_waveforms+0x58c>)
  8002d48:	00a3      	lsls	r3, r4, #2
@@ -8732,7 +8732,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002e2c:	ee67 7aa6 	vmul.f32	s15, s15, s13
  8002e30:	ee77 7a27 	vadd.f32	s15, s14, s15
  8002e34:	eeb0 0a67 	vmov.f32	s0, s15
- 8002e38:	f000 fde8 	bl	8003a0c <arm_sin_f32>
+ 8002e38:	f000 fde6 	bl	8003a08 <arm_sin_f32>
  8002e3c:	eeb0 7a40 	vmov.f32	s14, s0
  8002e40:	4ba5      	ldr	r3, [pc, #660]	; (80030d8 <generate_waveforms+0x888>)
  8002e42:	edd3 7a00 	vldr	s15, [r3]
@@ -8819,7 +8819,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002ece:	edd3 7a00 	vldr	s15, [r3]
  8002ed2:	ee67 7a27 	vmul.f32	s15, s14, s15
  8002ed6:	eeb0 0a67 	vmov.f32	s0, s15
- 8002eda:	f000 fd97 	bl	8003a0c <arm_sin_f32>
+ 8002eda:	f000 fd95 	bl	8003a08 <arm_sin_f32>
  8002ede:	eeb0 7a40 	vmov.f32	s14, s0
  8002ee2:	4b7d      	ldr	r3, [pc, #500]	; (80030d8 <generate_waveforms+0x888>)
  8002ee4:	edd3 7a00 	vldr	s15, [r3]
@@ -8918,7 +8918,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8002f8c:	ee67 7aa6 	vmul.f32	s15, s15, s13
  8002f90:	ee77 7a27 	vadd.f32	s15, s14, s15
  8002f94:	eeb0 0a67 	vmov.f32	s0, s15
- 8002f98:	f000 fd38 	bl	8003a0c <arm_sin_f32>
+ 8002f98:	f000 fd36 	bl	8003a08 <arm_sin_f32>
  8002f9c:	eeb0 7a40 	vmov.f32	s14, s0
  8002fa0:	4b4d      	ldr	r3, [pc, #308]	; (80030d8 <generate_waveforms+0x888>)
  8002fa2:	edd3 7a00 	vldr	s15, [r3]
@@ -8986,7 +8986,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			// buffer_vco[i] = vco_amp * square( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle + 20*buffer_lfo_float[i]) ), ( samples_cycle + 20*buffer_lfo_float[i])/2 );
 
 			// Is it samples_cycle_vco or _lfo??
-			buffer_vco[i] = vco_amp * square( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), ( samples_cycle_vco*fm_mod_level*buffer_lfo_float[i])/2 );
+			buffer_vco[i] = vco_amp * gen_square( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), ( samples_cycle_vco*fm_mod_level*buffer_lfo_float[i])/2 );
  8003000:	6a7c      	ldr	r4, [r7, #36]	; 0x24
  8003002:	6a7a      	ldr	r2, [r7, #36]	; 0x24
  8003004:	88fb      	ldrh	r3, [r7, #6]
@@ -9034,7 +9034,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8003080:	883b      	ldrh	r3, [r7, #0]
  8003082:	b29b      	uxth	r3, r3
  8003084:	4619      	mov	r1, r3
- 8003086:	f000 fa69 	bl	800355c <square>
+ 8003086:	f000 fa69 	bl	800355c <gen_square>
  800308a:	eeb0 7a40 	vmov.f32	s14, s0
  800308e:	4b12      	ldr	r3, [pc, #72]	; (80030d8 <generate_waveforms+0x888>)
  8003090:	edd3 7a00 	vldr	s15, [r3]
@@ -9108,7 +9108,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			// During call to sawtooth, I think do...
 			//		samples_cycle - (sample_count+(i-start)) ...
 			// Because, otherwise the sawtooth waveform appears backwards.
-			buffer_vco[i] = vco_amp * sawtooth( samples_cycle_vco - (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), samples_cycle_vco*fm_mod_level*buffer_lfo_float[i], sawtooth_vco_min, sawtooth_vco_max);
+			buffer_vco[i] = vco_amp * gen_sawtooth( samples_cycle_vco - (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), samples_cycle_vco*fm_mod_level*buffer_lfo_float[i], sawtooth_vco_min, sawtooth_vco_max);
  800310e:	6a7c      	ldr	r4, [r7, #36]	; 0x24
  8003110:	6979      	ldr	r1, [r7, #20]
  8003112:	6a7a      	ldr	r2, [r7, #36]	; 0x24
@@ -9158,7 +9158,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8003190:	eef0 0a47 	vmov.f32	s1, s14
  8003194:	eeb0 0a67 	vmov.f32	s0, s15
  8003198:	ee16 1a90 	vmov	r1, s13
- 800319c:	f000 f9fc 	bl	8003598 <sawtooth>
+ 800319c:	f000 f9fc 	bl	8003598 <gen_sawtooth>
  80031a0:	eeb0 7a40 	vmov.f32	s14, s0
  80031a4:	4b8a      	ldr	r3, [pc, #552]	; (80033d0 <generate_waveforms+0xb80>)
  80031a6:	edd3 7a00 	vldr	s15, [r3]
@@ -9220,7 +9220,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  80031f4:	627b      	str	r3, [r7, #36]	; 0x24
  80031f6:	e05a      	b.n	80032ae <generate_waveforms+0xa5e>
 		{
-			buffer_vco[i] = vco_amp * triangle( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), samples_half_cycle_vco*fm_mod_level*buffer_lfo_float[i], 1.0);
+			buffer_vco[i] = vco_amp * gen_triangle( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), samples_half_cycle_vco*fm_mod_level*buffer_lfo_float[i], 1.0);
  80031f8:	6a7c      	ldr	r4, [r7, #36]	; 0x24
  80031fa:	6a7a      	ldr	r2, [r7, #36]	; 0x24
  80031fc:	88fb      	ldrh	r3, [r7, #6]
@@ -9263,7 +9263,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8003266:	eefc 7ae7 	vcvt.u32.f32	s15, s15
  800326a:	eeb7 0a00 	vmov.f32	s0, #112	; 0x3f800000  1.0
  800326e:	ee17 1a90 	vmov	r1, s15
- 8003272:	f000 fa05 	bl	8003680 <triangle>
+ 8003272:	f000 fa05 	bl	8003680 <gen_triangle>
  8003276:	eeb0 7a40 	vmov.f32	s14, s0
  800327a:	4b55      	ldr	r3, [pc, #340]	; (80033d0 <generate_waveforms+0xb80>)
  800327c:	edd3 7a00 	vldr	s15, [r3]
@@ -9366,7 +9366,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 				// buffer_adsr[i] = 0.2;
 				// sawtooth(current sample, samples per cycle, min, max)
 				// buffer_lfo_float[i] = sawtooth(samples_cycle - (sample_count+(i-start)) % samples_cycle, samples_cycle, sawtooth_lfo_min, sawtooth_lfo_max);
-				buffer_adsr[i] = 0.5 * sawtooth( (sample_count+(i-start)) % d_start, d_start/2, 0.0, 1.0);
+				buffer_adsr[i] = 0.5 * gen_sawtooth( (sample_count+(i-start)) % d_start, d_start/2, 0.0, 1.0);
  8003304:	6a7c      	ldr	r4, [r7, #36]	; 0x24
  8003306:	6a7a      	ldr	r2, [r7, #36]	; 0x24
  8003308:	88fb      	ldrh	r3, [r7, #6]
@@ -9387,7 +9387,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  800332c:	ed9f 0a2d 	vldr	s0, [pc, #180]	; 80033e4 <generate_waveforms+0xb94>
  8003330:	4619      	mov	r1, r3
  8003332:	4610      	mov	r0, r2
- 8003334:	f000 f930 	bl	8003598 <sawtooth>
+ 8003334:	f000 f930 	bl	8003598 <gen_sawtooth>
  8003338:	eeb0 7a40 	vmov.f32	s14, s0
  800333c:	eef6 7a00 	vmov.f32	s15, #96	; 0x3f000000  0.5
  8003340:	ee67 7a27 	vmul.f32	s15, s14, s15
@@ -9413,7 +9413,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			{
 				// Decay
 				// buffer_adsr[i] = 0.4;
-				buffer_adsr[i] = rampdown((sample_count+(i-start)) % s_start-d_start, s_start-d_start, 0.5, 1.0);
+				buffer_adsr[i] = gen_rampdown((sample_count+(i-start)) % s_start-d_start, s_start-d_start, 0.5, 1.0);
  8003366:	6a7c      	ldr	r4, [r7, #36]	; 0x24
  8003368:	6a7a      	ldr	r2, [r7, #36]	; 0x24
  800336a:	88fb      	ldrh	r3, [r7, #6]
@@ -9438,7 +9438,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8003394:	eef7 0a00 	vmov.f32	s1, #112	; 0x3f800000  1.0
  8003398:	eeb6 0a00 	vmov.f32	s0, #96	; 0x3f000000  0.5
  800339c:	4619      	mov	r1, r3
- 800339e:	f000 f933 	bl	8003608 <rampdown>
+ 800339e:	f000 f933 	bl	8003608 <gen_rampdown>
  80033a2:	eef0 7a40 	vmov.f32	s15, s0
  80033a6:	4a10      	ldr	r2, [pc, #64]	; (80033e8 <generate_waveforms+0xb98>)
  80033a8:	00a3      	lsls	r3, r4, #2
@@ -9478,7 +9478,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 				// Sustain
 				// buffer_adsr[i] = 0.6;
 				// buffer_adsr[i] = sawtooth((sample_count+(i-start)) % samples_cycle, r_start-s_start, 0.5, 0.5);
-				buffer_adsr[i] = rampdown((sample_count+(i-start)) % s_start-d_start, s_start-d_start, 0.5, 0.5);
+				buffer_adsr[i] = gen_rampdown((sample_count+(i-start)) % s_start-d_start, s_start-d_start, 0.5, 0.5);
  8003406:	6a7c      	ldr	r4, [r7, #36]	; 0x24
  8003408:	6a7a      	ldr	r2, [r7, #36]	; 0x24
  800340a:	88fb      	ldrh	r3, [r7, #6]
@@ -9503,7 +9503,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8003434:	eef6 0a00 	vmov.f32	s1, #96	; 0x3f000000  0.5
  8003438:	eeb6 0a00 	vmov.f32	s0, #96	; 0x3f000000  0.5
  800343c:	4619      	mov	r1, r3
- 800343e:	f000 f8e3 	bl	8003608 <rampdown>
+ 800343e:	f000 f8e3 	bl	8003608 <gen_rampdown>
  8003442:	eef0 7a40 	vmov.f32	s15, s0
  8003446:	4a3f      	ldr	r2, [pc, #252]	; (8003544 <generate_waveforms+0xcf4>)
  8003448:	00a3      	lsls	r3, r4, #2
@@ -9527,7 +9527,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 				// Release
 				// buffer_adsr[i] = 1.0;
 				// rampdown(current sample, samples/cycle, min value, max value)
-				buffer_adsr[i] = rampdown( ( sample_count+(i-start) ) % r_end-r_start, r_end-r_start, 0.0, 0.5);
+				buffer_adsr[i] = gen_rampdown( ( sample_count+(i-start) ) % r_end-r_start, r_end-r_start, 0.0, 0.5);
  8003468:	6a7c      	ldr	r4, [r7, #36]	; 0x24
  800346a:	6a7a      	ldr	r2, [r7, #36]	; 0x24
  800346c:	88fb      	ldrh	r3, [r7, #6]
@@ -9552,7 +9552,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8003496:	eef6 0a00 	vmov.f32	s1, #96	; 0x3f000000  0.5
  800349a:	ed9f 0a2c 	vldr	s0, [pc, #176]	; 800354c <generate_waveforms+0xcfc>
  800349e:	4619      	mov	r1, r3
- 80034a0:	f000 f8b2 	bl	8003608 <rampdown>
+ 80034a0:	f000 f8b2 	bl	8003608 <gen_rampdown>
  80034a4:	eef0 7a40 	vmov.f32	s15, s0
  80034a8:	4a26      	ldr	r2, [pc, #152]	; (8003544 <generate_waveforms+0xcf4>)
  80034aa:	00a3      	lsls	r3, r4, #2
@@ -9644,12 +9644,12 @@ void generate_waveforms(uint16_t start, uint16_t end)
  8003554:	45e7b273 	.word	0x45e7b273
  8003558:	000ea600 	.word	0x000ea600
 
-0800355c <square>:
+0800355c <gen_square>:
  * Returns 1 if current_sample > samples_half_cycle
  *
  * Parameter angle: value from 0.0 to 1.0.
  */
-float32_t square(uint16_t current_sample, uint16_t samples_half_cycle)
+float32_t gen_square(uint16_t current_sample, uint16_t samples_half_cycle)
 {
  800355c:	b480      	push	{r7}
  800355e:	b083      	sub	sp, #12
@@ -9663,15 +9663,15 @@ float32_t square(uint16_t current_sample, uint16_t samples_half_cycle)
  800356c:	88fa      	ldrh	r2, [r7, #6]
  800356e:	88bb      	ldrh	r3, [r7, #4]
  8003570:	429a      	cmp	r2, r3
- 8003572:	d202      	bcs.n	800357a <square+0x1e>
+ 8003572:	d202      	bcs.n	800357a <gen_square+0x1e>
 	{
 		return square_min;
- 8003574:	4b06      	ldr	r3, [pc, #24]	; (8003590 <square+0x34>)
+ 8003574:	4b06      	ldr	r3, [pc, #24]	; (8003590 <gen_square+0x34>)
  8003576:	681b      	ldr	r3, [r3, #0]
- 8003578:	e001      	b.n	800357e <square+0x22>
+ 8003578:	e001      	b.n	800357e <gen_square+0x22>
 	}
 	return square_max;
- 800357a:	4b06      	ldr	r3, [pc, #24]	; (8003594 <square+0x38>)
+ 800357a:	4b06      	ldr	r3, [pc, #24]	; (8003594 <gen_square+0x38>)
  800357c:	681b      	ldr	r3, [r3, #0]
  800357e:	ee07 3a90 	vmov	s15, r3
 }
@@ -9683,12 +9683,12 @@ float32_t square(uint16_t current_sample, uint16_t samples_half_cycle)
  8003590:	20000078 	.word	0x20000078
  8003594:	2000007c 	.word	0x2000007c
 
-08003598 <sawtooth>:
+08003598 <gen_sawtooth>:
  *		Parameter current_sample is the n'th sample in the current cycle.  This corresponds to x in f(x) = mx+b
 
  *
  */
-float32_t sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
+float32_t gen_sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
 {
  8003598:	b480      	push	{r7}
  800359a:	b087      	sub	sp, #28
@@ -9738,9 +9738,9 @@ float32_t sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t mi
  8003602:	f85d 7b04 	ldr.w	r7, [sp], #4
  8003606:	4770      	bx	lr
 
-08003608 <rampdown>:
+08003608 <gen_rampdown>:
 
-float32_t rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
+float32_t gen_rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
 {
  8003608:	b480      	push	{r7}
  800360a:	b087      	sub	sp, #28
@@ -9789,9 +9789,9 @@ float32_t rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t mi
  800367c:	4770      	bx	lr
  800367e:	bf00      	nop
 
-08003680 <triangle>:
+08003680 <gen_triangle>:
 
-float32_t triangle(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp)
+float32_t gen_triangle(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp)
 {
  8003680:	b480      	push	{r7}
  8003682:	b087      	sub	sp, #28
@@ -9802,804 +9802,801 @@ float32_t triangle(uint32_t current_sample, uint32_t samples_half_cycle, float32
 	float32_t m = 0.0;
  800368e:	f04f 0300 	mov.w	r3, #0
  8003692:	617b      	str	r3, [r7, #20]
-	float32_t result = 0.0;
- 8003694:	f04f 0300 	mov.w	r3, #0
- 8003698:	613b      	str	r3, [r7, #16]
-	// float32_t val = 0.0;
 
 	// Increase from a negative value to its opposite value. Eg. -1 to 1 over 1/2 the wave's period
 	// Then decrease from 1 to -1 over 1/2 the wave's period
 
 	m = amp/(samples_half_cycle);
- 800369a:	68bb      	ldr	r3, [r7, #8]
- 800369c:	ee07 3a90 	vmov	s15, r3
- 80036a0:	eeb8 7a67 	vcvt.f32.u32	s14, s15
- 80036a4:	edd7 6a01 	vldr	s13, [r7, #4]
- 80036a8:	eec6 7a87 	vdiv.f32	s15, s13, s14
- 80036ac:	edc7 7a05 	vstr	s15, [r7, #20]
+ 8003694:	68bb      	ldr	r3, [r7, #8]
+ 8003696:	ee07 3a90 	vmov	s15, r3
+ 800369a:	eeb8 7a67 	vcvt.f32.u32	s14, s15
+ 800369e:	edd7 6a01 	vldr	s13, [r7, #4]
+ 80036a2:	eec6 7a87 	vdiv.f32	s15, s13, s14
+ 80036a6:	edc7 7a05 	vstr	s15, [r7, #20]
 
 	if(current_sample < samples_half_cycle)
- 80036b0:	68fa      	ldr	r2, [r7, #12]
- 80036b2:	68bb      	ldr	r3, [r7, #8]
- 80036b4:	429a      	cmp	r2, r3
- 80036b6:	d209      	bcs.n	80036cc <triangle+0x4c>
+ 80036aa:	68fa      	ldr	r2, [r7, #12]
+ 80036ac:	68bb      	ldr	r3, [r7, #8]
+ 80036ae:	429a      	cmp	r2, r3
+ 80036b0:	d209      	bcs.n	80036c6 <gen_triangle+0x46>
 	{
 		return (m * current_sample);
- 80036b8:	68fb      	ldr	r3, [r7, #12]
- 80036ba:	ee07 3a90 	vmov	s15, r3
- 80036be:	eeb8 7a67 	vcvt.f32.u32	s14, s15
- 80036c2:	edd7 7a05 	vldr	s15, [r7, #20]
- 80036c6:	ee67 7a27 	vmul.f32	s15, s14, s15
- 80036ca:	e00e      	b.n	80036ea <triangle+0x6a>
+ 80036b2:	68fb      	ldr	r3, [r7, #12]
+ 80036b4:	ee07 3a90 	vmov	s15, r3
+ 80036b8:	eeb8 7a67 	vcvt.f32.u32	s14, s15
+ 80036bc:	edd7 7a05 	vldr	s15, [r7, #20]
+ 80036c0:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 80036c4:	e00e      	b.n	80036e4 <gen_triangle+0x64>
 	}
 	// Make sure difference can be negative.
 	return amp + (m * (int32_t)(samples_half_cycle - current_sample));
- 80036cc:	68ba      	ldr	r2, [r7, #8]
- 80036ce:	68fb      	ldr	r3, [r7, #12]
- 80036d0:	1ad3      	subs	r3, r2, r3
- 80036d2:	ee07 3a90 	vmov	s15, r3
- 80036d6:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
- 80036da:	edd7 7a05 	vldr	s15, [r7, #20]
- 80036de:	ee27 7a27 	vmul.f32	s14, s14, s15
- 80036e2:	edd7 7a01 	vldr	s15, [r7, #4]
- 80036e6:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 80036c6:	68ba      	ldr	r2, [r7, #8]
+ 80036c8:	68fb      	ldr	r3, [r7, #12]
+ 80036ca:	1ad3      	subs	r3, r2, r3
+ 80036cc:	ee07 3a90 	vmov	s15, r3
+ 80036d0:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 80036d4:	edd7 7a05 	vldr	s15, [r7, #20]
+ 80036d8:	ee27 7a27 	vmul.f32	s14, s14, s15
+ 80036dc:	edd7 7a01 	vldr	s15, [r7, #4]
+ 80036e0:	ee77 7a27 	vadd.f32	s15, s14, s15
 }
- 80036ea:	eeb0 0a67 	vmov.f32	s0, s15
- 80036ee:	371c      	adds	r7, #28
- 80036f0:	46bd      	mov	sp, r7
- 80036f2:	f85d 7b04 	ldr.w	r7, [sp], #4
- 80036f6:	4770      	bx	lr
+ 80036e4:	eeb0 0a67 	vmov.f32	s0, s15
+ 80036e8:	371c      	adds	r7, #28
+ 80036ea:	46bd      	mov	sp, r7
+ 80036ec:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80036f0:	4770      	bx	lr
+ 80036f2:	bf00      	nop
 
-080036f8 <triangle_integral>:
+080036f4 <gen_triangle_integral>:
 
 
-float32_t triangle_integral(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp)
+float32_t gen_triangle_integral(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp)
 {
- 80036f8:	b480      	push	{r7}
- 80036fa:	b087      	sub	sp, #28
- 80036fc:	af00      	add	r7, sp, #0
- 80036fe:	60f8      	str	r0, [r7, #12]
- 8003700:	60b9      	str	r1, [r7, #8]
- 8003702:	ed87 0a01 	vstr	s0, [r7, #4]
+ 80036f4:	b480      	push	{r7}
+ 80036f6:	b087      	sub	sp, #28
+ 80036f8:	af00      	add	r7, sp, #0
+ 80036fa:	60f8      	str	r0, [r7, #12]
+ 80036fc:	60b9      	str	r1, [r7, #8]
+ 80036fe:	ed87 0a01 	vstr	s0, [r7, #4]
 	float32_t m = 0.0;
- 8003706:	f04f 0300 	mov.w	r3, #0
- 800370a:	617b      	str	r3, [r7, #20]
+ 8003702:	f04f 0300 	mov.w	r3, #0
+ 8003706:	617b      	str	r3, [r7, #20]
 	float32_t result = 0.0;
- 800370c:	f04f 0300 	mov.w	r3, #0
- 8003710:	613b      	str	r3, [r7, #16]
+ 8003708:	f04f 0300 	mov.w	r3, #0
+ 800370c:	613b      	str	r3, [r7, #16]
 	// float32_t val = 0.0;
 
 	// Increase from a negative value to its opposite value. Eg. -1 to 1 over 1/2 the wave's period
 	// Then decrease from 1 to -1 over 1/2 the wave's period
 
 	m = amp/(samples_half_cycle);
- 8003712:	68bb      	ldr	r3, [r7, #8]
- 8003714:	ee07 3a90 	vmov	s15, r3
- 8003718:	eeb8 7a67 	vcvt.f32.u32	s14, s15
- 800371c:	edd7 6a01 	vldr	s13, [r7, #4]
- 8003720:	eec6 7a87 	vdiv.f32	s15, s13, s14
- 8003724:	edc7 7a05 	vstr	s15, [r7, #20]
+ 800370e:	68bb      	ldr	r3, [r7, #8]
+ 8003710:	ee07 3a90 	vmov	s15, r3
+ 8003714:	eeb8 7a67 	vcvt.f32.u32	s14, s15
+ 8003718:	edd7 6a01 	vldr	s13, [r7, #4]
+ 800371c:	eec6 7a87 	vdiv.f32	s15, s13, s14
+ 8003720:	edc7 7a05 	vstr	s15, [r7, #20]
 
 	if(current_sample < samples_half_cycle)
- 8003728:	68fa      	ldr	r2, [r7, #12]
- 800372a:	68bb      	ldr	r3, [r7, #8]
- 800372c:	429a      	cmp	r2, r3
- 800372e:	d211      	bcs.n	8003754 <triangle_integral+0x5c>
+ 8003724:	68fa      	ldr	r2, [r7, #12]
+ 8003726:	68bb      	ldr	r3, [r7, #8]
+ 8003728:	429a      	cmp	r2, r3
+ 800372a:	d211      	bcs.n	8003750 <gen_triangle_integral+0x5c>
 	{
 		result = m*current_sample;
- 8003730:	68fb      	ldr	r3, [r7, #12]
- 8003732:	ee07 3a90 	vmov	s15, r3
- 8003736:	eeb8 7a67 	vcvt.f32.u32	s14, s15
- 800373a:	edd7 7a05 	vldr	s15, [r7, #20]
- 800373e:	ee67 7a27 	vmul.f32	s15, s14, s15
- 8003742:	edc7 7a04 	vstr	s15, [r7, #16]
+ 800372c:	68fb      	ldr	r3, [r7, #12]
+ 800372e:	ee07 3a90 	vmov	s15, r3
+ 8003732:	eeb8 7a67 	vcvt.f32.u32	s14, s15
+ 8003736:	edd7 7a05 	vldr	s15, [r7, #20]
+ 800373a:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 800373e:	edc7 7a04 	vstr	s15, [r7, #16]
 		return result*result;
- 8003746:	ed97 7a04 	vldr	s14, [r7, #16]
- 800374a:	edd7 7a04 	vldr	s15, [r7, #16]
- 800374e:	ee67 7a27 	vmul.f32	s15, s14, s15
- 8003752:	e018      	b.n	8003786 <triangle_integral+0x8e>
+ 8003742:	ed97 7a04 	vldr	s14, [r7, #16]
+ 8003746:	edd7 7a04 	vldr	s15, [r7, #16]
+ 800374a:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 800374e:	e018      	b.n	8003782 <gen_triangle_integral+0x8e>
 	}
 	// TODO: testing with integral...
 	// Make sure difference can be negative.
 	// return amp + (m * (int32_t)(samples_half_cycle - current_sample));
 
 	result = amp + (m * (int32_t)(samples_half_cycle - current_sample));
- 8003754:	68ba      	ldr	r2, [r7, #8]
- 8003756:	68fb      	ldr	r3, [r7, #12]
- 8003758:	1ad3      	subs	r3, r2, r3
- 800375a:	ee07 3a90 	vmov	s15, r3
- 800375e:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
- 8003762:	edd7 7a05 	vldr	s15, [r7, #20]
- 8003766:	ee27 7a27 	vmul.f32	s14, s14, s15
- 800376a:	edd7 7a01 	vldr	s15, [r7, #4]
- 800376e:	ee77 7a27 	vadd.f32	s15, s14, s15
- 8003772:	edc7 7a04 	vstr	s15, [r7, #16]
+ 8003750:	68ba      	ldr	r2, [r7, #8]
+ 8003752:	68fb      	ldr	r3, [r7, #12]
+ 8003754:	1ad3      	subs	r3, r2, r3
+ 8003756:	ee07 3a90 	vmov	s15, r3
+ 800375a:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
+ 800375e:	edd7 7a05 	vldr	s15, [r7, #20]
+ 8003762:	ee27 7a27 	vmul.f32	s14, s14, s15
+ 8003766:	edd7 7a01 	vldr	s15, [r7, #4]
+ 800376a:	ee77 7a27 	vadd.f32	s15, s14, s15
+ 800376e:	edc7 7a04 	vstr	s15, [r7, #16]
 	return -(result*result);
- 8003776:	ed97 7a04 	vldr	s14, [r7, #16]
- 800377a:	edd7 7a04 	vldr	s15, [r7, #16]
- 800377e:	ee67 7a27 	vmul.f32	s15, s14, s15
- 8003782:	eef1 7a67 	vneg.f32	s15, s15
+ 8003772:	ed97 7a04 	vldr	s14, [r7, #16]
+ 8003776:	edd7 7a04 	vldr	s15, [r7, #16]
+ 800377a:	ee67 7a27 	vmul.f32	s15, s14, s15
+ 800377e:	eef1 7a67 	vneg.f32	s15, s15
 }
- 8003786:	eeb0 0a67 	vmov.f32	s0, s15
- 800378a:	371c      	adds	r7, #28
- 800378c:	46bd      	mov	sp, r7
- 800378e:	f85d 7b04 	ldr.w	r7, [sp], #4
- 8003792:	4770      	bx	lr
+ 8003782:	eeb0 0a67 	vmov.f32	s0, s15
+ 8003786:	371c      	adds	r7, #28
+ 8003788:	46bd      	mov	sp, r7
+ 800378a:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800378e:	4770      	bx	lr
 
-08003794 <Reset_Handler>:
+08003790 <Reset_Handler>:
 
     .section  .text.Reset_Handler
   .weak  Reset_Handler
   .type  Reset_Handler, %function
 Reset_Handler:  
   ldr   sp, =_estack    /* Atollic update: set stack pointer */
- 8003794:	f8df d034 	ldr.w	sp, [pc, #52]	; 80037cc <LoopFillZerobss+0x14>
+ 8003790:	f8df d034 	ldr.w	sp, [pc, #52]	; 80037c8 <LoopFillZerobss+0x14>
 
 /* Copy the data segment initializers from flash to SRAM */  
   movs  r1, #0
- 8003798:	2100      	movs	r1, #0
+ 8003794:	2100      	movs	r1, #0
   b  LoopCopyDataInit
- 800379a:	e003      	b.n	80037a4 <LoopCopyDataInit>
+ 8003796:	e003      	b.n	80037a0 <LoopCopyDataInit>
 
-0800379c <CopyDataInit>:
+08003798 <CopyDataInit>:
 
 CopyDataInit:
   ldr  r3, =_sidata
- 800379c:	4b0c      	ldr	r3, [pc, #48]	; (80037d0 <LoopFillZerobss+0x18>)
+ 8003798:	4b0c      	ldr	r3, [pc, #48]	; (80037cc <LoopFillZerobss+0x18>)
   ldr  r3, [r3, r1]
- 800379e:	585b      	ldr	r3, [r3, r1]
+ 800379a:	585b      	ldr	r3, [r3, r1]
   str  r3, [r0, r1]
- 80037a0:	5043      	str	r3, [r0, r1]
+ 800379c:	5043      	str	r3, [r0, r1]
   adds  r1, r1, #4
- 80037a2:	3104      	adds	r1, #4
+ 800379e:	3104      	adds	r1, #4
 
-080037a4 <LoopCopyDataInit>:
+080037a0 <LoopCopyDataInit>:
     
 LoopCopyDataInit:
   ldr  r0, =_sdata
- 80037a4:	480b      	ldr	r0, [pc, #44]	; (80037d4 <LoopFillZerobss+0x1c>)
+ 80037a0:	480b      	ldr	r0, [pc, #44]	; (80037d0 <LoopFillZerobss+0x1c>)
   ldr  r3, =_edata
- 80037a6:	4b0c      	ldr	r3, [pc, #48]	; (80037d8 <LoopFillZerobss+0x20>)
+ 80037a2:	4b0c      	ldr	r3, [pc, #48]	; (80037d4 <LoopFillZerobss+0x20>)
   adds  r2, r0, r1
- 80037a8:	1842      	adds	r2, r0, r1
+ 80037a4:	1842      	adds	r2, r0, r1
   cmp  r2, r3
- 80037aa:	429a      	cmp	r2, r3
+ 80037a6:	429a      	cmp	r2, r3
   bcc  CopyDataInit
- 80037ac:	d3f6      	bcc.n	800379c <CopyDataInit>
+ 80037a8:	d3f6      	bcc.n	8003798 <CopyDataInit>
   ldr  r2, =_sbss
- 80037ae:	4a0b      	ldr	r2, [pc, #44]	; (80037dc <LoopFillZerobss+0x24>)
+ 80037aa:	4a0b      	ldr	r2, [pc, #44]	; (80037d8 <LoopFillZerobss+0x24>)
   b  LoopFillZerobss
- 80037b0:	e002      	b.n	80037b8 <LoopFillZerobss>
+ 80037ac:	e002      	b.n	80037b4 <LoopFillZerobss>
 
-080037b2 <FillZerobss>:
+080037ae <FillZerobss>:
 /* Zero fill the bss segment. */  
 FillZerobss:
   movs  r3, #0
- 80037b2:	2300      	movs	r3, #0
+ 80037ae:	2300      	movs	r3, #0
   str  r3, [r2], #4
- 80037b4:	f842 3b04 	str.w	r3, [r2], #4
+ 80037b0:	f842 3b04 	str.w	r3, [r2], #4
 
-080037b8 <LoopFillZerobss>:
+080037b4 <LoopFillZerobss>:
     
 LoopFillZerobss:
   ldr  r3, = _ebss
- 80037b8:	4b09      	ldr	r3, [pc, #36]	; (80037e0 <LoopFillZerobss+0x28>)
+ 80037b4:	4b09      	ldr	r3, [pc, #36]	; (80037dc <LoopFillZerobss+0x28>)
   cmp  r2, r3
- 80037ba:	429a      	cmp	r2, r3
+ 80037b6:	429a      	cmp	r2, r3
   bcc  FillZerobss
- 80037bc:	d3f9      	bcc.n	80037b2 <FillZerobss>
+ 80037b8:	d3f9      	bcc.n	80037ae <FillZerobss>
 
 /* Call the clock system intitialization function.*/
   bl  SystemInit   
- 80037be:	f000 f85b 	bl	8003878 <SystemInit>
+ 80037ba:	f000 f85b 	bl	8003874 <SystemInit>
 /* Call static constructors */
     bl __libc_init_array
- 80037c2:	f000 f95f 	bl	8003a84 <__libc_init_array>
+ 80037be:	f000 f95f 	bl	8003a80 <__libc_init_array>
 /* Call the application's entry point.*/
   bl  main
- 80037c6:	f7fe ff4b 	bl	8002660 <main>
+ 80037c2:	f7fe ff4d 	bl	8002660 <main>
   bx  lr    
- 80037ca:	4770      	bx	lr
+ 80037c6:	4770      	bx	lr
 
     .section  .text.Reset_Handler
   .weak  Reset_Handler
   .type  Reset_Handler, %function
 Reset_Handler:  
   ldr   sp, =_estack    /* Atollic update: set stack pointer */
- 80037cc:	20020000 	.word	0x20020000
+ 80037c8:	20020000 	.word	0x20020000
 /* Copy the data segment initializers from flash to SRAM */  
   movs  r1, #0
   b  LoopCopyDataInit
 
 CopyDataInit:
   ldr  r3, =_sidata
- 80037d0:	0800430c 	.word	0x0800430c
+ 80037cc:	08004308 	.word	0x08004308
   ldr  r3, [r3, r1]
   str  r3, [r0, r1]
   adds  r1, r1, #4
     
 LoopCopyDataInit:
   ldr  r0, =_sdata
- 80037d4:	20000000 	.word	0x20000000
+ 80037d0:	20000000 	.word	0x20000000
   ldr  r3, =_edata
- 80037d8:	2000009c 	.word	0x2000009c
+ 80037d4:	2000009c 	.word	0x2000009c
   adds  r2, r0, r1
   cmp  r2, r3
   bcc  CopyDataInit
   ldr  r2, =_sbss
- 80037dc:	2000009c 	.word	0x2000009c
+ 80037d8:	2000009c 	.word	0x2000009c
 FillZerobss:
   movs  r3, #0
   str  r3, [r2], #4
     
 LoopFillZerobss:
   ldr  r3, = _ebss
- 80037e0:	20000450 	.word	0x20000450
+ 80037dc:	20000450 	.word	0x20000450
 
-080037e4 <ADC_IRQHandler>:
+080037e0 <ADC_IRQHandler>:
  * @retval None       
 */
     .section  .text.Default_Handler,"ax",%progbits
 Default_Handler:
 Infinite_Loop:
   b  Infinite_Loop
- 80037e4:	e7fe      	b.n	80037e4 <ADC_IRQHandler>
+ 80037e0:	e7fe      	b.n	80037e0 <ADC_IRQHandler>
 	...
 
-080037e8 <NMI_Handler>:
+080037e4 <NMI_Handler>:
   * @brief   This function handles NMI exception.
   * @param  None
   * @retval None
   */
 void NMI_Handler(void)
 {
- 80037e8:	b480      	push	{r7}
- 80037ea:	af00      	add	r7, sp, #0
+ 80037e4:	b480      	push	{r7}
+ 80037e6:	af00      	add	r7, sp, #0
 }
- 80037ec:	bf00      	nop
- 80037ee:	46bd      	mov	sp, r7
- 80037f0:	f85d 7b04 	ldr.w	r7, [sp], #4
- 80037f4:	4770      	bx	lr
- 80037f6:	bf00      	nop
+ 80037e8:	bf00      	nop
+ 80037ea:	46bd      	mov	sp, r7
+ 80037ec:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80037f0:	4770      	bx	lr
+ 80037f2:	bf00      	nop
 
-080037f8 <HardFault_Handler>:
+080037f4 <HardFault_Handler>:
   * @brief  This function handles Hard Fault exception.
   * @param  None
   * @retval None
   */
 void HardFault_Handler(void)
 {
- 80037f8:	b480      	push	{r7}
- 80037fa:	af00      	add	r7, sp, #0
+ 80037f4:	b480      	push	{r7}
+ 80037f6:	af00      	add	r7, sp, #0
   /* Go to infinite loop when Hard Fault exception occurs */
   while (1)
   {
   }
- 80037fc:	e7fe      	b.n	80037fc <HardFault_Handler+0x4>
- 80037fe:	bf00      	nop
+ 80037f8:	e7fe      	b.n	80037f8 <HardFault_Handler+0x4>
+ 80037fa:	bf00      	nop
 
-08003800 <MemManage_Handler>:
+080037fc <MemManage_Handler>:
   * @brief  This function handles Memory Manage exception.
   * @param  None
   * @retval None
   */
 void MemManage_Handler(void)
 {
- 8003800:	b480      	push	{r7}
- 8003802:	af00      	add	r7, sp, #0
+ 80037fc:	b480      	push	{r7}
+ 80037fe:	af00      	add	r7, sp, #0
   /* Go to infinite loop when Memory Manage exception occurs */
   while (1)
   {
   }
- 8003804:	e7fe      	b.n	8003804 <MemManage_Handler+0x4>
- 8003806:	bf00      	nop
+ 8003800:	e7fe      	b.n	8003800 <MemManage_Handler+0x4>
+ 8003802:	bf00      	nop
 
-08003808 <BusFault_Handler>:
+08003804 <BusFault_Handler>:
   * @brief  This function handles Bus Fault exception.
   * @param  None
   * @retval None
   */
 void BusFault_Handler(void)
 {
- 8003808:	b480      	push	{r7}
- 800380a:	af00      	add	r7, sp, #0
+ 8003804:	b480      	push	{r7}
+ 8003806:	af00      	add	r7, sp, #0
   /* Go to infinite loop when Bus Fault exception occurs */
   while (1)
   {
   }
- 800380c:	e7fe      	b.n	800380c <BusFault_Handler+0x4>
- 800380e:	bf00      	nop
+ 8003808:	e7fe      	b.n	8003808 <BusFault_Handler+0x4>
+ 800380a:	bf00      	nop
 
-08003810 <UsageFault_Handler>:
+0800380c <UsageFault_Handler>:
   * @brief  This function handles Usage Fault exception.
   * @param  None
   * @retval None
   */
 void UsageFault_Handler(void)
 {
- 8003810:	b480      	push	{r7}
- 8003812:	af00      	add	r7, sp, #0
+ 800380c:	b480      	push	{r7}
+ 800380e:	af00      	add	r7, sp, #0
   /* Go to infinite loop when Usage Fault exception occurs */
   while (1)
   {
   }
- 8003814:	e7fe      	b.n	8003814 <UsageFault_Handler+0x4>
- 8003816:	bf00      	nop
+ 8003810:	e7fe      	b.n	8003810 <UsageFault_Handler+0x4>
+ 8003812:	bf00      	nop
 
-08003818 <SVC_Handler>:
+08003814 <SVC_Handler>:
   * @brief  This function handles SVCall exception.
   * @param  None
   * @retval None
   */
 void SVC_Handler(void)
 {
- 8003818:	b480      	push	{r7}
- 800381a:	af00      	add	r7, sp, #0
+ 8003814:	b480      	push	{r7}
+ 8003816:	af00      	add	r7, sp, #0
 }
- 800381c:	bf00      	nop
- 800381e:	46bd      	mov	sp, r7
- 8003820:	f85d 7b04 	ldr.w	r7, [sp], #4
- 8003824:	4770      	bx	lr
- 8003826:	bf00      	nop
+ 8003818:	bf00      	nop
+ 800381a:	46bd      	mov	sp, r7
+ 800381c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8003820:	4770      	bx	lr
+ 8003822:	bf00      	nop
 
-08003828 <DebugMon_Handler>:
+08003824 <DebugMon_Handler>:
   * @brief  This function handles Debug Monitor exception.
   * @param  None
   * @retval None
   */
 void DebugMon_Handler(void)
 {
- 8003828:	b480      	push	{r7}
- 800382a:	af00      	add	r7, sp, #0
+ 8003824:	b480      	push	{r7}
+ 8003826:	af00      	add	r7, sp, #0
 }
- 800382c:	bf00      	nop
- 800382e:	46bd      	mov	sp, r7
- 8003830:	f85d 7b04 	ldr.w	r7, [sp], #4
- 8003834:	4770      	bx	lr
- 8003836:	bf00      	nop
+ 8003828:	bf00      	nop
+ 800382a:	46bd      	mov	sp, r7
+ 800382c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8003830:	4770      	bx	lr
+ 8003832:	bf00      	nop
 
-08003838 <PendSV_Handler>:
+08003834 <PendSV_Handler>:
   * @brief  This function handles PendSVC exception.
   * @param  None
   * @retval None
   */
 void PendSV_Handler(void)
 {
- 8003838:	b480      	push	{r7}
- 800383a:	af00      	add	r7, sp, #0
+ 8003834:	b480      	push	{r7}
+ 8003836:	af00      	add	r7, sp, #0
 }
- 800383c:	bf00      	nop
- 800383e:	46bd      	mov	sp, r7
- 8003840:	f85d 7b04 	ldr.w	r7, [sp], #4
- 8003844:	4770      	bx	lr
- 8003846:	bf00      	nop
+ 8003838:	bf00      	nop
+ 800383a:	46bd      	mov	sp, r7
+ 800383c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8003840:	4770      	bx	lr
+ 8003842:	bf00      	nop
 
-08003848 <SysTick_Handler>:
+08003844 <SysTick_Handler>:
   * @brief  This function handles SysTick Handler.
   * @param  None
   * @retval None
   */
 void SysTick_Handler(void)
 {
- 8003848:	b480      	push	{r7}
- 800384a:	af00      	add	r7, sp, #0
+ 8003844:	b480      	push	{r7}
+ 8003846:	af00      	add	r7, sp, #0
 
 }
- 800384c:	bf00      	nop
- 800384e:	46bd      	mov	sp, r7
- 8003850:	f85d 7b04 	ldr.w	r7, [sp], #4
- 8003854:	4770      	bx	lr
- 8003856:	bf00      	nop
+ 8003848:	bf00      	nop
+ 800384a:	46bd      	mov	sp, r7
+ 800384c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8003850:	4770      	bx	lr
+ 8003852:	bf00      	nop
 
-08003858 <EXTI0_IRQHandler>:
+08003854 <EXTI0_IRQHandler>:
   * @brief  This function handles External line 0 interrupt request.
   * @param  None
   * @retval None
   */
 void EXTI0_IRQHandler(void)
 {
- 8003858:	b480      	push	{r7}
- 800385a:	af00      	add	r7, sp, #0
+ 8003854:	b480      	push	{r7}
+ 8003856:	af00      	add	r7, sp, #0
 
 }
- 800385c:	bf00      	nop
- 800385e:	46bd      	mov	sp, r7
- 8003860:	f85d 7b04 	ldr.w	r7, [sp], #4
- 8003864:	4770      	bx	lr
- 8003866:	bf00      	nop
+ 8003858:	bf00      	nop
+ 800385a:	46bd      	mov	sp, r7
+ 800385c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8003860:	4770      	bx	lr
+ 8003862:	bf00      	nop
 
-08003868 <TIM4_IRQHandler>:
+08003864 <TIM4_IRQHandler>:
   * @brief  This function handles TIM4 global interrupt request.
   * @param  None
   * @retval None
   */
 void TIM4_IRQHandler(void)
 {
- 8003868:	b480      	push	{r7}
- 800386a:	af00      	add	r7, sp, #0
+ 8003864:	b480      	push	{r7}
+ 8003866:	af00      	add	r7, sp, #0
   
 }
- 800386c:	bf00      	nop
- 800386e:	46bd      	mov	sp, r7
- 8003870:	f85d 7b04 	ldr.w	r7, [sp], #4
- 8003874:	4770      	bx	lr
- 8003876:	bf00      	nop
+ 8003868:	bf00      	nop
+ 800386a:	46bd      	mov	sp, r7
+ 800386c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8003870:	4770      	bx	lr
+ 8003872:	bf00      	nop
 
-08003878 <SystemInit>:
+08003874 <SystemInit>:
   *         SystemFrequency variable.
   * @param  None
   * @retval None
   */
 void SystemInit(void)
 {
- 8003878:	b580      	push	{r7, lr}
- 800387a:	af00      	add	r7, sp, #0
+ 8003874:	b580      	push	{r7, lr}
+ 8003876:	af00      	add	r7, sp, #0
   /* FPU settings ------------------------------------------------------------*/
   //#if ((__FPU_PRESENT == 1) && (__FPU_USED == 1))
     SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 Full Access */
- 800387c:	4a16      	ldr	r2, [pc, #88]	; (80038d8 <SystemInit+0x60>)
- 800387e:	4b16      	ldr	r3, [pc, #88]	; (80038d8 <SystemInit+0x60>)
- 8003880:	f8d3 3088 	ldr.w	r3, [r3, #136]	; 0x88
- 8003884:	f443 0370 	orr.w	r3, r3, #15728640	; 0xf00000
- 8003888:	f8c2 3088 	str.w	r3, [r2, #136]	; 0x88
+ 8003878:	4a16      	ldr	r2, [pc, #88]	; (80038d4 <SystemInit+0x60>)
+ 800387a:	4b16      	ldr	r3, [pc, #88]	; (80038d4 <SystemInit+0x60>)
+ 800387c:	f8d3 3088 	ldr.w	r3, [r3, #136]	; 0x88
+ 8003880:	f443 0370 	orr.w	r3, r3, #15728640	; 0xf00000
+ 8003884:	f8c2 3088 	str.w	r3, [r2, #136]	; 0x88
   //#endif
   /* Reset the RCC clock configuration to the default reset state ------------*/
   /* Set HSION bit */
   RCC->CR |= (uint32_t)0x00000001;
- 800388c:	4a13      	ldr	r2, [pc, #76]	; (80038dc <SystemInit+0x64>)
- 800388e:	4b13      	ldr	r3, [pc, #76]	; (80038dc <SystemInit+0x64>)
- 8003890:	681b      	ldr	r3, [r3, #0]
- 8003892:	f043 0301 	orr.w	r3, r3, #1
- 8003896:	6013      	str	r3, [r2, #0]
+ 8003888:	4a13      	ldr	r2, [pc, #76]	; (80038d8 <SystemInit+0x64>)
+ 800388a:	4b13      	ldr	r3, [pc, #76]	; (80038d8 <SystemInit+0x64>)
+ 800388c:	681b      	ldr	r3, [r3, #0]
+ 800388e:	f043 0301 	orr.w	r3, r3, #1
+ 8003892:	6013      	str	r3, [r2, #0]
 
   /* Reset CFGR register */
   RCC->CFGR = 0x00000000;
- 8003898:	4b10      	ldr	r3, [pc, #64]	; (80038dc <SystemInit+0x64>)
- 800389a:	2200      	movs	r2, #0
- 800389c:	609a      	str	r2, [r3, #8]
+ 8003894:	4b10      	ldr	r3, [pc, #64]	; (80038d8 <SystemInit+0x64>)
+ 8003896:	2200      	movs	r2, #0
+ 8003898:	609a      	str	r2, [r3, #8]
 
   /* Reset HSEON, CSSON and PLLON bits */
   RCC->CR &= (uint32_t)0xFEF6FFFF;
- 800389e:	4a0f      	ldr	r2, [pc, #60]	; (80038dc <SystemInit+0x64>)
- 80038a0:	4b0e      	ldr	r3, [pc, #56]	; (80038dc <SystemInit+0x64>)
- 80038a2:	681b      	ldr	r3, [r3, #0]
- 80038a4:	f023 7384 	bic.w	r3, r3, #17301504	; 0x1080000
- 80038a8:	f423 3380 	bic.w	r3, r3, #65536	; 0x10000
- 80038ac:	6013      	str	r3, [r2, #0]
+ 800389a:	4a0f      	ldr	r2, [pc, #60]	; (80038d8 <SystemInit+0x64>)
+ 800389c:	4b0e      	ldr	r3, [pc, #56]	; (80038d8 <SystemInit+0x64>)
+ 800389e:	681b      	ldr	r3, [r3, #0]
+ 80038a0:	f023 7384 	bic.w	r3, r3, #17301504	; 0x1080000
+ 80038a4:	f423 3380 	bic.w	r3, r3, #65536	; 0x10000
+ 80038a8:	6013      	str	r3, [r2, #0]
 
   /* Reset PLLCFGR register */
   RCC->PLLCFGR = 0x24003010;
- 80038ae:	4b0b      	ldr	r3, [pc, #44]	; (80038dc <SystemInit+0x64>)
- 80038b0:	4a0b      	ldr	r2, [pc, #44]	; (80038e0 <SystemInit+0x68>)
- 80038b2:	605a      	str	r2, [r3, #4]
+ 80038aa:	4b0b      	ldr	r3, [pc, #44]	; (80038d8 <SystemInit+0x64>)
+ 80038ac:	4a0b      	ldr	r2, [pc, #44]	; (80038dc <SystemInit+0x68>)
+ 80038ae:	605a      	str	r2, [r3, #4]
 
   /* Reset HSEBYP bit */
   RCC->CR &= (uint32_t)0xFFFBFFFF;
- 80038b4:	4a09      	ldr	r2, [pc, #36]	; (80038dc <SystemInit+0x64>)
- 80038b6:	4b09      	ldr	r3, [pc, #36]	; (80038dc <SystemInit+0x64>)
- 80038b8:	681b      	ldr	r3, [r3, #0]
- 80038ba:	f423 2380 	bic.w	r3, r3, #262144	; 0x40000
- 80038be:	6013      	str	r3, [r2, #0]
+ 80038b0:	4a09      	ldr	r2, [pc, #36]	; (80038d8 <SystemInit+0x64>)
+ 80038b2:	4b09      	ldr	r3, [pc, #36]	; (80038d8 <SystemInit+0x64>)
+ 80038b4:	681b      	ldr	r3, [r3, #0]
+ 80038b6:	f423 2380 	bic.w	r3, r3, #262144	; 0x40000
+ 80038ba:	6013      	str	r3, [r2, #0]
 
   /* Disable all interrupts */
   RCC->CIR = 0x00000000;
- 80038c0:	4b06      	ldr	r3, [pc, #24]	; (80038dc <SystemInit+0x64>)
- 80038c2:	2200      	movs	r2, #0
- 80038c4:	60da      	str	r2, [r3, #12]
+ 80038bc:	4b06      	ldr	r3, [pc, #24]	; (80038d8 <SystemInit+0x64>)
+ 80038be:	2200      	movs	r2, #0
+ 80038c0:	60da      	str	r2, [r3, #12]
   SystemInit_ExtMemCtl(); 
 #endif /* DATA_IN_ExtSRAM */
          
   /* Configure the System clock source, PLL Multiplier and Divider factors, 
      AHB/APBx prescalers and Flash settings ----------------------------------*/
   SetSysClock();
- 80038c6:	f000 f80d 	bl	80038e4 <SetSysClock>
+ 80038c2:	f000 f80d 	bl	80038e0 <SetSysClock>
 
   /* Configure the Vector Table location add offset address ------------------*/
 #ifdef VECT_TAB_SRAM
   SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
 #else
   SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
- 80038ca:	4b03      	ldr	r3, [pc, #12]	; (80038d8 <SystemInit+0x60>)
- 80038cc:	f04f 6200 	mov.w	r2, #134217728	; 0x8000000
- 80038d0:	609a      	str	r2, [r3, #8]
+ 80038c6:	4b03      	ldr	r3, [pc, #12]	; (80038d4 <SystemInit+0x60>)
+ 80038c8:	f04f 6200 	mov.w	r2, #134217728	; 0x8000000
+ 80038cc:	609a      	str	r2, [r3, #8]
 #endif
 }
+ 80038ce:	bf00      	nop
+ 80038d0:	bd80      	pop	{r7, pc}
  80038d2:	bf00      	nop
- 80038d4:	bd80      	pop	{r7, pc}
- 80038d6:	bf00      	nop
- 80038d8:	e000ed00 	.word	0xe000ed00
- 80038dc:	40023800 	.word	0x40023800
- 80038e0:	24003010 	.word	0x24003010
+ 80038d4:	e000ed00 	.word	0xe000ed00
+ 80038d8:	40023800 	.word	0x40023800
+ 80038dc:	24003010 	.word	0x24003010
 
-080038e4 <SetSysClock>:
+080038e0 <SetSysClock>:
   *         is reset to the default reset state (done in SystemInit() function).   
   * @param  None
   * @retval None
   */
 static void SetSysClock(void)
 {
- 80038e4:	b480      	push	{r7}
- 80038e6:	b083      	sub	sp, #12
- 80038e8:	af00      	add	r7, sp, #0
+ 80038e0:	b480      	push	{r7}
+ 80038e2:	b083      	sub	sp, #12
+ 80038e4:	af00      	add	r7, sp, #0
 /******************************************************************************/
 /*            PLL (clocked by HSE) used as System clock source                */
 /******************************************************************************/
   __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
+ 80038e6:	2300      	movs	r3, #0
+ 80038e8:	607b      	str	r3, [r7, #4]
  80038ea:	2300      	movs	r3, #0
- 80038ec:	607b      	str	r3, [r7, #4]
- 80038ee:	2300      	movs	r3, #0
- 80038f0:	603b      	str	r3, [r7, #0]
+ 80038ec:	603b      	str	r3, [r7, #0]
   
   /* Enable HSE */
   RCC->CR |= ((uint32_t)RCC_CR_HSEON);
- 80038f2:	4a41      	ldr	r2, [pc, #260]	; (80039f8 <SetSysClock+0x114>)
- 80038f4:	4b40      	ldr	r3, [pc, #256]	; (80039f8 <SetSysClock+0x114>)
- 80038f6:	681b      	ldr	r3, [r3, #0]
- 80038f8:	f443 3380 	orr.w	r3, r3, #65536	; 0x10000
- 80038fc:	6013      	str	r3, [r2, #0]
+ 80038ee:	4a41      	ldr	r2, [pc, #260]	; (80039f4 <SetSysClock+0x114>)
+ 80038f0:	4b40      	ldr	r3, [pc, #256]	; (80039f4 <SetSysClock+0x114>)
+ 80038f2:	681b      	ldr	r3, [r3, #0]
+ 80038f4:	f443 3380 	orr.w	r3, r3, #65536	; 0x10000
+ 80038f8:	6013      	str	r3, [r2, #0]
  
   /* Wait till HSE is ready and if Time out is reached exit */
   do
   {
     HSEStatus = RCC->CR & RCC_CR_HSERDY;
- 80038fe:	4b3e      	ldr	r3, [pc, #248]	; (80039f8 <SetSysClock+0x114>)
- 8003900:	681b      	ldr	r3, [r3, #0]
- 8003902:	f403 3300 	and.w	r3, r3, #131072	; 0x20000
- 8003906:	603b      	str	r3, [r7, #0]
+ 80038fa:	4b3e      	ldr	r3, [pc, #248]	; (80039f4 <SetSysClock+0x114>)
+ 80038fc:	681b      	ldr	r3, [r3, #0]
+ 80038fe:	f403 3300 	and.w	r3, r3, #131072	; 0x20000
+ 8003902:	603b      	str	r3, [r7, #0]
     StartUpCounter++;
- 8003908:	687b      	ldr	r3, [r7, #4]
- 800390a:	3301      	adds	r3, #1
- 800390c:	607b      	str	r3, [r7, #4]
+ 8003904:	687b      	ldr	r3, [r7, #4]
+ 8003906:	3301      	adds	r3, #1
+ 8003908:	607b      	str	r3, [r7, #4]
   } while((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
- 800390e:	683b      	ldr	r3, [r7, #0]
- 8003910:	2b00      	cmp	r3, #0
- 8003912:	d103      	bne.n	800391c <SetSysClock+0x38>
- 8003914:	687b      	ldr	r3, [r7, #4]
- 8003916:	f5b3 6fa0 	cmp.w	r3, #1280	; 0x500
- 800391a:	d1f0      	bne.n	80038fe <SetSysClock+0x1a>
+ 800390a:	683b      	ldr	r3, [r7, #0]
+ 800390c:	2b00      	cmp	r3, #0
+ 800390e:	d103      	bne.n	8003918 <SetSysClock+0x38>
+ 8003910:	687b      	ldr	r3, [r7, #4]
+ 8003912:	f5b3 6fa0 	cmp.w	r3, #1280	; 0x500
+ 8003916:	d1f0      	bne.n	80038fa <SetSysClock+0x1a>
 
   if ((RCC->CR & RCC_CR_HSERDY) != RESET)
- 800391c:	4b36      	ldr	r3, [pc, #216]	; (80039f8 <SetSysClock+0x114>)
- 800391e:	681b      	ldr	r3, [r3, #0]
- 8003920:	f403 3300 	and.w	r3, r3, #131072	; 0x20000
- 8003924:	2b00      	cmp	r3, #0
- 8003926:	d002      	beq.n	800392e <SetSysClock+0x4a>
+ 8003918:	4b36      	ldr	r3, [pc, #216]	; (80039f4 <SetSysClock+0x114>)
+ 800391a:	681b      	ldr	r3, [r3, #0]
+ 800391c:	f403 3300 	and.w	r3, r3, #131072	; 0x20000
+ 8003920:	2b00      	cmp	r3, #0
+ 8003922:	d002      	beq.n	800392a <SetSysClock+0x4a>
   {
     HSEStatus = (uint32_t)0x01;
- 8003928:	2301      	movs	r3, #1
- 800392a:	603b      	str	r3, [r7, #0]
- 800392c:	e001      	b.n	8003932 <SetSysClock+0x4e>
+ 8003924:	2301      	movs	r3, #1
+ 8003926:	603b      	str	r3, [r7, #0]
+ 8003928:	e001      	b.n	800392e <SetSysClock+0x4e>
   }
   else
   {
     HSEStatus = (uint32_t)0x00;
- 800392e:	2300      	movs	r3, #0
- 8003930:	603b      	str	r3, [r7, #0]
+ 800392a:	2300      	movs	r3, #0
+ 800392c:	603b      	str	r3, [r7, #0]
   }
 
   if (HSEStatus == (uint32_t)0x01)
- 8003932:	683b      	ldr	r3, [r7, #0]
- 8003934:	2b01      	cmp	r3, #1
- 8003936:	d142      	bne.n	80039be <SetSysClock+0xda>
+ 800392e:	683b      	ldr	r3, [r7, #0]
+ 8003930:	2b01      	cmp	r3, #1
+ 8003932:	d142      	bne.n	80039ba <SetSysClock+0xda>
   {
     /* Select regulator voltage output Scale 1 mode, System frequency up to 168 MHz */
     RCC->APB1ENR |= RCC_APB1ENR_PWREN;
- 8003938:	4a2f      	ldr	r2, [pc, #188]	; (80039f8 <SetSysClock+0x114>)
- 800393a:	4b2f      	ldr	r3, [pc, #188]	; (80039f8 <SetSysClock+0x114>)
- 800393c:	6c1b      	ldr	r3, [r3, #64]	; 0x40
- 800393e:	f043 5380 	orr.w	r3, r3, #268435456	; 0x10000000
- 8003942:	6413      	str	r3, [r2, #64]	; 0x40
+ 8003934:	4a2f      	ldr	r2, [pc, #188]	; (80039f4 <SetSysClock+0x114>)
+ 8003936:	4b2f      	ldr	r3, [pc, #188]	; (80039f4 <SetSysClock+0x114>)
+ 8003938:	6c1b      	ldr	r3, [r3, #64]	; 0x40
+ 800393a:	f043 5380 	orr.w	r3, r3, #268435456	; 0x10000000
+ 800393e:	6413      	str	r3, [r2, #64]	; 0x40
     PWR->CR |= PWR_CR_VOS;
- 8003944:	4a2d      	ldr	r2, [pc, #180]	; (80039fc <SetSysClock+0x118>)
- 8003946:	4b2d      	ldr	r3, [pc, #180]	; (80039fc <SetSysClock+0x118>)
- 8003948:	681b      	ldr	r3, [r3, #0]
- 800394a:	f443 4340 	orr.w	r3, r3, #49152	; 0xc000
- 800394e:	6013      	str	r3, [r2, #0]
+ 8003940:	4a2d      	ldr	r2, [pc, #180]	; (80039f8 <SetSysClock+0x118>)
+ 8003942:	4b2d      	ldr	r3, [pc, #180]	; (80039f8 <SetSysClock+0x118>)
+ 8003944:	681b      	ldr	r3, [r3, #0]
+ 8003946:	f443 4340 	orr.w	r3, r3, #49152	; 0xc000
+ 800394a:	6013      	str	r3, [r2, #0]
 
     /* HCLK = SYSCLK / 1*/
     RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
- 8003950:	4a29      	ldr	r2, [pc, #164]	; (80039f8 <SetSysClock+0x114>)
- 8003952:	4b29      	ldr	r3, [pc, #164]	; (80039f8 <SetSysClock+0x114>)
- 8003954:	689b      	ldr	r3, [r3, #8]
- 8003956:	6093      	str	r3, [r2, #8]
+ 800394c:	4a29      	ldr	r2, [pc, #164]	; (80039f4 <SetSysClock+0x114>)
+ 800394e:	4b29      	ldr	r3, [pc, #164]	; (80039f4 <SetSysClock+0x114>)
+ 8003950:	689b      	ldr	r3, [r3, #8]
+ 8003952:	6093      	str	r3, [r2, #8]
       
     /* PCLK2 = HCLK / 2*/
     RCC->CFGR |= RCC_CFGR_PPRE2_DIV2;
- 8003958:	4a27      	ldr	r2, [pc, #156]	; (80039f8 <SetSysClock+0x114>)
- 800395a:	4b27      	ldr	r3, [pc, #156]	; (80039f8 <SetSysClock+0x114>)
- 800395c:	689b      	ldr	r3, [r3, #8]
- 800395e:	f443 4300 	orr.w	r3, r3, #32768	; 0x8000
- 8003962:	6093      	str	r3, [r2, #8]
+ 8003954:	4a27      	ldr	r2, [pc, #156]	; (80039f4 <SetSysClock+0x114>)
+ 8003956:	4b27      	ldr	r3, [pc, #156]	; (80039f4 <SetSysClock+0x114>)
+ 8003958:	689b      	ldr	r3, [r3, #8]
+ 800395a:	f443 4300 	orr.w	r3, r3, #32768	; 0x8000
+ 800395e:	6093      	str	r3, [r2, #8]
     
     /* PCLK1 = HCLK / 4*/
     RCC->CFGR |= RCC_CFGR_PPRE1_DIV4;
- 8003964:	4a24      	ldr	r2, [pc, #144]	; (80039f8 <SetSysClock+0x114>)
- 8003966:	4b24      	ldr	r3, [pc, #144]	; (80039f8 <SetSysClock+0x114>)
- 8003968:	689b      	ldr	r3, [r3, #8]
- 800396a:	f443 53a0 	orr.w	r3, r3, #5120	; 0x1400
- 800396e:	6093      	str	r3, [r2, #8]
+ 8003960:	4a24      	ldr	r2, [pc, #144]	; (80039f4 <SetSysClock+0x114>)
+ 8003962:	4b24      	ldr	r3, [pc, #144]	; (80039f4 <SetSysClock+0x114>)
+ 8003964:	689b      	ldr	r3, [r3, #8]
+ 8003966:	f443 53a0 	orr.w	r3, r3, #5120	; 0x1400
+ 800396a:	6093      	str	r3, [r2, #8]
 
     /* Configure the main PLL */
     RCC->PLLCFGR = PLL_M | (PLL_N << 6) | (((PLL_P >> 1) -1) << 16) |
- 8003970:	4b21      	ldr	r3, [pc, #132]	; (80039f8 <SetSysClock+0x114>)
- 8003972:	4a23      	ldr	r2, [pc, #140]	; (8003a00 <SetSysClock+0x11c>)
- 8003974:	605a      	str	r2, [r3, #4]
+ 800396c:	4b21      	ldr	r3, [pc, #132]	; (80039f4 <SetSysClock+0x114>)
+ 800396e:	4a23      	ldr	r2, [pc, #140]	; (80039fc <SetSysClock+0x11c>)
+ 8003970:	605a      	str	r2, [r3, #4]
                    (RCC_PLLCFGR_PLLSRC_HSE) | (PLL_Q << 24);
 
     /* Enable the main PLL */
     RCC->CR |= RCC_CR_PLLON;
- 8003976:	4a20      	ldr	r2, [pc, #128]	; (80039f8 <SetSysClock+0x114>)
- 8003978:	4b1f      	ldr	r3, [pc, #124]	; (80039f8 <SetSysClock+0x114>)
- 800397a:	681b      	ldr	r3, [r3, #0]
- 800397c:	f043 7380 	orr.w	r3, r3, #16777216	; 0x1000000
- 8003980:	6013      	str	r3, [r2, #0]
+ 8003972:	4a20      	ldr	r2, [pc, #128]	; (80039f4 <SetSysClock+0x114>)
+ 8003974:	4b1f      	ldr	r3, [pc, #124]	; (80039f4 <SetSysClock+0x114>)
+ 8003976:	681b      	ldr	r3, [r3, #0]
+ 8003978:	f043 7380 	orr.w	r3, r3, #16777216	; 0x1000000
+ 800397c:	6013      	str	r3, [r2, #0]
 
     /* Wait till the main PLL is ready */
     while((RCC->CR & RCC_CR_PLLRDY) == 0)
- 8003982:	bf00      	nop
- 8003984:	4b1c      	ldr	r3, [pc, #112]	; (80039f8 <SetSysClock+0x114>)
- 8003986:	681b      	ldr	r3, [r3, #0]
- 8003988:	f003 7300 	and.w	r3, r3, #33554432	; 0x2000000
- 800398c:	2b00      	cmp	r3, #0
- 800398e:	d0f9      	beq.n	8003984 <SetSysClock+0xa0>
+ 800397e:	bf00      	nop
+ 8003980:	4b1c      	ldr	r3, [pc, #112]	; (80039f4 <SetSysClock+0x114>)
+ 8003982:	681b      	ldr	r3, [r3, #0]
+ 8003984:	f003 7300 	and.w	r3, r3, #33554432	; 0x2000000
+ 8003988:	2b00      	cmp	r3, #0
+ 800398a:	d0f9      	beq.n	8003980 <SetSysClock+0xa0>
     {
     }
    
     /* Configure Flash prefetch, Instruction cache, Data cache and wait state */
     FLASH->ACR = FLASH_ACR_ICEN |FLASH_ACR_DCEN |FLASH_ACR_LATENCY_5WS;
- 8003990:	4b1c      	ldr	r3, [pc, #112]	; (8003a04 <SetSysClock+0x120>)
- 8003992:	f240 6205 	movw	r2, #1541	; 0x605
- 8003996:	601a      	str	r2, [r3, #0]
+ 800398c:	4b1c      	ldr	r3, [pc, #112]	; (8003a00 <SetSysClock+0x120>)
+ 800398e:	f240 6205 	movw	r2, #1541	; 0x605
+ 8003992:	601a      	str	r2, [r3, #0]
 
     /* Select the main PLL as system clock source */
     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
- 8003998:	4a17      	ldr	r2, [pc, #92]	; (80039f8 <SetSysClock+0x114>)
- 800399a:	4b17      	ldr	r3, [pc, #92]	; (80039f8 <SetSysClock+0x114>)
- 800399c:	689b      	ldr	r3, [r3, #8]
- 800399e:	f023 0303 	bic.w	r3, r3, #3
- 80039a2:	6093      	str	r3, [r2, #8]
+ 8003994:	4a17      	ldr	r2, [pc, #92]	; (80039f4 <SetSysClock+0x114>)
+ 8003996:	4b17      	ldr	r3, [pc, #92]	; (80039f4 <SetSysClock+0x114>)
+ 8003998:	689b      	ldr	r3, [r3, #8]
+ 800399a:	f023 0303 	bic.w	r3, r3, #3
+ 800399e:	6093      	str	r3, [r2, #8]
     RCC->CFGR |= RCC_CFGR_SW_PLL;
- 80039a4:	4a14      	ldr	r2, [pc, #80]	; (80039f8 <SetSysClock+0x114>)
- 80039a6:	4b14      	ldr	r3, [pc, #80]	; (80039f8 <SetSysClock+0x114>)
- 80039a8:	689b      	ldr	r3, [r3, #8]
- 80039aa:	f043 0302 	orr.w	r3, r3, #2
- 80039ae:	6093      	str	r3, [r2, #8]
+ 80039a0:	4a14      	ldr	r2, [pc, #80]	; (80039f4 <SetSysClock+0x114>)
+ 80039a2:	4b14      	ldr	r3, [pc, #80]	; (80039f4 <SetSysClock+0x114>)
+ 80039a4:	689b      	ldr	r3, [r3, #8]
+ 80039a6:	f043 0302 	orr.w	r3, r3, #2
+ 80039aa:	6093      	str	r3, [r2, #8]
 
     /* Wait till the main PLL is used as system clock source */
     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS ) != RCC_CFGR_SWS_PLL);
- 80039b0:	bf00      	nop
- 80039b2:	4b11      	ldr	r3, [pc, #68]	; (80039f8 <SetSysClock+0x114>)
- 80039b4:	689b      	ldr	r3, [r3, #8]
- 80039b6:	f003 030c 	and.w	r3, r3, #12
- 80039ba:	2b08      	cmp	r3, #8
- 80039bc:	d1f9      	bne.n	80039b2 <SetSysClock+0xce>
+ 80039ac:	bf00      	nop
+ 80039ae:	4b11      	ldr	r3, [pc, #68]	; (80039f4 <SetSysClock+0x114>)
+ 80039b0:	689b      	ldr	r3, [r3, #8]
+ 80039b2:	f003 030c 	and.w	r3, r3, #12
+ 80039b6:	2b08      	cmp	r3, #8
+ 80039b8:	d1f9      	bne.n	80039ae <SetSysClock+0xce>
 
 /******************************************************************************/
 /*                          I2S clock configuration                           */
 /******************************************************************************/
   /* PLLI2S clock used as I2S clock source */
   RCC->CFGR &= ~RCC_CFGR_I2SSRC;
- 80039be:	4a0e      	ldr	r2, [pc, #56]	; (80039f8 <SetSysClock+0x114>)
- 80039c0:	4b0d      	ldr	r3, [pc, #52]	; (80039f8 <SetSysClock+0x114>)
- 80039c2:	689b      	ldr	r3, [r3, #8]
- 80039c4:	f423 0300 	bic.w	r3, r3, #8388608	; 0x800000
- 80039c8:	6093      	str	r3, [r2, #8]
+ 80039ba:	4a0e      	ldr	r2, [pc, #56]	; (80039f4 <SetSysClock+0x114>)
+ 80039bc:	4b0d      	ldr	r3, [pc, #52]	; (80039f4 <SetSysClock+0x114>)
+ 80039be:	689b      	ldr	r3, [r3, #8]
+ 80039c0:	f423 0300 	bic.w	r3, r3, #8388608	; 0x800000
+ 80039c4:	6093      	str	r3, [r2, #8]
 
   /* Configure PLLI2S */
   RCC->PLLI2SCFGR = (PLLI2S_N << 6) | (PLLI2S_R << 28);
- 80039ca:	4b0b      	ldr	r3, [pc, #44]	; (80039f8 <SetSysClock+0x114>)
- 80039cc:	4a0e      	ldr	r2, [pc, #56]	; (8003a08 <SetSysClock+0x124>)
- 80039ce:	f8c3 2084 	str.w	r2, [r3, #132]	; 0x84
+ 80039c6:	4b0b      	ldr	r3, [pc, #44]	; (80039f4 <SetSysClock+0x114>)
+ 80039c8:	4a0e      	ldr	r2, [pc, #56]	; (8003a04 <SetSysClock+0x124>)
+ 80039ca:	f8c3 2084 	str.w	r2, [r3, #132]	; 0x84
 
   /* Enable PLLI2S */
   RCC->CR |= ((uint32_t)RCC_CR_PLLI2SON);
- 80039d2:	4a09      	ldr	r2, [pc, #36]	; (80039f8 <SetSysClock+0x114>)
- 80039d4:	4b08      	ldr	r3, [pc, #32]	; (80039f8 <SetSysClock+0x114>)
- 80039d6:	681b      	ldr	r3, [r3, #0]
- 80039d8:	f043 6380 	orr.w	r3, r3, #67108864	; 0x4000000
- 80039dc:	6013      	str	r3, [r2, #0]
+ 80039ce:	4a09      	ldr	r2, [pc, #36]	; (80039f4 <SetSysClock+0x114>)
+ 80039d0:	4b08      	ldr	r3, [pc, #32]	; (80039f4 <SetSysClock+0x114>)
+ 80039d2:	681b      	ldr	r3, [r3, #0]
+ 80039d4:	f043 6380 	orr.w	r3, r3, #67108864	; 0x4000000
+ 80039d8:	6013      	str	r3, [r2, #0]
 
   /* Wait till PLLI2S is ready */
   while((RCC->CR & RCC_CR_PLLI2SRDY) == 0)
- 80039de:	bf00      	nop
- 80039e0:	4b05      	ldr	r3, [pc, #20]	; (80039f8 <SetSysClock+0x114>)
- 80039e2:	681b      	ldr	r3, [r3, #0]
- 80039e4:	f003 6300 	and.w	r3, r3, #134217728	; 0x8000000
- 80039e8:	2b00      	cmp	r3, #0
- 80039ea:	d0f9      	beq.n	80039e0 <SetSysClock+0xfc>
+ 80039da:	bf00      	nop
+ 80039dc:	4b05      	ldr	r3, [pc, #20]	; (80039f4 <SetSysClock+0x114>)
+ 80039de:	681b      	ldr	r3, [r3, #0]
+ 80039e0:	f003 6300 	and.w	r3, r3, #134217728	; 0x8000000
+ 80039e4:	2b00      	cmp	r3, #0
+ 80039e6:	d0f9      	beq.n	80039dc <SetSysClock+0xfc>
   {
   }
 }
- 80039ec:	bf00      	nop
- 80039ee:	370c      	adds	r7, #12
- 80039f0:	46bd      	mov	sp, r7
- 80039f2:	f85d 7b04 	ldr.w	r7, [sp], #4
- 80039f6:	4770      	bx	lr
- 80039f8:	40023800 	.word	0x40023800
- 80039fc:	40007000 	.word	0x40007000
- 8003a00:	07405408 	.word	0x07405408
- 8003a04:	40023c00 	.word	0x40023c00
- 8003a08:	30004080 	.word	0x30004080
+ 80039e8:	bf00      	nop
+ 80039ea:	370c      	adds	r7, #12
+ 80039ec:	46bd      	mov	sp, r7
+ 80039ee:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80039f2:	4770      	bx	lr
+ 80039f4:	40023800 	.word	0x40023800
+ 80039f8:	40007000 	.word	0x40007000
+ 80039fc:	07405408 	.word	0x07405408
+ 8003a00:	40023c00 	.word	0x40023c00
+ 8003a04:	30004080 	.word	0x30004080
 
-08003a0c <arm_sin_f32>:
- 8003a0c:	ed9f 7a1a 	vldr	s14, [pc, #104]	; 8003a78 <arm_sin_f32+0x6c>
- 8003a10:	eeb5 0ac0 	vcmpe.f32	s0, #0.0
- 8003a14:	ee20 7a07 	vmul.f32	s14, s0, s14
- 8003a18:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
- 8003a1c:	eefd 7ac7 	vcvt.s32.f32	s15, s14
- 8003a20:	d504      	bpl.n	8003a2c <arm_sin_f32+0x20>
- 8003a22:	ee17 3a90 	vmov	r3, s15
- 8003a26:	3b01      	subs	r3, #1
- 8003a28:	ee07 3a90 	vmov	s15, r3
- 8003a2c:	eef8 7ae7 	vcvt.f32.s32	s15, s15
- 8003a30:	eddf 6a12 	vldr	s13, [pc, #72]	; 8003a7c <arm_sin_f32+0x70>
- 8003a34:	4a12      	ldr	r2, [pc, #72]	; (8003a80 <arm_sin_f32+0x74>)
- 8003a36:	ee77 7a67 	vsub.f32	s15, s14, s15
- 8003a3a:	eeb7 0a00 	vmov.f32	s0, #112	; 0x3f800000  1.0
- 8003a3e:	ee67 7aa6 	vmul.f32	s15, s15, s13
- 8003a42:	eefc 6ae7 	vcvt.u32.f32	s13, s15
- 8003a46:	ee16 3a90 	vmov	r3, s13
- 8003a4a:	f3c3 0308 	ubfx	r3, r3, #0, #9
- 8003a4e:	ee06 3a90 	vmov	s13, r3
- 8003a52:	eeb8 7a66 	vcvt.f32.u32	s14, s13
- 8003a56:	eb02 0183 	add.w	r1, r2, r3, lsl #2
- 8003a5a:	ee77 7ac7 	vsub.f32	s15, s15, s14
- 8003a5e:	edd1 6a00 	vldr	s13, [r1]
- 8003a62:	ed91 7a01 	vldr	s14, [r1, #4]
- 8003a66:	ee30 0a67 	vsub.f32	s0, s0, s15
- 8003a6a:	ee67 7a87 	vmul.f32	s15, s15, s14
- 8003a6e:	ee20 0a26 	vmul.f32	s0, s0, s13
- 8003a72:	ee30 0a27 	vadd.f32	s0, s0, s15
- 8003a76:	4770      	bx	lr
- 8003a78:	3e22f983 	.word	0x3e22f983
- 8003a7c:	44000000 	.word	0x44000000
- 8003a80:	08003b00 	.word	0x08003b00
+08003a08 <arm_sin_f32>:
+ 8003a08:	ed9f 7a1a 	vldr	s14, [pc, #104]	; 8003a74 <arm_sin_f32+0x6c>
+ 8003a0c:	eeb5 0ac0 	vcmpe.f32	s0, #0.0
+ 8003a10:	ee20 7a07 	vmul.f32	s14, s0, s14
+ 8003a14:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
+ 8003a18:	eefd 7ac7 	vcvt.s32.f32	s15, s14
+ 8003a1c:	d504      	bpl.n	8003a28 <arm_sin_f32+0x20>
+ 8003a1e:	ee17 3a90 	vmov	r3, s15
+ 8003a22:	3b01      	subs	r3, #1
+ 8003a24:	ee07 3a90 	vmov	s15, r3
+ 8003a28:	eef8 7ae7 	vcvt.f32.s32	s15, s15
+ 8003a2c:	eddf 6a12 	vldr	s13, [pc, #72]	; 8003a78 <arm_sin_f32+0x70>
+ 8003a30:	4a12      	ldr	r2, [pc, #72]	; (8003a7c <arm_sin_f32+0x74>)
+ 8003a32:	ee77 7a67 	vsub.f32	s15, s14, s15
+ 8003a36:	eeb7 0a00 	vmov.f32	s0, #112	; 0x3f800000  1.0
+ 8003a3a:	ee67 7aa6 	vmul.f32	s15, s15, s13
+ 8003a3e:	eefc 6ae7 	vcvt.u32.f32	s13, s15
+ 8003a42:	ee16 3a90 	vmov	r3, s13
+ 8003a46:	f3c3 0308 	ubfx	r3, r3, #0, #9
+ 8003a4a:	ee06 3a90 	vmov	s13, r3
+ 8003a4e:	eeb8 7a66 	vcvt.f32.u32	s14, s13
+ 8003a52:	eb02 0183 	add.w	r1, r2, r3, lsl #2
+ 8003a56:	ee77 7ac7 	vsub.f32	s15, s15, s14
+ 8003a5a:	edd1 6a00 	vldr	s13, [r1]
+ 8003a5e:	ed91 7a01 	vldr	s14, [r1, #4]
+ 8003a62:	ee30 0a67 	vsub.f32	s0, s0, s15
+ 8003a66:	ee67 7a87 	vmul.f32	s15, s15, s14
+ 8003a6a:	ee20 0a26 	vmul.f32	s0, s0, s13
+ 8003a6e:	ee30 0a27 	vadd.f32	s0, s0, s15
+ 8003a72:	4770      	bx	lr
+ 8003a74:	3e22f983 	.word	0x3e22f983
+ 8003a78:	44000000 	.word	0x44000000
+ 8003a7c:	08003afc 	.word	0x08003afc
 
-08003a84 <__libc_init_array>:
- 8003a84:	b570      	push	{r4, r5, r6, lr}
- 8003a86:	4b0e      	ldr	r3, [pc, #56]	; (8003ac0 <__libc_init_array+0x3c>)
- 8003a88:	4c0e      	ldr	r4, [pc, #56]	; (8003ac4 <__libc_init_array+0x40>)
- 8003a8a:	1ae4      	subs	r4, r4, r3
- 8003a8c:	10a4      	asrs	r4, r4, #2
- 8003a8e:	2500      	movs	r5, #0
- 8003a90:	461e      	mov	r6, r3
- 8003a92:	42a5      	cmp	r5, r4
- 8003a94:	d004      	beq.n	8003aa0 <__libc_init_array+0x1c>
- 8003a96:	f856 3025 	ldr.w	r3, [r6, r5, lsl #2]
- 8003a9a:	4798      	blx	r3
- 8003a9c:	3501      	adds	r5, #1
- 8003a9e:	e7f8      	b.n	8003a92 <__libc_init_array+0xe>
- 8003aa0:	f000 f816 	bl	8003ad0 <_init>
- 8003aa4:	4c08      	ldr	r4, [pc, #32]	; (8003ac8 <__libc_init_array+0x44>)
- 8003aa6:	4b09      	ldr	r3, [pc, #36]	; (8003acc <__libc_init_array+0x48>)
- 8003aa8:	1ae4      	subs	r4, r4, r3
- 8003aaa:	10a4      	asrs	r4, r4, #2
- 8003aac:	2500      	movs	r5, #0
- 8003aae:	461e      	mov	r6, r3
- 8003ab0:	42a5      	cmp	r5, r4
- 8003ab2:	d004      	beq.n	8003abe <__libc_init_array+0x3a>
- 8003ab4:	f856 3025 	ldr.w	r3, [r6, r5, lsl #2]
- 8003ab8:	4798      	blx	r3
- 8003aba:	3501      	adds	r5, #1
- 8003abc:	e7f8      	b.n	8003ab0 <__libc_init_array+0x2c>
- 8003abe:	bd70      	pop	{r4, r5, r6, pc}
- 8003ac0:	08004304 	.word	0x08004304
+08003a80 <__libc_init_array>:
+ 8003a80:	b570      	push	{r4, r5, r6, lr}
+ 8003a82:	4b0e      	ldr	r3, [pc, #56]	; (8003abc <__libc_init_array+0x3c>)
+ 8003a84:	4c0e      	ldr	r4, [pc, #56]	; (8003ac0 <__libc_init_array+0x40>)
+ 8003a86:	1ae4      	subs	r4, r4, r3
+ 8003a88:	10a4      	asrs	r4, r4, #2
+ 8003a8a:	2500      	movs	r5, #0
+ 8003a8c:	461e      	mov	r6, r3
+ 8003a8e:	42a5      	cmp	r5, r4
+ 8003a90:	d004      	beq.n	8003a9c <__libc_init_array+0x1c>
+ 8003a92:	f856 3025 	ldr.w	r3, [r6, r5, lsl #2]
+ 8003a96:	4798      	blx	r3
+ 8003a98:	3501      	adds	r5, #1
+ 8003a9a:	e7f8      	b.n	8003a8e <__libc_init_array+0xe>
+ 8003a9c:	f000 f816 	bl	8003acc <_init>
+ 8003aa0:	4c08      	ldr	r4, [pc, #32]	; (8003ac4 <__libc_init_array+0x44>)
+ 8003aa2:	4b09      	ldr	r3, [pc, #36]	; (8003ac8 <__libc_init_array+0x48>)
+ 8003aa4:	1ae4      	subs	r4, r4, r3
+ 8003aa6:	10a4      	asrs	r4, r4, #2
+ 8003aa8:	2500      	movs	r5, #0
+ 8003aaa:	461e      	mov	r6, r3
+ 8003aac:	42a5      	cmp	r5, r4
+ 8003aae:	d004      	beq.n	8003aba <__libc_init_array+0x3a>
+ 8003ab0:	f856 3025 	ldr.w	r3, [r6, r5, lsl #2]
+ 8003ab4:	4798      	blx	r3
+ 8003ab6:	3501      	adds	r5, #1
+ 8003ab8:	e7f8      	b.n	8003aac <__libc_init_array+0x2c>
+ 8003aba:	bd70      	pop	{r4, r5, r6, pc}
+ 8003abc:	08004300 	.word	0x08004300
+ 8003ac0:	08004300 	.word	0x08004300
  8003ac4:	08004304 	.word	0x08004304
- 8003ac8:	08004308 	.word	0x08004308
- 8003acc:	08004304 	.word	0x08004304
+ 8003ac8:	08004300 	.word	0x08004300
 
-08003ad0 <_init>:
- 8003ad0:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
- 8003ad2:	bf00      	nop
- 8003ad4:	bcf8      	pop	{r3, r4, r5, r6, r7}
- 8003ad6:	bc08      	pop	{r3}
- 8003ad8:	469e      	mov	lr, r3
- 8003ada:	4770      	bx	lr
+08003acc <_init>:
+ 8003acc:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8003ace:	bf00      	nop
+ 8003ad0:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8003ad2:	bc08      	pop	{r3}
+ 8003ad4:	469e      	mov	lr, r3
+ 8003ad6:	4770      	bx	lr
 
-08003adc <_fini>:
- 8003adc:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
- 8003ade:	bf00      	nop
- 8003ae0:	bcf8      	pop	{r3, r4, r5, r6, r7}
- 8003ae2:	bc08      	pop	{r3}
- 8003ae4:	469e      	mov	lr, r3
- 8003ae6:	4770      	bx	lr
+08003ad8 <_fini>:
+ 8003ad8:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8003ada:	bf00      	nop
+ 8003adc:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8003ade:	bc08      	pop	{r3}
+ 8003ae0:	469e      	mov	lr, r3
+ 8003ae2:	4770      	bx	lr

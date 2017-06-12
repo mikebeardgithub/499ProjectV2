@@ -62,11 +62,11 @@
 #define LFO_AMP_FM				0.5
 #define LFO_AMP_FM2				10
 
-float32_t square(uint16_t current_sample, uint16_t samples_half_cycle);
-float32_t sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max);
-float32_t rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max);
-float32_t triangle(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp);
-float32_t triangle_integral(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp);
+float32_t gen_square(uint16_t current_sample, uint16_t samples_half_cycle);
+float32_t gen_sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max);
+float32_t gen_rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max);
+float32_t gen_triangle(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp);
+float32_t gen_triangle_integral(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp);
 void generate_waveforms(uint16_t start, uint16_t end);
 
 #endif /* OSC_H_ */

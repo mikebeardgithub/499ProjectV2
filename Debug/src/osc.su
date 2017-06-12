@@ -1,6 +1,6 @@
 osc.c:71:6:generate_waveforms	56	static
-osc.c:441:11:square	16	static
-osc.c:469:11:sawtooth	32	static
-osc.c:484:11:rampdown	32	static
-osc.c:496:11:triangle	32	static
-osc.c:516:11:triangle_integral	32	static
+osc.c:441:11:gen_square	16	static
+osc.c:469:11:gen_sawtooth	32	static
+osc.c:484:11:gen_rampdown	32	static
+osc.c:496:11:gen_triangle	32	static
+osc.c:514:11:gen_triangle_integral	32	static

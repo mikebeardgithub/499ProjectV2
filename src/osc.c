@@ -137,7 +137,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = vco_amp * square((sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco);
+			buffer_vco[i] = vco_amp * gen_square((sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco);
 		}
 	}
 
@@ -149,7 +149,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		for(i = start; i < end; i++)
 		{
 			// TODO: store amplitude in a variable.
-			buffer_vco[i] = vco_amp * sawtooth(samples_cycle_vco - ((sample_count+(i-start)) % samples_cycle_vco), samples_cycle_vco, sawtooth_vco_min, sawtooth_vco_max);
+			buffer_vco[i] = vco_amp * gen_sawtooth(samples_cycle_vco - ((sample_count+(i-start)) % samples_cycle_vco), samples_cycle_vco, sawtooth_vco_min, sawtooth_vco_max);
 		}
 	}
 
@@ -162,7 +162,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		{
 			// TODO: store amplitude in a variable.
 			// TODO: offset for triangle...?
-			buffer_vco[i] = vco_amp * triangle( (sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco, 1.0);
+			buffer_vco[i] = vco_amp * gen_triangle( (sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco, 1.0);
 			// buffer_vco[i] = triangle( (sample_count+(i-start)) % samples_cycle, samples_half_cycle, 1.0);
 
 			// TODO: testing...
@@ -202,7 +202,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 		for(i = start; i < end; i++)
 		{
-			buffer_lfo_float[i] = square((sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo);
+			buffer_lfo_float[i] = gen_square((sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo);
 		}
 	}
 
@@ -220,7 +220,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			{
 				// buffer_lfo_float[i] = sawtooth(samples_cycle - (sample_count+(i-start)) % samples_cycle, samples_cycle, sawtooth_lfo_min, sawtooth_lfo_max);
 
-				buffer_lfo_float[i] = sawtooth((sample_count+(i-start)) % samples_cycle_lfo, samples_cycle_lfo, sawtooth_lfo_min, sawtooth_lfo_max);
+				buffer_lfo_float[i] = gen_sawtooth((sample_count+(i-start)) % samples_cycle_lfo, samples_cycle_lfo, sawtooth_lfo_min, sawtooth_lfo_max);
 			}
 		}
 
@@ -229,7 +229,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		{
 			for(i = start; i < end; i++)
 			{
-				buffer_lfo_float[i] = sawtooth((sample_count+(i-start)) % samples_cycle_lfo, samples_cycle_lfo, sawtooth_lfo_min, sawtooth_lfo_max);
+				buffer_lfo_float[i] = gen_sawtooth((sample_count+(i-start)) % samples_cycle_lfo, samples_cycle_lfo, sawtooth_lfo_min, sawtooth_lfo_max);
 				buffer_lfo_float[i] = buffer_lfo_float[i] * buffer_lfo_float[i];
 			}
 		}
@@ -247,7 +247,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			{
 				// TODO: change 1.0 to variable.
 				// 			Variable for min/max
-				buffer_lfo_float[i] = triangle( (sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo, 1.0);
+				buffer_lfo_float[i] = gen_triangle( (sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo, 1.0);
 			}
 		}
 
@@ -258,7 +258,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			{
 				// TODO: change 1.0 to variable.
 				// 			Variable for min/max
-				buffer_lfo_float[i] = triangle_integral( (sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo, 1.0);
+				buffer_lfo_float[i] = gen_triangle_integral( (sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo, 1.0);
 			}
 		}
 	}
@@ -330,7 +330,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			// buffer_vco[i] = vco_amp * square( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle + 20*buffer_lfo_float[i]) ), ( samples_cycle + 20*buffer_lfo_float[i])/2 );
 
 			// Is it samples_cycle_vco or _lfo??
-			buffer_vco[i] = vco_amp * square( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), ( samples_cycle_vco*fm_mod_level*buffer_lfo_float[i])/2 );
+			buffer_vco[i] = vco_amp * gen_square( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), ( samples_cycle_vco*fm_mod_level*buffer_lfo_float[i])/2 );
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -346,7 +346,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			// During call to sawtooth, I think do...
 			//		samples_cycle - (sample_count+(i-start)) ...
 			// Because, otherwise the sawtooth waveform appears backwards.
-			buffer_vco[i] = vco_amp * sawtooth( samples_cycle_vco - (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), samples_cycle_vco*fm_mod_level*buffer_lfo_float[i], sawtooth_vco_min, sawtooth_vco_max);
+			buffer_vco[i] = vco_amp * gen_sawtooth( samples_cycle_vco - (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), samples_cycle_vco*fm_mod_level*buffer_lfo_float[i], sawtooth_vco_min, sawtooth_vco_max);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -360,7 +360,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = vco_amp * triangle( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), samples_half_cycle_vco*fm_mod_level*buffer_lfo_float[i], 1.0);
+			buffer_vco[i] = vco_amp * gen_triangle( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), samples_half_cycle_vco*fm_mod_level*buffer_lfo_float[i], 1.0);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -386,28 +386,28 @@ void generate_waveforms(uint16_t start, uint16_t end)
 				// buffer_adsr[i] = 0.2;
 				// sawtooth(current sample, samples per cycle, min, max)
 				// buffer_lfo_float[i] = sawtooth(samples_cycle - (sample_count+(i-start)) % samples_cycle, samples_cycle, sawtooth_lfo_min, sawtooth_lfo_max);
-				buffer_adsr[i] = 0.5 * sawtooth( (sample_count+(i-start)) % d_start, d_start/2, 0.0, 1.0);
+				buffer_adsr[i] = 0.5 * gen_sawtooth( (sample_count+(i-start)) % d_start, d_start/2, 0.0, 1.0);
 
 			}
 			else if(sample_count+(i-start) < s_start)
 			{
 				// Decay
 				// buffer_adsr[i] = 0.4;
-				buffer_adsr[i] = rampdown((sample_count+(i-start)) % s_start-d_start, s_start-d_start, 0.5, 1.0);
+				buffer_adsr[i] = gen_rampdown((sample_count+(i-start)) % s_start-d_start, s_start-d_start, 0.5, 1.0);
 			}
 			else if(sample_count+(i-start) < r_start)
 			{
 				// Sustain
 				// buffer_adsr[i] = 0.6;
 				// buffer_adsr[i] = sawtooth((sample_count+(i-start)) % samples_cycle, r_start-s_start, 0.5, 0.5);
-				buffer_adsr[i] = rampdown((sample_count+(i-start)) % s_start-d_start, s_start-d_start, 0.5, 0.5);
+				buffer_adsr[i] = gen_rampdown((sample_count+(i-start)) % s_start-d_start, s_start-d_start, 0.5, 0.5);
 			}
 			else if(sample_count+(i-start) < r_end)
 			{
 				// Release
 				// buffer_adsr[i] = 1.0;
 				// rampdown(current sample, samples/cycle, min value, max value)
-				buffer_adsr[i] = rampdown( ( sample_count+(i-start) ) % r_end-r_start, r_end-r_start, 0.0, 0.5);
+				buffer_adsr[i] = gen_rampdown( ( sample_count+(i-start) ) % r_end-r_start, r_end-r_start, 0.0, 0.5);
 			}
 			else
 			{
@@ -438,7 +438,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
  *
  * Parameter angle: value from 0.0 to 1.0.
  */
-float32_t square(uint16_t current_sample, uint16_t samples_half_cycle)
+float32_t gen_square(uint16_t current_sample, uint16_t samples_half_cycle)
 {
 	if (current_sample < samples_half_cycle)
 	{
@@ -466,7 +466,7 @@ float32_t square(uint16_t current_sample, uint16_t samples_half_cycle)
 
  *
  */
-float32_t sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
+float32_t gen_sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
 {
 	float32_t m = 0.0;
 	float32_t val = 0.0;
@@ -481,7 +481,7 @@ float32_t sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t mi
 	return val;
 }
 
-float32_t rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
+float32_t gen_rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
 {
 	float32_t m = 0.0;
 	float32_t val = 0.0;
@@ -493,11 +493,9 @@ float32_t rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t mi
 	return val;
 }
 
-float32_t triangle(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp)
+float32_t gen_triangle(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp)
 {
 	float32_t m = 0.0;
-	float32_t result = 0.0;
-	// float32_t val = 0.0;
 
 	// Increase from a negative value to its opposite value. Eg. -1 to 1 over 1/2 the wave's period
 	// Then decrease from 1 to -1 over 1/2 the wave's period
@@ -513,7 +511,7 @@ float32_t triangle(uint32_t current_sample, uint32_t samples_half_cycle, float32
 }
 
 
-float32_t triangle_integral(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp)
+float32_t gen_triangle_integral(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp)
 {
 	float32_t m = 0.0;
 	float32_t result = 0.0;
