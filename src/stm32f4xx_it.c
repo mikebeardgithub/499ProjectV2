@@ -26,9 +26,12 @@
 
 /* ---------------------------------------------------------------------------*/
 
+/*
+ * TODO: remove - horrorophone variables.
 extern float f1;
 extern __IO uint16_t ADC3ConvertedValue;
 extern __IO uint32_t 	TimingDelay ;
+*/
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
