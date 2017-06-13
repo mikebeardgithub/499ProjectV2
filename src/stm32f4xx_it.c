@@ -23,6 +23,10 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "stm32f4xx_it.h"
+#include "stm32f4xx_gpio.h"
+#include "initial_ization.h"
+#include "user_interface.h"
 
 /* ---------------------------------------------------------------------------*/
 
@@ -170,5 +174,13 @@ void TIM4_IRQHandler(void)
   
 }
 
+
+void TIM2_IRQHandler(){
+
+	if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET){
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+		update_selector_state();
+	}
+}
   
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

@@ -37,6 +37,8 @@ SOFTWARE.
 
 
 /* Includes */
+#include "initial_ization.h"
+#include "user_interface.h"
 #include "main.h"
 #include "osc.h"
 
@@ -64,10 +66,10 @@ GPIO_InitTypeDef        GPIO_InitStructure;				// From horrorophone
 uint8_t                 state = OFF;					// From horrorophone
 // __IO uint32_t 			TimingDelay = 50;				// From horrorophone
 
-
-
 extern volatile uint16_t buffer_output[BUFF_LEN];
-extern uint16_t wav_vco;
+
+// extern uint16_t wav_vco = WAVE_SINE;
+
 
 
 /**
@@ -79,7 +81,12 @@ extern uint16_t wav_vco;
 */
 int main(void)
 {
-  int i = 0;
+	int i = 0;
+
+	// extern wav_vco;
+
+  // ADC
+  uint16_t vfo_amp = ADCBuffer[0];
 
   /**
   *  IMPORTANT NOTE!
@@ -105,13 +112,19 @@ int main(void)
     /*  - DMA2_Stream0 channel2 configuration                                   */
     /*  - Configure ADC Channel12 pin as analog input  : PC2                    */
     /*  - Configure ADC3 Channel12                                              */
-    ADC3_CH12_DMA_Config();						// From Horrorophone
+   // For Audio
+   // ADC3_CH12_DMA_Config();
+
+    // John's
+ init_adc(ADCBuffer);						//initialize ADC, do this last because it starts the timer
+
 
     /* Start ADC3 Software Conversion */
-    ADC_SoftwareStartConv(ADC3);				// From Horrorophone
+    // ADC_SoftwareStartConv(ADC3);				// From Horrorophone
 
 	/* Initialize User Button */
-	STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_GPIO);		// From Horrorophone
+	// STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_GPIO);		// From Horrorophone
+
 
 	EVAL_AUDIO_Init( OUTPUT_DEVICE_AUTO, VOL, SAMPLERATE);
 	EVAL_AUDIO_Play(buffer_output, BUFF_LEN);
@@ -121,6 +134,8 @@ int main(void)
   {
 	i++;
 
+	vfo_amp = ADCBuffer[0];
+
 	// From Horrorophone
     if (STM_EVAL_PBGetState(BUTTON_USER) && (state == OFF))
     {
@@ -128,7 +143,7 @@ int main(void)
       STM_EVAL_LEDOn(LED6); // blue LED ON	// From Horrorophone
       pass = 0.5f;			// From Horrorophone
 
-      wav_vco = (wav_vco + 1)%4; // Count up to 3 and then roll over to 0.
+      // wav_vco = (wav_vco + 1)%4; // Count up to 3 and then roll over to 0.
 
       // freq_lfo =   ( (float32_t)( ADC3ConvertedValue & 0xffb )/10);
     }
@@ -218,14 +233,14 @@ void EVAL_AUDIO_Error_CallBack(void* pData)
 // TODO: See what can be removed fro this function.
 void ADC3_CH12_DMA_Config(void)
 {
-  ADC_InitTypeDef       ADC_InitStructure;
-  ADC_CommonInitTypeDef ADC_CommonInitStructure;
+  // ADC_InitTypeDef       ADC_InitStructure;
+  // ADC_CommonInitTypeDef ADC_CommonInitStructure;
   DMA_InitTypeDef       DMA_InitStructure;
-  GPIO_InitTypeDef      GPIO_InitStructure;
+  // GPIO_InitTypeDef      GPIO_InitStructure;
 
   /* Enable ADC3, DMA2 and GPIO clocks ****************************************/
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2 | RCC_AHB1Periph_GPIOC, ENABLE);
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC3, ENABLE);
+  // RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC3, ENABLE);
 
   /* DMA2 Stream0 channel0 configuration **************************************/
 //  DMA_InitStructure.DMA_Channel = DMA_Channel_2;
@@ -247,29 +262,32 @@ void ADC3_CH12_DMA_Config(void)
 //  DMA_Cmd(DMA2_Stream0, ENABLE);
 
   /* Configure ADC3 Channel12 pin as analog input ******************************/
+  /*
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
+   */
 
-  /* ADC Common Init **********************************************************/
-  ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
-  ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div2;
-  ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
-  ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
-  ADC_CommonInit(&ADC_CommonInitStructure);
-
-  /* ADC3 Init ****************************************************************/
-  ADC_InitStructure.ADC_Resolution = ADC_Resolution_8b;
-  ADC_InitStructure.ADC_ScanConvMode = DISABLE;
-  ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
-  ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
-  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-  ADC_InitStructure.ADC_NbrOfConversion = 1;
-  ADC_Init(ADC3, &ADC_InitStructure);
-
-  /* ADC3 regular channel12 configuration *************************************/
-  ADC_RegularChannelConfig(ADC3, ADC_Channel_12, 1, ADC_SampleTime_3Cycles);
+//  /* ADC Common Init **********************************************************/
+//
+//  ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
+//  ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div2;
+//  ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
+//  ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
+//  ADC_CommonInit(&ADC_CommonInitStructure);
+//
+//  /* ADC3 Init ****************************************************************/
+//  ADC_InitStructure.ADC_Resolution = ADC_Resolution_8b;
+//  ADC_InitStructure.ADC_ScanConvMode = DISABLE;
+//  ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+//  ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+//  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+//  ADC_InitStructure.ADC_NbrOfConversion = 1;
+//  ADC_Init(ADC3, &ADC_InitStructure);
+//
+//  /* ADC3 regular channel12 configuration *************************************/
+//  ADC_RegularChannelConfig(ADC3, ADC_Channel_12, 1, ADC_SampleTime_3Cycles);
 
  /* Enable DMA request after last transfer (Single-ADC mode) */
   ADC_DMARequestAfterLastTransferCmd(ADC3, ENABLE);
@@ -278,7 +296,7 @@ void ADC3_CH12_DMA_Config(void)
   ADC_DMACmd(ADC3, ENABLE);
 
   /* Enable ADC3 */
-  ADC_Cmd(ADC3, ENABLE);
+  // ADC_Cmd(ADC3, ENABLE);
 }
 
 
