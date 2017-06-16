@@ -18,12 +18,6 @@
 #include "arm_math.h"
 #include "stm32f4xx_it.h"
 
-
-/* TODO: Used by Horrorophone project -- remove and test */
-#define _2PI                    6.283185307f
-// #define _PI						3.14159265f
-// #define _INVPI					0.3183098861f
-// #define SAMPLERATE              48000
 #define SAMPLERATE              48000
 #define TWO_SECOND				192000			// Two seconds worth of samples (per channel).
 #define FIVE_SECOND				480000			// Four seconds worth of samples (per channel).
@@ -33,16 +27,9 @@
 #define BUFF_LEN                64
 
 /* TODO: Used by Horrorophone project -- remove and test */
-#define BUFF_LEN_DIV4           16
 #define BUFF_LEN_DIV2           32
-
-
-#define MOV_AVG_BUFF_LEN		128
 #define ON                      1
 #define OFF                     0
-
-
-#define ADC3_DR_ADDRESS     ((uint32_t)0x4001224C)
 
 /* Defines for wave shapes */
 #define WAVE_NONE				0

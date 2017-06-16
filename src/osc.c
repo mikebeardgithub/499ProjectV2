@@ -9,32 +9,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-
 volatile uint16_t buffer_vco[BUFF_LEN] = {0};
-// volatile uint16_t buffer_lfo[BUFF_LEN] = {0};
 volatile float32_t buffer_lfo_float[BUFF_LEN] = {0};
 volatile uint16_t buffer_output[BUFF_LEN] = {0};
 volatile float32_t buffer_adsr[BUFF_LEN] = {0};			// Attack, sustain, decay, release
 
-volatile uint16_t mov_avg [MOV_AVG_BUFF_LEN] = {0};
-volatile uint16_t mov_avg_index = 0;
-volatile uint16_t mov_avg_sum;
-
 // Good test frequency: freq_vco = 410
-volatile uint16_t freq_vco = 700;
-// volatile uint16_t freq_vco = 750.0;
-volatile float32_t freq_lfo = 2.0;						// Moderate LFO frequency
+volatile uint16_t freq_vco = 710;
+volatile float32_t freq_lfo = 10.0;						// Moderate LFO frequency
 // volatile uint16_t freq_lfo = 501;				// For testing LFO
 // volatile uint16_t freq_vco = 375.0;				// Pure sine if BUFF_LEN is 128
-
-// volatile uint16_t sample_count = 0;
 volatile uint32_t sample_count = 0;
 
-
-uint16_t adsr = 0;
+uint16_t adsr = 0;									// Enable/disable ADSR.
 
 uint16_t wav_vco = WAVE_SINE;
-uint16_t wav_lfo = WAVE_SAWTOOTH;
+uint16_t wav_lfo = WAVE_TRIANGLE;
 uint16_t mod_type = MOD_FM;
 
 float32_t vco_amp = VCO_AMP;
@@ -64,54 +54,33 @@ uint32_t decay_len =   6000;
 uint32_t sustain_len = 36000;
 uint32_t release_len = 6000;
 
+// extern uint16_t adc_value;
 
 
 // For first half of buffer, start = 0; end = buff_len/2
 // For second half, start = buff_len/2; end = buff_len
 void generate_waveforms(uint16_t start, uint16_t end)
 {
-	// Turns off yellow LED -- indicates no error occurred.
-	//	STM_EVAL_LEDOff(LED3);
-	// Moving average filter for ADC3 (PC3)
-	//	mov_avg[mov_avg_index] = ADC3ConvertedValue;					// Get newest value
-	//	mov_avg_sum += ADC3ConvertedValue;								// Accumulate
-	//	mov_avg_sum -= mov_avg[(mov_avg_index + 1) % MOV_AVG_BUFF_LEN];	// Remove oldest
-	//	mov_avg_index = (mov_avg_index + 1) % MOV_AVG_BUFF_LEN;							// Increment index
-	//	freq_vco = 4.0 * ( (float32_t)  mov_avg_sum)/MOV_AVG_BUFF_LEN;
-
 	// TODO: test frequency accuracy.
-	//		Sinusoids are correct, but square and sawtooth aren't.
 	// TODO: Consider using arm_sin_q15 instead of arm_sin_f32.  However, results might cause clipping.
 	// TODO: Store vco default amplitude in global and set with a defined value.
 
-	// Odd frequencies cause beating.
-	// if (freq_vco % 2) { /* x is odd */  freq_vco +=1; }
-	// if (freq_lfo % 2) { /* x is odd */  freq_lfo +=1; }
-
 	volatile int i = 0;
 
-	// freq_vco = 2 * ADC3ConvertedValue;
+	// freq_lfo = adc_value;
 
-	// TODO: test this.
-	// freq_lfo =   ( (float32_t)( ADC3ConvertedValue & 0xffb )/10);
-
+	// For sine waveforms.
 	volatile float32_t angle_vco = freq_vco*PI/SAMPLERATE;
 	volatile float32_t angle_lfo = freq_lfo*PI/SAMPLERATE;
 
-	// For square
-	// Fill buffer from 0 to BUFF_LEN/2
+	// For non-sine waveforms.
 	volatile uint32_t samples_half_cycle_vco = SAMPLERATE/freq_vco;
 	volatile uint32_t samples_cycle_vco = 2*samples_half_cycle_vco;
 
 	volatile uint32_t samples_half_cycle_lfo = SAMPLERATE/freq_lfo;
 	volatile uint32_t samples_cycle_lfo = 2*samples_half_cycle_lfo;
 
-	// TODO: remove after testing.
-	// memset(buffer_vco, 0, sizeof(buffer_vco));
-	// memset(buffer_output, 0, sizeof(buffer_output));
-
 	// Sine VCO
-	// TODO: to save cpu cycles, consider calculating one cycle of the sine wave and then copying it into the rest of the buffer.
 	if(wav_vco == WAVE_SINE && mod_type != MOD_FM)
 	{
 		for(i = start; i < end; i++)
@@ -132,9 +101,6 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		 *
 		 */
 
-		// samples_cycle = 2*(SAMPLERATE/freq_vco);
-		// samples_half_cycle = samples_cycle/2;
-
 		for(i = start; i < end; i++)
 		{
 			buffer_vco[i] = vco_amp * gen_square((sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco);
@@ -144,24 +110,16 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// Sawtooth VCO
 	else if(wav_vco == WAVE_SAWTOOTH && mod_type != MOD_FM)
 	{
-		// samples_cycle = 2*(SAMPLERATE/freq_vco);
-
 		for(i = start; i < end; i++)
 		{
-			// TODO: store amplitude in a variable.
 			buffer_vco[i] = vco_amp * gen_sawtooth(samples_cycle_vco - ((sample_count+(i-start)) % samples_cycle_vco), samples_cycle_vco, sawtooth_vco_min, sawtooth_vco_max);
 		}
 	}
 
 	else if(wav_vco == WAVE_TRIANGLE && mod_type != MOD_FM)
 	{
-		// samples_half_cycle = SAMPLERATE/freq_vco;
-		// samples_cycle = 2 * samples_half_cycle;
-
 		for(i = start; i < end; i++)
 		{
-			// TODO: store amplitude in a variable.
-			// TODO: offset for triangle...?
 			buffer_vco[i] = vco_amp * gen_triangle( (sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco, 1.0);
 			// buffer_vco[i] = triangle( (sample_count+(i-start)) % samples_cycle, samples_half_cycle, 1.0);
 
@@ -197,9 +155,6 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// TODO: amplitude adjustment -- so it's not just 000011111, but could be 0.2 0.2 0.2 0.6 0.6 0.6
 	else if(wav_lfo == WAVE_SQUARE)
 	{
-		// samples_cycle = 2*(SAMPLERATE/freq_lfo);
-		// samples_half_cycle = samples_cycle/2;
-
 		for(i = start; i < end; i++)
 		{
 			buffer_lfo_float[i] = gen_square((sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo);
@@ -209,8 +164,6 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// Sawtooth LFO
 	else if(wav_lfo == WAVE_SAWTOOTH)
 	{
-		// samples_cycle = 2*(SAMPLERATE/freq_lfo);
-
 		// TODO: TEST For FM modulation, sawtooth shape LFO is one way
 		// 	     For AM modulation, sawtooth shape is the other way
 
@@ -233,14 +186,10 @@ void generate_waveforms(uint16_t start, uint16_t end)
 				buffer_lfo_float[i] = buffer_lfo_float[i] * buffer_lfo_float[i];
 			}
 		}
-
 	}
 
 	else if(wav_lfo == WAVE_TRIANGLE)
 	{
-		// samples_half_cycle = SAMPLERATE/freq_lfo;
-		// samples_cycle = 2 * samples_half_cycle;
-
 		if(mod_type != MOD_FM)
 		{
 			for(i = start; i < end; i++)
@@ -263,11 +212,10 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		}
 	}
 
-
 	// No LFO
 	else if(wav_lfo == WAVE_NONE)
 	{
-		// TODO: fill lfo buffer with zeros.
+		// TODO: fill lfo buffer with zeros?
 	}
 
 	// AM modulation
@@ -303,9 +251,6 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// FM for sine wave VCO.
-	// TODO: this is messed up.
-	// Frequency keeps increasing.  I think it's a phase thing...
-	// If you + buffer_lfo_float.... no change in freq.  If you mult, it climbs and falls.
 	else if(wav_vco == WAVE_SINE && mod_type == MOD_FM && ( wav_lfo == WAVE_SAWTOOTH ||  wav_lfo == WAVE_TRIANGLE))
 	{
 		for(i = start; i < end; i++)
@@ -320,16 +265,13 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	// FM for square wave VCO.
 	// TODO: Fix glitchiness. I think just needs offset, fm_mod_level, etc adjusted.
+	// TODO: Use integral fm modulation formula.  See if sawtooth vco version works here.
 	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
 	{
-		// samples_cycle = 2*(SAMPLERATE/freq_vco);
-		// samples_half_cycle = samples_cycle/2;
-
 		for(i = start; i < end; i++)
 		{
 			// buffer_vco[i] = vco_amp * square( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle + 20*buffer_lfo_float[i]) ), ( samples_cycle + 20*buffer_lfo_float[i])/2 );
 
-			// Is it samples_cycle_vco or _lfo??
 			buffer_vco[i] = vco_amp * gen_square( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), ( samples_cycle_vco*fm_mod_level*buffer_lfo_float[i])/2 );
 			buffer_output[i] = buffer_vco[i];
 		}
@@ -355,9 +297,6 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// TODO: fix this...
 	else if(wav_vco == WAVE_TRIANGLE && mod_type == MOD_FM)
 	{
-		// samples_half_cycle = SAMPLERATE/freq_vco;
-		// samples_cycle = 2* samples_half_cycle;
-
 		for(i = start; i < end; i++)
 		{
 			buffer_vco[i] = vco_amp * gen_triangle( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), samples_half_cycle_vco*fm_mod_level*buffer_lfo_float[i], 1.0);
@@ -472,9 +411,6 @@ float32_t gen_sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_
 	float32_t val = 0.0;
 
 	// y = mx + b
-//	m = (max - min)/samples_cycle;
-//	val = m * current_sample + min;
-
 	m = (max - min)/(samples_cycle-1);
 	val = (m * current_sample) + min;
 
@@ -515,24 +451,17 @@ float32_t gen_triangle_integral(uint32_t current_sample, uint32_t samples_half_c
 {
 	float32_t m = 0.0;
 	float32_t result = 0.0;
-	// float32_t val = 0.0;
 
 	// Increase from a negative value to its opposite value. Eg. -1 to 1 over 1/2 the wave's period
 	// Then decrease from 1 to -1 over 1/2 the wave's period
-
 	m = amp/(samples_half_cycle);
 
 	if(current_sample < samples_half_cycle)
 	{
 		result = m*current_sample;
 		return result*result;
-
-
 	}
-	// TODO: testing with integral...
 	// Make sure difference can be negative.
-	// return amp + (m * (int32_t)(samples_half_cycle - current_sample));
-
 	result = amp + (m * (int32_t)(samples_half_cycle - current_sample));
 	return -(result*result);
 }
