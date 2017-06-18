@@ -9,23 +9,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+
+volatile uint16_t buffer_output[BUFF_LEN] = {0};		// TODO: Can probably get rid of this.
 volatile uint16_t buffer_vco[BUFF_LEN] = {0};
 volatile float32_t buffer_lfo_float[BUFF_LEN] = {0};
-volatile uint16_t buffer_output[BUFF_LEN] = {0};
 volatile float32_t buffer_adsr[BUFF_LEN] = {0};			// Attack, sustain, decay, release
 
-// Good test frequency: freq_vco = 410
-volatile uint16_t freq_vco = 710;
-volatile float32_t freq_lfo = 10.0;						// Moderate LFO frequency
-// volatile uint16_t freq_lfo = 501;				// For testing LFO
-// volatile uint16_t freq_vco = 375.0;				// Pure sine if BUFF_LEN is 128
+// TODO: organize these globals into struct(s)
+volatile uint16_t freq_vco = 650;
+volatile float32_t freq_lfo = 2.0;						// Moderate LFO frequency
 volatile uint32_t sample_count = 0;
 
-uint16_t adsr = 0;									// Enable/disable ADSR.
-
 uint16_t wav_vco = WAVE_SINE;
-uint16_t wav_lfo = WAVE_TRIANGLE;
-uint16_t mod_type = MOD_FM;
+uint16_t wav_lfo = WAVE_NONE;
+uint16_t mod_type = MOD_NONE;
 
 float32_t vco_amp = VCO_AMP;
 float32_t lfo_amp = 1.0;
@@ -42,17 +39,26 @@ float32_t sawtooth_lfo_max = 1.0;
 
 float32_t fm_mod_level = 0.6;
 
-// ADSR - Attack Decay Sustain Release
-uint32_t a_start = 0;
-uint32_t d_start = 12000;		// So attack is 12000 samples
-uint32_t s_start = 18000;		// So decay is 6000 samples
-uint32_t r_start = 54000;		// So sustain is 12000 samples
-uint32_t r_end =   60000;		// release is ...
 
-uint32_t attack_len =  12000;
-uint32_t decay_len =   6000;
-uint32_t sustain_len = 36000;
-uint32_t release_len = 6000;
+
+// ADSR - Attack Decay Sustain Release
+uint16_t adsr = 1;									// Enable/disable ADSR.
+
+// Set ADSR lengths in numbers of samples.
+// It's easier to think in terms of length, but it's easier to program in terms of start-end.
+uint32_t attack_len =  2400;
+uint32_t decay_len =   2400;
+uint32_t sustain_len = 2400;
+uint32_t release_len = 2400;
+uint32_t blank_len = 4800;			// Blank time between 'note'.  Can be zero.
+
+// Start-end samples.  These are calculated later.
+uint32_t a_start = 0;
+uint32_t d_start = 0;
+uint32_t s_start = 0;
+uint32_t r_start = 0;
+uint32_t b_start = 0;
+uint32_t b_end = 0;
 
 // extern uint16_t adc_value;
 
@@ -61,6 +67,15 @@ uint32_t release_len = 6000;
 // For second half, start = buff_len/2; end = buff_len
 void generate_waveforms(uint16_t start, uint16_t end)
 {
+	// Calculate start-end boundaries for each of attack, sustain, ...
+	a_start = 0;
+	d_start = attack_len;
+	s_start = d_start + decay_len;
+	r_start = s_start + sustain_len;
+	b_start = r_start + release_len;
+	b_end = b_start + blank_len;
+
+
 	// TODO: test frequency accuracy.
 	// TODO: Consider using arm_sin_q15 instead of arm_sin_f32.  However, results might cause clipping.
 	// TODO: Store vco default amplitude in global and set with a defined value.
@@ -79,6 +94,9 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	volatile uint32_t samples_half_cycle_lfo = SAMPLERATE/freq_lfo;
 	volatile uint32_t samples_cycle_lfo = 2*samples_half_cycle_lfo;
+
+	// For adsr
+	volatile uint32_t sample_cycle_adsr = attack_len + decay_len + sustain_len + release_len + blank_len;
 
 	// Sine VCO
 	if(wav_vco == WAVE_SINE && mod_type != MOD_FM)
@@ -315,41 +333,50 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	// ADSR: Attack decay sustain release
 	// The waveform contains 4 segments.
+	// TODO: I want this to repeat immediately... not once every X samples.
+	//  Need variable: sample_cycle_adsr.
+	// Do
+	// 		if( (sample_count+(i-start))%sample_cycle_adsr < d_start)
 	if(adsr)
 	{
 		for(i = start; i < end; i++)
 		{
-			if(sample_count+(i-start) < d_start)
+			// if( sample_count+(i-start) < d_start)
+			if( (sample_count+(i-start))%sample_cycle_adsr < d_start)
 			{
 				// Attack
 				// buffer_adsr[i] = 0.2;
 				// sawtooth(current sample, samples per cycle, min, max)
 				// buffer_lfo_float[i] = sawtooth(samples_cycle - (sample_count+(i-start)) % samples_cycle, samples_cycle, sawtooth_lfo_min, sawtooth_lfo_max);
-				buffer_adsr[i] = 0.5 * gen_sawtooth( (sample_count+(i-start)) % d_start, d_start/2, 0.0, 1.0);
+				buffer_adsr[i] = 1.0 * gen_sawtooth( (sample_count+(i-start)) % d_start, d_start/2, 0.0, 1.0);
 
 			}
-			else if(sample_count+(i-start) < s_start)
+			// else if(sample_count+(i-start) < s_start)
+			else if( (sample_count+(i-start))%sample_cycle_adsr < s_start)
 			{
 				// Decay
 				// buffer_adsr[i] = 0.4;
-				buffer_adsr[i] = gen_rampdown((sample_count+(i-start)) % s_start-d_start, s_start-d_start, 0.5, 1.0);
+				buffer_adsr[i] = gen_rampdown((sample_count+(i-start)) % s_start - d_start, s_start - d_start, 0.5, 1.0);
 			}
-			else if(sample_count+(i-start) < r_start)
+			// else if(sample_count+(i-start) < r_start)
+			else if( (sample_count+(i-start))%sample_cycle_adsr < r_start)
 			{
 				// Sustain
 				// buffer_adsr[i] = 0.6;
 				// buffer_adsr[i] = sawtooth((sample_count+(i-start)) % samples_cycle, r_start-s_start, 0.5, 0.5);
-				buffer_adsr[i] = gen_rampdown((sample_count+(i-start)) % s_start-d_start, s_start-d_start, 0.5, 0.5);
+				buffer_adsr[i] = gen_rampdown((sample_count+(i-start)) % r_start - s_start, s_start - d_start, 0.5, 0.5);		// TODO: this creates a steady '1' wave.  Should be 0.5!
 			}
-			else if(sample_count+(i-start) < r_end)
+			// else if(sample_count+(i-start) < r_end)
+			else if( (sample_count+(i-start))%sample_cycle_adsr < b_start)
 			{
 				// Release
 				// buffer_adsr[i] = 1.0;
 				// rampdown(current sample, samples/cycle, min value, max value)
-				buffer_adsr[i] = gen_rampdown( ( sample_count+(i-start) ) % r_end-r_start, r_end-r_start, 0.0, 0.5);
+				buffer_adsr[i] = gen_rampdown( ( sample_count+(i-start) ) % b_start - r_start, b_start - r_start, 0.0, 0.5);	// TODO: resulting wave looks like it's above 0.
 			}
-			else
+			else if( (sample_count+(i-start))%sample_cycle_adsr < b_end)
 			{
+				// Blank
 				buffer_adsr[i] = 0;
 			}
 
