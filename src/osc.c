@@ -46,13 +46,21 @@ uint16_t adsr = 1;									// Enable/disable ADSR.
 
 // Set ADSR lengths in numbers of samples.
 // It's easier to think in terms of length, but it's easier to program in terms of start-end.
-uint32_t attack_len =  2400;
+uint32_t attack_len =  700;
 uint32_t decay_len =   2400;
-uint32_t sustain_len = 2400;
+uint32_t sustain_len = 700;
 uint32_t release_len = 2400;
-uint32_t blank_len = 4800;			// Blank time between 'note'.  Can be zero.
+uint32_t blank_len = 4020;			// Blank time between 'note'.  Can be zero.
+
+//uint32_t attack_len =  1000;
+//uint32_t decay_len =   2000;
+//uint32_t sustain_len = 1000;
+//uint32_t release_len = 1000;
+//uint32_t blank_len = 10000;			// Blank time between 'note'.  Can be zero.
+
 
 // Start-end samples.  These are calculated later.
+// TODO: probably don't need to be global.
 uint32_t a_start = 0;
 uint32_t d_start = 0;
 uint32_t s_start = 0;
@@ -68,13 +76,19 @@ uint32_t b_end = 0;
 void generate_waveforms(uint16_t start, uint16_t end)
 {
 	// Calculate start-end boundaries for each of attack, sustain, ...
+	// TODO: uncomment after testing.
+//	a_start = 0;
+//	d_start = attack_len;
+//	s_start = d_start + decay_len;
+//	r_start = s_start + sustain_len;
+//	b_start = r_start + release_len;
+//	b_end = b_start + blank_len;
+
 	a_start = 0;
 	d_start = attack_len;
 	s_start = d_start + decay_len;
-	r_start = s_start + sustain_len;
-	b_start = r_start + release_len;
+	b_start = d_start + decay_len;
 	b_end = b_start + blank_len;
-
 
 	// TODO: test frequency accuracy.
 	// TODO: Consider using arm_sin_q15 instead of arm_sin_f32.  However, results might cause clipping.
@@ -96,7 +110,9 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	volatile uint32_t samples_cycle_lfo = 2*samples_half_cycle_lfo;
 
 	// For adsr
-	volatile uint32_t sample_cycle_adsr = attack_len + decay_len + sustain_len + release_len + blank_len;
+	// TODO: Remove after testing...
+	// volatile uint32_t sample_cycle_adsr = attack_len + decay_len + sustain_len + release_len + blank_len;
+	volatile uint32_t sample_cycle_adsr = attack_len + decay_len + blank_len;
 
 	// Sine VCO
 	if(wav_vco == WAVE_SINE && mod_type != MOD_FM)
@@ -333,14 +349,11 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	// ADSR: Attack decay sustain release
 	// The waveform contains 4 segments.
-	// TODO: I want this to repeat immediately... not once every X samples.
-	//  Need variable: sample_cycle_adsr.
-	// Do
-	// 		if( (sample_count+(i-start))%sample_cycle_adsr < d_start)
 	if(adsr)
 	{
 		for(i = start; i < end; i++)
 		{
+			// First part tells us sample number into the adsr cycle: (sample_count+(i-start))%sample_cycle_adsr
 			// if( sample_count+(i-start) < d_start)
 			if( (sample_count+(i-start))%sample_cycle_adsr < d_start)
 			{
@@ -348,7 +361,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 				// buffer_adsr[i] = 0.2;
 				// sawtooth(current sample, samples per cycle, min, max)
 				// buffer_lfo_float[i] = sawtooth(samples_cycle - (sample_count+(i-start)) % samples_cycle, samples_cycle, sawtooth_lfo_min, sawtooth_lfo_max);
-				buffer_adsr[i] = 1.0 * gen_sawtooth( (sample_count+(i-start)) % d_start, d_start/2, 0.0, 1.0);
+				buffer_adsr[i] = gen_sawtooth( (sample_count+(i-start)) % attack_len, attack_len, 0.0, 1.0);
 
 			}
 			// else if(sample_count+(i-start) < s_start)
@@ -356,24 +369,29 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			{
 				// Decay
 				// buffer_adsr[i] = 0.4;
-				buffer_adsr[i] = gen_rampdown((sample_count+(i-start)) % s_start - d_start, s_start - d_start, 0.5, 1.0);
+				// buffer_adsr[i] = gen_rampdown((sample_count+(i-start)) % decay_len, decay_len, 0.5, 1.0);
+				// buffer_adsr[i] = gen_rampdown((sample_count+i-start-d_start) % decay_len, decay_len, 0.5, 1.0);
+				buffer_adsr[i] = gen_rampdown((sample_count+i-start-d_start) % d_start, decay_len, 0.5, 1.0);
 			}
-			// else if(sample_count+(i-start) < r_start)
-			else if( (sample_count+(i-start))%sample_cycle_adsr < r_start)
-			{
-				// Sustain
-				// buffer_adsr[i] = 0.6;
-				// buffer_adsr[i] = sawtooth((sample_count+(i-start)) % samples_cycle, r_start-s_start, 0.5, 0.5);
-				buffer_adsr[i] = gen_rampdown((sample_count+(i-start)) % r_start - s_start, s_start - d_start, 0.5, 0.5);		// TODO: this creates a steady '1' wave.  Should be 0.5!
-			}
-			// else if(sample_count+(i-start) < r_end)
-			else if( (sample_count+(i-start))%sample_cycle_adsr < b_start)
-			{
-				// Release
-				// buffer_adsr[i] = 1.0;
-				// rampdown(current sample, samples/cycle, min value, max value)
-				buffer_adsr[i] = gen_rampdown( ( sample_count+(i-start) ) % b_start - r_start, b_start - r_start, 0.0, 0.5);	// TODO: resulting wave looks like it's above 0.
-			}
+//			// else if(sample_count+(i-start) < r_start)
+//			else if( (sample_count+(i-start))%sample_cycle_adsr < r_start)
+//			{
+//				// Sustain
+//				// buffer_adsr[i] = 0.6;
+//				// buffer_adsr[i] = sawtooth((sample_count+(i-start)) % samples_cycle, r_start-s_start, 0.5, 0.5);
+//				// buffer_adsr[i] = gen_rampdown((sample_count+(i-start)) % sustain_len, sustain_len, 0.5, 0.5);
+//				buffer_adsr[i] = gen_rampdown((sample_count+i-start-s_start) % sustain_len, sustain_len, 0.5, 0.5);
+//			}
+//			// else if(sample_count+(i-start) < r_end)
+//			else if( (sample_count+(i-start))%sample_cycle_adsr < b_start)
+//			{
+//				// Release
+//				// buffer_adsr[i] = 1.0;
+//				// rampdown(current sample, samples/cycle, min value, max value)
+//				// buffer_adsr[i] = gen_rampdown( ( sample_count+(i-start) ) % release_len, release_len, 0.0, 0.5);
+//				buffer_adsr[i] = gen_rampdown( (sample_count+i-start-r_start) % release_len, release_len, 0.0, 0.5);
+//
+//			}
 			else if( (sample_count+(i-start))%sample_cycle_adsr < b_end)
 			{
 				// Blank
@@ -438,7 +456,7 @@ float32_t gen_sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_
 	float32_t val = 0.0;
 
 	// y = mx + b
-	m = (max - min)/(samples_cycle-1);
+	m = (max - min)/samples_cycle;
 	val = (m * current_sample) + min;
 
 	return val;
@@ -450,8 +468,11 @@ float32_t gen_rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_
 	float32_t val = 0.0;
 
 	// y = mx + b
-	m = (max - min)/samples_cycle;
-	val = max - m * current_sample + min;
+	// m = (max - min)/samples_cycle;
+	// val = max - m * current_sample + min;
+
+	m = (min - max)/samples_cycle;
+	val = m * current_sample + max;
 
 	return val;
 }
