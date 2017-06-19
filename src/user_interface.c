@@ -27,7 +27,7 @@ void update_selector_state (){
 	}else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_11) == 1){
 		vfo_state = other2;
 	}
-
+//could put some fault detection at the end of these if statements come back later if theres time
 
 	if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_12) == 1){
 		lfo_state = sine;

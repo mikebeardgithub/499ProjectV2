@@ -10,19 +10,19 @@
 #include <stdlib.h>
 
 
-volatile uint16_t buffer_output[BUFF_LEN] = {0};		// TODO: Can probably get rid of this.
+volatile uint16_t buffer_output[BUFF_LEN] = {0};
 volatile uint16_t buffer_vco[BUFF_LEN] = {0};
 volatile float32_t buffer_lfo_float[BUFF_LEN] = {0};
 volatile float32_t buffer_adsr[BUFF_LEN] = {0};			// Attack, sustain, decay, release
 
 // TODO: organize these globals into struct(s)
 volatile uint16_t freq_vco = 650;
-volatile float32_t freq_lfo = 10.0;						// Moderate LFO frequency
+volatile float32_t freq_lfo = 30;						// Moderate LFO frequency
 volatile uint32_t sample_count = 0;
 
 uint16_t wav_vco = WAVE_SQUARE;
-uint16_t wav_lfo = WAVE_SQUARE;
-uint16_t mod_type = MOD_NONE;
+uint16_t wav_lfo = WAVE_TRIANGLE;
+uint16_t mod_type = MOD_AM;
 
 float32_t vco_amp = VCO_AMP;
 float32_t lfo_amp = 1.0;
@@ -47,12 +47,12 @@ uint16_t adsr = 1;									// Enable/disable ADSR.
 // Set ADSR lengths in numbers of samples.
 // It's easier to think in terms of length, but it's easier to program in terms of start-end.
 float32_t attack_amp = 1.0;
-float32_t decay_amp = 0.5;
-float32_t sustain_amp = 0.5;
+float32_t decay_amp = 0.3;
+float32_t sustain_amp = 0.3;
 
 uint32_t attack_len =  400;
 uint32_t decay_len =   400;
-uint32_t sustain_len = 6000;
+uint32_t sustain_len = 6500;
 uint32_t release_len = 700;
 uint32_t blank_len = 8000;			// Blank time between 'note'.  Can be zero.
 

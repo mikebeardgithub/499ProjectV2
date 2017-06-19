@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "stm32f4xx_gpio.h"
+#include "stm32f4xx_exti.h"
+#include "stm32f4xx_syscfg.h"
 #include "stm32f4xx_rcc.h"
 #include "stm32f4xx_adc.h"
 #include "initial_ization.h"
@@ -33,7 +35,6 @@ void init_adc(volatile uint16_t ADCBuffer[NUM_CHANNELS]){
 	/* Define ADC init structures */
 	ADC_InitTypeDef       adc_init_struct;
 	ADC_CommonInitTypeDef adc_com_init_struct;
-	NVIC_InitTypeDef NVIC_Init_struct;
 	DMA_InitTypeDef DMA_Init_struct;
 	GPIO_InitTypeDef GPIO_InitStructure;
 	TIM_TimeBaseInitTypeDef time_base_struct;
@@ -51,12 +52,6 @@ void init_adc(volatile uint16_t ADCBuffer[NUM_CHANNELS]){
 	TIM_TimeBaseInit(TIM2, &time_base_struct);
 	TIM_SelectOutputTrigger(TIM2,TIM_TRGOSource_Update);
 	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
-
-	NVIC_Init_struct.NVIC_IRQChannel = TIM2_IRQn;
-	NVIC_Init_struct.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init_struct.NVIC_IRQChannelPreemptionPriority = 0x0F;
-	NVIC_Init_struct.NVIC_IRQChannelSubPriority = 0x0F;
-	NVIC_Init(&NVIC_Init_struct);
 
 	/* Enable clock on DMA1 & GPIO's */
 	/* Enable DMA2, thats where ADC peripheral is used */
@@ -174,8 +169,8 @@ void init_adc(volatile uint16_t ADCBuffer[NUM_CHANNELS]){
 	/* Enable ADC1 **************************************************************/
 	ADC_Cmd(ADC1, ENABLE);
 
-
 	TIM_Cmd(TIM2, ENABLE);		//This could be dine in the main however gonna leave it here
+
 
 
 }
@@ -195,6 +190,11 @@ void init_adc(volatile uint16_t ADCBuffer[NUM_CHANNELS]){
 void init_gpios(){
 
 	GPIO_InitTypeDef GPIO_InitStructure;
+	TIM_TimeBaseInitTypeDef tim4_base_struct;
+	EXTI_InitTypeDef EXTI_init_struct;
+	NVIC_InitTypeDef EXTI_NVIC_init_struct;
+	NVIC_InitTypeDef TIM4_NVIC_init_struct;
+
 
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC,ENABLE); 			//This is already turned on in ADC Init function
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE,ENABLE);
@@ -229,6 +229,59 @@ void init_gpios(){
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;				//slow
 	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;				//pull down
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+
+	/*Configure Tim4 for debouncing	 */
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+	TIM_TimeBaseStructInit(&tim4_base_struct);
+	tim4_base_struct.TIM_ClockDivision = TIM_CKD_DIV1;
+	tim4_base_struct.TIM_CounterMode = TIM_CounterMode_Up;
+	tim4_base_struct.TIM_Period = MYTIM4_PERIOD;
+	tim4_base_struct.TIM_Prescaler = myTIM4_PRESCALER;
+	TIM_TimeBaseInit(TIM2, &tim4_base_struct);
+
+	TIM4_NVIC_init_struct.NVIC_IRQChannel = TIM4_IRQn;
+	TIM4_NVIC_init_struct.NVIC_IRQChannelCmd = ENABLE;
+	TIM4_NVIC_init_struct.NVIC_IRQChannelPreemptionPriority = 0x00;
+	TIM4_NVIC_init_struct.NVIC_IRQChannelSubPriority = 0x00;
+	NVIC_Init(&TIM4_NVIC_init_struct);
+
+	TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
+
+
+	/*Configure pins as EXTI*/
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG,ENABLE);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOC, EXTI_PinSource6);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource7);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource8);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource9);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource10);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource11);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource12);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource13);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource14);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource15);
+
+
+	//init EXTI
+	EXTI_init_struct.EXTI_Line = EXTI_Line6 | EXTI_Line7 | EXTI_Line8 | EXTI_Line9 | EXTI_Line10 | EXTI_Line11 | EXTI_Line12 | EXTI_Line13 | EXTI_Line14 | EXTI_Line15;
+	EXTI_init_struct.EXTI_LineCmd = ENABLE;
+	EXTI_init_struct.EXTI_Mode =  EXTI_Mode_Interrupt;
+	EXTI_init_struct.EXTI_Trigger = EXTI_Trigger_Rising;
+	EXTI_Init(&EXTI_init_struct);
+
+	EXTI_NVIC_init_struct.NVIC_IRQChannel = EXTI9_5_IRQn;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelPreemptionPriority = 0x0F;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelSubPriority = 0x0F;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&EXTI_NVIC_init_struct);
+
+
+	EXTI_NVIC_init_struct.NVIC_IRQChannel = EXTI15_10_IRQn;;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelPreemptionPriority = 0x0F;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelSubPriority = 0x0F;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&EXTI_NVIC_init_struct);
 
 
 

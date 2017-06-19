@@ -1,2 +1,2 @@
-initial_ization.c:31:6:init_adc	144	static
-initial_ization.c:195:6:init_gpios	16	static
+initial_ization.c:33:6:init_adc	136	static
+initial_ization.c:190:6:init_gpios	48	static

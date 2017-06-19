@@ -39,7 +39,6 @@ SOFTWARE.
 /* Includes */
 #include "initial_ization.h"
 #include "user_interface.h"
-#include "main.h"
 #include "osc.h"
 
 #include <math.h>
@@ -52,6 +51,7 @@ SOFTWARE.
 #include "stm32f4_discovery_audio_codec.h"
 
 #include <stdio.h>
+#include "main.h"
 
 /* Globals */
 uint8_t                 state = OFF;					// From horrorophone
@@ -94,11 +94,41 @@ int main(void)
 	/* Green Led On: start of application */
 	STM_EVAL_LEDOn(LED4);						// From Horrorophone
 
-	// John's
-	init_adc(ADCBuffer);						//initialize ADC, do this last because it starts the timer
+
+
+	  /********************************testing variables gona leave in for know *****************************/
+
+	  //used for testing the selector
+	  selector_state testvfo,testlfo;	//
+
+	  /* Used for Testing ADC Values can be thrown out*/
+	  uint16_t vfo_amp = ADCBuffer[0];
+	  uint16_t vfo_freq = ADCBuffer[1];
+	  uint16_t lfo_amp = ADCBuffer[2];
+	  uint16_t lfo_freq = ADCBuffer[3];
+	  uint16_t volume = ADCBuffer[4];
+	  uint16_t env_attack = ADCBuffer[5];
+	  uint16_t env_decay = ADCBuffer[6];
+	  uint16_t env_sustain = ADCBuffer[7];
+	  uint16_t env_release = ADCBuffer[8];
+	  uint16_t fc_low = ADCBuffer[9];
+	  uint16_t fc_high = ADCBuffer[10];
+	  uint16_t fc_resonance = ADCBuffer[11];
+	  uint16_t gain = ADCBuffer[12];
+
+	/************************************************************************************************************/
+
+
+	/**************************** Run Initialization functions timer for tim2 started in init_adc*****************************/
+
+	  init_gpios();								//initialize gpios
+	  init_adc(ADCBuffer);						//initialize ADC, do this last because it starts the timer
+	  update_selector_state();					// get startup state
+
+
 
 	/* Initialize User Button */
-	STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_GPIO);		// From Horrorophone
+	// STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_GPIO);		// From Horrorophone
 
 	EVAL_AUDIO_Init( OUTPUT_DEVICE_AUTO, VOL, SAMPLERATE);
 	EVAL_AUDIO_Play(buffer_output, BUFF_LEN);
@@ -106,7 +136,27 @@ int main(void)
 	// Main loop.
 	while (1)
 	{
-		adc_value = ADCBuffer[0];
+
+		//used for testing wave selectors
+		testlfo = lfo_state;
+		testvfo = vfo_state;
+
+		//used for testing ADC
+		vfo_amp = ADCBuffer[0];
+		vfo_freq = ADCBuffer[1];
+		lfo_amp = ADCBuffer[2];
+		lfo_freq = ADCBuffer[3];
+		volume = ADCBuffer[4];
+		env_attack = ADCBuffer[5];
+		env_decay = ADCBuffer[6];
+		env_sustain = ADCBuffer[7];
+		env_release = ADCBuffer[8];
+		fc_low = ADCBuffer[9];
+		fc_high = ADCBuffer[10];
+		fc_resonance = ADCBuffer[11];
+		gain = ADCBuffer[12];
+
+
 
 		// From Horrorophone
 		if (STM_EVAL_PBGetState(BUTTON_USER) && (state == OFF))
