@@ -17,11 +17,11 @@ volatile float32_t buffer_adsr[BUFF_LEN] = {0};			// Attack, sustain, decay, rel
 
 // TODO: organize these globals into struct(s)
 volatile uint16_t freq_vco = 650;
-volatile float32_t freq_lfo = 2.0;						// Moderate LFO frequency
+volatile float32_t freq_lfo = 10.0;						// Moderate LFO frequency
 volatile uint32_t sample_count = 0;
 
-uint16_t wav_vco = WAVE_SINE;
-uint16_t wav_lfo = WAVE_NONE;
+uint16_t wav_vco = WAVE_SQUARE;
+uint16_t wav_lfo = WAVE_SQUARE;
 uint16_t mod_type = MOD_NONE;
 
 float32_t vco_amp = VCO_AMP;
@@ -46,27 +46,24 @@ uint16_t adsr = 1;									// Enable/disable ADSR.
 
 // Set ADSR lengths in numbers of samples.
 // It's easier to think in terms of length, but it's easier to program in terms of start-end.
-uint32_t attack_len =  700;
-uint32_t decay_len =   2400;
-uint32_t sustain_len = 700;
-uint32_t release_len = 2400;
-uint32_t blank_len = 4020;			// Blank time between 'note'.  Can be zero.
+float32_t attack_amp = 1.0;
+float32_t decay_amp = 0.5;
+float32_t sustain_amp = 0.5;
 
-//uint32_t attack_len =  1000;
-//uint32_t decay_len =   2000;
-//uint32_t sustain_len = 1000;
-//uint32_t release_len = 1000;
-//uint32_t blank_len = 10000;			// Blank time between 'note'.  Can be zero.
-
+uint32_t attack_len =  400;
+uint32_t decay_len =   400;
+uint32_t sustain_len = 6000;
+uint32_t release_len = 700;
+uint32_t blank_len = 8000;			// Blank time between 'note'.  Can be zero.
 
 // Start-end samples.  These are calculated later.
 // TODO: probably don't need to be global.
-uint32_t a_start = 0;
-uint32_t d_start = 0;
-uint32_t s_start = 0;
-uint32_t r_start = 0;
-uint32_t b_start = 0;
-uint32_t b_end = 0;
+uint32_t attack_start = 0;
+uint32_t decay_start = 0;
+uint32_t sustain_start = 0;
+uint32_t release_start = 0;
+uint32_t blank_start = 0;
+uint32_t blank_end = 0;
 
 // extern uint16_t adc_value;
 
@@ -84,11 +81,12 @@ void generate_waveforms(uint16_t start, uint16_t end)
 //	b_start = r_start + release_len;
 //	b_end = b_start + blank_len;
 
-	a_start = 0;
-	d_start = attack_len;
-	s_start = d_start + decay_len;
-	b_start = d_start + decay_len;
-	b_end = b_start + blank_len;
+	attack_start = 0;
+	decay_start = attack_len;
+	sustain_start = decay_start + decay_len;
+	release_start = sustain_start + sustain_len;
+	blank_start = release_start + release_len;
+	blank_end = blank_start + blank_len;
 
 	// TODO: test frequency accuracy.
 	// TODO: Consider using arm_sin_q15 instead of arm_sin_f32.  However, results might cause clipping.
@@ -110,9 +108,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	volatile uint32_t samples_cycle_lfo = 2*samples_half_cycle_lfo;
 
 	// For adsr
-	// TODO: Remove after testing...
-	// volatile uint32_t sample_cycle_adsr = attack_len + decay_len + sustain_len + release_len + blank_len;
-	volatile uint32_t sample_cycle_adsr = attack_len + decay_len + blank_len;
+	volatile uint32_t sample_cycle_adsr = attack_len + decay_len + sustain_len + blank_len;
 
 	// Sine VCO
 	if(wav_vco == WAVE_SINE && mod_type != MOD_FM)
@@ -348,51 +344,44 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// ADSR: Attack decay sustain release
-	// The waveform contains 4 segments.
+	// The waveform contains 5 segments (asdr + a blank space)
+	// TODO: make a freakin' function for this to make it simpler.
 	if(adsr)
 	{
 		for(i = start; i < end; i++)
 		{
 			// First part tells us sample number into the adsr cycle: (sample_count+(i-start))%sample_cycle_adsr
 			// if( sample_count+(i-start) < d_start)
-			if( (sample_count+(i-start))%sample_cycle_adsr < d_start)
+			if( (sample_count+(i-start))%sample_cycle_adsr < decay_start)
 			{
 				// Attack
-				// buffer_adsr[i] = 0.2;
-				// sawtooth(current sample, samples per cycle, min, max)
-				// buffer_lfo_float[i] = sawtooth(samples_cycle - (sample_count+(i-start)) % samples_cycle, samples_cycle, sawtooth_lfo_min, sawtooth_lfo_max);
-				buffer_adsr[i] = gen_sawtooth( (sample_count+(i-start)) % attack_len, attack_len, 0.0, 1.0);
+				buffer_adsr[i] = gen_sawtooth( (sample_count+(i-start)) % sample_cycle_adsr, attack_len, 0.0, attack_amp);
 
 			}
-			// else if(sample_count+(i-start) < s_start)
-			else if( (sample_count+(i-start))%sample_cycle_adsr < s_start)
+
+//			// else if(sample_count+(i-start) < s_start)
+			else if( (sample_count+(i-start))%sample_cycle_adsr < sustain_start)
 			{
 				// Decay
-				// buffer_adsr[i] = 0.4;
-				// buffer_adsr[i] = gen_rampdown((sample_count+(i-start)) % decay_len, decay_len, 0.5, 1.0);
-				// buffer_adsr[i] = gen_rampdown((sample_count+i-start-d_start) % decay_len, decay_len, 0.5, 1.0);
-				buffer_adsr[i] = gen_rampdown((sample_count+i-start-d_start) % d_start, decay_len, 0.5, 1.0);
+				buffer_adsr[i] = gen_rampdown((sample_count+i-start-decay_start) % sample_cycle_adsr, decay_len, decay_amp, attack_amp);
 			}
-//			// else if(sample_count+(i-start) < r_start)
-//			else if( (sample_count+(i-start))%sample_cycle_adsr < r_start)
-//			{
-//				// Sustain
-//				// buffer_adsr[i] = 0.6;
-//				// buffer_adsr[i] = sawtooth((sample_count+(i-start)) % samples_cycle, r_start-s_start, 0.5, 0.5);
-//				// buffer_adsr[i] = gen_rampdown((sample_count+(i-start)) % sustain_len, sustain_len, 0.5, 0.5);
-//				buffer_adsr[i] = gen_rampdown((sample_count+i-start-s_start) % sustain_len, sustain_len, 0.5, 0.5);
-//			}
-//			// else if(sample_count+(i-start) < r_end)
-//			else if( (sample_count+(i-start))%sample_cycle_adsr < b_start)
-//			{
-//				// Release
-//				// buffer_adsr[i] = 1.0;
-//				// rampdown(current sample, samples/cycle, min value, max value)
-//				// buffer_adsr[i] = gen_rampdown( ( sample_count+(i-start) ) % release_len, release_len, 0.0, 0.5);
-//				buffer_adsr[i] = gen_rampdown( (sample_count+i-start-r_start) % release_len, release_len, 0.0, 0.5);
-//
-//			}
-			else if( (sample_count+(i-start))%sample_cycle_adsr < b_end)
+
+			// else if(sample_count+(i-start) < r_start)
+			else if( (sample_count+(i-start))%sample_cycle_adsr < release_start)
+			{
+				// Sustain
+				buffer_adsr[i] = gen_rampdown((sample_count+i-start-sustain_start) % sample_cycle_adsr, sustain_len, sustain_amp, sustain_amp);
+			}
+
+			// else if(sample_count+(i-start) < r_end)
+			else if( (sample_count+(i-start))%sample_cycle_adsr < blank_start)
+			{
+				// Release
+				buffer_adsr[i] = gen_rampdown( (sample_count+i-start-release_start) % sample_cycle_adsr, release_len, 0.0, sustain_amp);
+
+			}
+			else if( (sample_count+(i-start))%sample_cycle_adsr < blank_end)
+			// else
 			{
 				// Blank
 				buffer_adsr[i] = 0;
