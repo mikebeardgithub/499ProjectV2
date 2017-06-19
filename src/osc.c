@@ -345,13 +345,12 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	// ADSR: Attack decay sustain release
 	// The waveform contains 5 segments (asdr + a blank space)
-	// TODO: make a freakin' function for this to make it simpler.
+	// TODO: There is a tick every 10s... seems specific to the ADSR.
 	if(adsr)
 	{
 		for(i = start; i < end; i++)
 		{
 			// First part tells us sample number into the adsr cycle: (sample_count+(i-start))%sample_cycle_adsr
-			// if( sample_count+(i-start) < d_start)
 			if( (sample_count+(i-start))%sample_cycle_adsr < decay_start)
 			{
 				// Attack
@@ -359,21 +358,18 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 			}
 
-//			// else if(sample_count+(i-start) < s_start)
 			else if( (sample_count+(i-start))%sample_cycle_adsr < sustain_start)
 			{
 				// Decay
 				buffer_adsr[i] = gen_rampdown((sample_count+i-start-decay_start) % sample_cycle_adsr, decay_len, decay_amp, attack_amp);
 			}
 
-			// else if(sample_count+(i-start) < r_start)
 			else if( (sample_count+(i-start))%sample_cycle_adsr < release_start)
 			{
 				// Sustain
 				buffer_adsr[i] = gen_rampdown((sample_count+i-start-sustain_start) % sample_cycle_adsr, sustain_len, sustain_amp, sustain_amp);
 			}
 
-			// else if(sample_count+(i-start) < r_end)
 			else if( (sample_count+(i-start))%sample_cycle_adsr < blank_start)
 			{
 				// Release
@@ -381,7 +377,6 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 			}
 			else if( (sample_count+(i-start))%sample_cycle_adsr < blank_end)
-			// else
 			{
 				// Blank
 				buffer_adsr[i] = 0;
@@ -392,12 +387,6 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// Remember lfo phase and resume next run of callback.
-	// TODO: This line may be causing ticking.
-	//		 Might be able to rollover at end of (vfo? lfo?) waveform instead of samplerate.
-	// 		However.. might need to also account for size of integer.
-
-	// sample_count = (sample_count + (i-start)) % SAMPLERATE;
-	//
 	sample_count = (sample_count + (i-start)) % TEN_SECOND;
 
 	return;
