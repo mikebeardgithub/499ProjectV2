@@ -19,6 +19,7 @@
 #include "stm32f4xx_it.h"
 
 #define SAMPLERATE              48000
+#define ONE_SECOND				96000			// Two seconds worth of samples (per channel).
 #define TWO_SECOND				192000			// Two seconds worth of samples (per channel).
 #define FIVE_SECOND				480000			// Four seconds worth of samples (per channel).
 #define TEN_SECOND				960000			// Four seconds worth of samples (per channel).
@@ -55,5 +56,12 @@ float32_t gen_sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_
 float32_t gen_rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max);
 float32_t gen_triangle(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp);
 float32_t gen_triangle_integral(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp);
+
+float32_t gen_square_angle(float32_t angle);
+float32_t gen_sawtooth_angle(float32_t angle);
+float32_t gen_sawtooth_integral_angle(float32_t angle);
+float32_t gen_rampdown_angle(float32_t angle);
+float32_t gen_triangle_angle(float32_t angle);
+float32_t gen_triangle_integral_angle(float32_t angle);
 
 #endif /* OSC_H_ */

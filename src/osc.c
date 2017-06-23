@@ -17,12 +17,12 @@ volatile float32_t buffer_adsr[BUFF_LEN] = {0};			// Attack, sustain, decay, rel
 
 // TODO: organize these globals into struct(s)
 volatile uint16_t freq_vco = 650;
-volatile float32_t freq_lfo = 30;						// Moderate LFO frequency
+volatile float32_t freq_lfo = 10.0;						// Moderate LFO frequency
 volatile uint32_t sample_count = 0;
 
 uint16_t wav_vco = WAVE_SQUARE;
-uint16_t wav_lfo = WAVE_TRIANGLE;
-uint16_t mod_type = MOD_AM;
+uint16_t wav_lfo = WAVE_SINE;
+uint16_t mod_type = MOD_FM;
 
 float32_t vco_amp = VCO_AMP;
 float32_t lfo_amp = 1.0;
@@ -100,13 +100,6 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	volatile float32_t angle_vco = freq_vco*PI/SAMPLERATE;
 	volatile float32_t angle_lfo = freq_lfo*PI/SAMPLERATE;
 
-	// For non-sine waveforms.
-	volatile uint32_t samples_half_cycle_vco = SAMPLERATE/freq_vco;
-	volatile uint32_t samples_cycle_vco = 2*samples_half_cycle_vco;
-
-	volatile uint32_t samples_half_cycle_lfo = SAMPLERATE/freq_lfo;
-	volatile uint32_t samples_cycle_lfo = 2*samples_half_cycle_lfo;
-
 	// For adsr
 	volatile uint32_t sample_cycle_adsr = attack_len + decay_len + sustain_len + blank_len;
 
@@ -122,18 +115,9 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// Square VCO
 	else if(wav_vco == WAVE_SQUARE && mod_type != MOD_FM)
 	{
-		/*
-		 * In a single square pulse cycle, there are n samples, each of which is 1/48000s long.
-		 * Therefore,  T = n/48000
-		 * --> n = 48000*T
-		 * --> n = 48000/f
-		 * Therefore, duration of positive (one) half is n/2 = 48000/2f.  Same for negative (zero) half.
-		 *
-		 */
-
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = vco_amp * gen_square((sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco);
+			buffer_vco[i] = vco_amp + vco_amp * gen_square_angle((sample_count+(i-start)) * angle_vco);
 		}
 	}
 
@@ -142,7 +126,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = vco_amp * gen_sawtooth(samples_cycle_vco - ((sample_count+(i-start)) % samples_cycle_vco), samples_cycle_vco, sawtooth_vco_min, sawtooth_vco_max);
+			buffer_vco[i] = vco_amp + vco_amp * gen_sawtooth_angle((sample_count+(i-start)) * angle_vco);
 		}
 	}
 
@@ -150,11 +134,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = vco_amp * gen_triangle( (sample_count+(i-start)) % samples_cycle_vco, samples_half_cycle_vco, 1.0);
-			// buffer_vco[i] = triangle( (sample_count+(i-start)) % samples_cycle, samples_half_cycle, 1.0);
-
-			// TODO: testing...
-			// buffer_lfo_float[i] = triangle( (sample_count+(i-start)) % samples_cycle, samples_half_cycle, 1.0);
+			buffer_vco[i] = vco_amp + vco_amp * gen_triangle_angle((sample_count+(i-start)) * angle_vco);
 		}
 	}
 
@@ -169,15 +149,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 		for(i = start; i < end; i++)
 		{
-			// buffer_lfo_float[i] = 0.4 + 0.4*arm_sin_f32((sample_count+i)*angle_lfo);		// Small amplitude for AM mod of sine
-			// buffer_lfo_float[i] = 40.0 + 40.0*arm_sin_f32((sample_count+i)*angle_lfo);	// Large amplitude for FM mod of sine
-			// buffer_lfo_float[i] = 10 + 10*arm_sin_f32((sample_count+i)*angle_lfo);		// Medium amplitude for FM mod of square
-
-			// TODO: uncomment after testing.
 			buffer_lfo_float[i] = lfo_offset + lfo_amp*arm_sin_f32((sample_count+(i-start))*angle_lfo);
-
-			// TODO: testing for FM mod of sawtooth
-			// buffer_lfo_float[i] = 0.5 + 0.25*arm_sin_f32((sample_count+(i-start))*angle_lfo);
 		}
 	}
 
@@ -185,25 +157,31 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// TODO: amplitude adjustment -- so it's not just 000011111, but could be 0.2 0.2 0.2 0.6 0.6 0.6
 	else if(wav_lfo == WAVE_SQUARE)
 	{
-		for(i = start; i < end; i++)
+		if(mod_type != MOD_FM)
 		{
-			buffer_lfo_float[i] = gen_square((sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo);
+			for(i = start; i < end; i++)
+			{
+				buffer_lfo_float[i] = gen_square_angle((sample_count+(i-start))*angle_lfo);
+			}
+		}
+		else
+		{
+			for(i = start; i < end; i++)
+			{
+				// Sawtooth is integral of triangle
+				buffer_lfo_float[i] = gen_triangle_angle((sample_count+(i-start))*angle_lfo);
+			}
 		}
 	}
 
 	// Sawtooth LFO
 	else if(wav_lfo == WAVE_SAWTOOTH)
 	{
-		// TODO: TEST For FM modulation, sawtooth shape LFO is one way
-		// 	     For AM modulation, sawtooth shape is the other way
-
 		if(mod_type != MOD_FM)
 		{
 			for(i = start; i < end; i++)
 			{
-				// buffer_lfo_float[i] = sawtooth(samples_cycle - (sample_count+(i-start)) % samples_cycle, samples_cycle, sawtooth_lfo_min, sawtooth_lfo_max);
-
-				buffer_lfo_float[i] = gen_sawtooth((sample_count+(i-start)) % samples_cycle_lfo, samples_cycle_lfo, sawtooth_lfo_min, sawtooth_lfo_max);
+				buffer_lfo_float[i] = gen_sawtooth_angle((sample_count+(i-start))*angle_lfo);
 			}
 		}
 
@@ -212,8 +190,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		{
 			for(i = start; i < end; i++)
 			{
-				buffer_lfo_float[i] = gen_sawtooth((sample_count+(i-start)) % samples_cycle_lfo, samples_cycle_lfo, sawtooth_lfo_min, sawtooth_lfo_max);
-				buffer_lfo_float[i] = buffer_lfo_float[i] * buffer_lfo_float[i];
+				buffer_lfo_float[i] = gen_sawtooth_integral_angle((sample_count+(i-start))*angle_lfo);
 			}
 		}
 	}
@@ -224,9 +201,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		{
 			for(i = start; i < end; i++)
 			{
-				// TODO: change 1.0 to variable.
-				// 			Variable for min/max
-				buffer_lfo_float[i] = gen_triangle( (sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo, 1.0);
+				buffer_lfo_float[i] = gen_triangle_angle( (sample_count+(i-start)) * angle_lfo);
 			}
 		}
 
@@ -235,9 +210,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		{
 			for(i = start; i < end; i++)
 			{
-				// TODO: change 1.0 to variable.
-				// 			Variable for min/max
-				buffer_lfo_float[i] = gen_triangle_integral( (sample_count+(i-start)) % samples_cycle_lfo, samples_half_cycle_lfo, 1.0);
+				buffer_lfo_float[i] = gen_triangle_integral_angle( (sample_count+(i-start)) * angle_lfo);
 			}
 		}
 	}
@@ -258,78 +231,43 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// FM for sine wave VCO.
-	else if(wav_vco == WAVE_SINE && mod_type == MOD_FM && wav_lfo == WAVE_SINE)
+	else if(wav_vco == WAVE_SINE && mod_type == MOD_FM)
 	{
 		for(i = start; i < end; i++)
 		{
 			// Using 40 for sine modulated with sine
-			// TODO: consider changing 40 to a variable.
-			buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco + 40*buffer_lfo_float[i]);
-			buffer_output[i] = buffer_vco[i];
-		}
-	}
-
-	// FM for sine wave VCO, square LFO.
-	else if(wav_vco == WAVE_SINE && mod_type == MOD_FM && wav_lfo == WAVE_SQUARE)
-	{
-		for(i = start; i < end; i++)
-		{
-			// For modulating with square and sawtooth wave
-			buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32( (sample_count+(i-start))*angle_vco*buffer_lfo_float[i] );
-			buffer_output[i] = buffer_vco[i];
-		}
-	}
-
-	// FM for sine wave VCO.
-	else if(wav_vco == WAVE_SINE && mod_type == MOD_FM && ( wav_lfo == WAVE_SAWTOOTH ||  wav_lfo == WAVE_TRIANGLE))
-	{
-		for(i = start; i < end; i++)
-		{
-			// For modulating with square and sawtooth wave
-			// buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32( (sample_count+(i-start))*angle_vco*buffer_lfo_float[i] );
-			// buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32( ( (sample_count+(i-start)) % samples_cycle_lfo) *angle_vco*buffer_lfo_float[i] );
-			buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32( ( (sample_count+(i-start)) % samples_cycle_lfo) * angle_vco + 1000*buffer_lfo_float[i] );
+			// TODO: consider changing 1000 to a variable.
+			buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco + 1000*buffer_lfo_float[i]);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
 
 	// FM for square wave VCO.
-	// TODO: Fix glitchiness. I think just needs offset, fm_mod_level, etc adjusted.
-	// TODO: Use integral fm modulation formula.  See if sawtooth vco version works here.
 	else if(wav_vco == WAVE_SQUARE && mod_type == MOD_FM)
 	{
 		for(i = start; i < end; i++)
 		{
-			// buffer_vco[i] = vco_amp * square( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle + 20*buffer_lfo_float[i]) ), ( samples_cycle + 20*buffer_lfo_float[i])/2 );
-
-			buffer_vco[i] = vco_amp * gen_square( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), ( samples_cycle_vco*fm_mod_level*buffer_lfo_float[i])/2 );
+			buffer_vco[i] = vco_amp + vco_amp * gen_square_angle((sample_count+(i-start))*angle_vco + 50*buffer_lfo_float[i]);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
 
 	// FM for sawtooth wave VCO.
-	// TODO: Works for sine LFO.  Crappy for sawtooth LFO.  Check gain, offset.
 	else if(wav_vco == WAVE_SAWTOOTH && mod_type == MOD_FM)
 	{
 		for(i = start; i < end; i++)
 		{
-			// buffer_vco[i] = 40 * sawtooth(  samples_cycle - ((sample_count+i) % samples_cycle));
-
-			// During call to sawtooth, I think do...
-			//		samples_cycle - (sample_count+(i-start)) ...
-			// Because, otherwise the sawtooth waveform appears backwards.
-			buffer_vco[i] = vco_amp * gen_sawtooth( samples_cycle_vco - (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), samples_cycle_vco*fm_mod_level*buffer_lfo_float[i], sawtooth_vco_min, sawtooth_vco_max);
+			buffer_vco[i] = vco_amp + vco_amp * gen_sawtooth_angle((sample_count+(i-start))*angle_vco + 400*buffer_lfo_float[i]);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
 
 	// FM for triangle wave VCO.
-	// TODO: fix this...
 	else if(wav_vco == WAVE_TRIANGLE && mod_type == MOD_FM)
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = vco_amp * gen_triangle( (sample_count+(i-start)) % ( (uint16_t)(samples_cycle_vco*fm_mod_level*buffer_lfo_float[i]) ), samples_half_cycle_vco*fm_mod_level*buffer_lfo_float[i], 1.0);
+			buffer_vco[i] = vco_amp + vco_amp * gen_triangle_angle((sample_count+(i-start))*angle_vco + 100*buffer_lfo_float[i]);
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -345,7 +283,8 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	// ADSR: Attack decay sustain release
 	// The waveform contains 5 segments (asdr + a blank space)
-	// TODO: There is a tick every 10s... seems specific to the ADSR.
+	// TODO: There is a tick every 10s... seems specific to the ADSR.  Caused by sample_count rollover.
+	// TODO: Choose some good adsr preset values.
 	if(adsr)
 	{
 		for(i = start; i < end; i++)
@@ -386,8 +325,8 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		}
 	}
 
-	// Remember lfo phase and resume next run of callback.
-	sample_count = (sample_count + (i-start)) % TEN_SECOND;
+	sample_count = sample_count + (i - start);
+	sample_count = sample_count % TWO_SECOND;
 
 	return;
 }
@@ -408,6 +347,20 @@ float32_t gen_square(uint16_t current_sample, uint16_t samples_half_cycle)
 	}
 	return square_max;
 }
+
+/* Parameters:
+ * 	angle: normalized angle between 0 and 2*PI.  Similar to sine function.
+ */
+float32_t gen_square_angle(float32_t angle)
+{
+	angle = fmod(angle, 2*PI);
+	if (angle < PI)
+	{
+		return -1;
+	}
+	return 1;
+}
+
 
 /*
  * sawtooth()
@@ -440,6 +393,38 @@ float32_t gen_sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_
 	return val;
 }
 
+float32_t gen_sawtooth_angle(float32_t angle)
+{
+	float32_t m = 0.0;
+	float32_t val = 0.0;
+
+	angle = fmod(angle, 2*PI);
+
+	// y = mx + b
+	m = 2/(2*PI);	// TODO: # define for PI, 2*PI, 1/2*PI
+	val = -1+angle*m;
+	return val;
+}
+
+float32_t gen_sawtooth_integral_angle(float32_t angle)
+{
+	float32_t val = 0.0;
+	float32_t m = 0.0;
+
+	angle = fmod(angle, 2*PI);		// TODO: pull this out into generate_waveforms().
+	m = 1/(2*PI);					// TODO: # define for PI, 2*PI, 1/2*PI
+
+	// val = -1+angle*m;
+
+	val = m*angle;			// Generate linear value between 0 and 1
+	val = val*val;			// Square it.  Produces parabola y: 0 to 1
+	val = val*2;			// Double it.
+	val = val - 1;			// Shift it down
+	return val;
+}
+
+
+
 float32_t gen_rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
 {
 	float32_t m = 0.0;
@@ -452,6 +437,19 @@ float32_t gen_rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_
 	m = (min - max)/samples_cycle;
 	val = m * current_sample + max;
 
+	return val;
+}
+
+float32_t gen_rampdown_angle(float32_t angle)
+{
+	float32_t m = 0.0;
+	float32_t val = 0.0;
+
+	angle = fmod(angle, 2*PI);		// TODO: pull this out into generate_waveforms().
+
+	// y = mx + b
+	m = -1/(2*PI);
+	val = angle*m;
 	return val;
 }
 
@@ -472,6 +470,28 @@ float32_t gen_triangle(uint32_t current_sample, uint32_t samples_half_cycle, flo
 	return amp + (m * (int32_t)(samples_half_cycle - current_sample));
 }
 
+float32_t gen_triangle_angle(float32_t angle)
+{
+	float32_t val = 0.0;
+	float32_t m = 0.0;
+
+	// Increase from a negative value to its opposite value. Eg. -1 to 1 over 1/2 the wave's period
+	// Then decrease from 1 to -1 over 1/2 the wave's period
+
+	angle = fmod(angle, 2*PI);		// TODO: pull this out into generate_waveforms().
+	m = 2/(PI);
+	if (angle < PI)
+	{
+		val = -1 + m*angle;
+		return val;
+	}
+	// Make sure difference can be negative.
+	// return amp + (m * (int32_t)(samples_half_cycle - current_sample));
+	val =  3 - m*angle;
+	return val;
+}
+
+
 
 float32_t gen_triangle_integral(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp)
 {
@@ -490,4 +510,32 @@ float32_t gen_triangle_integral(uint32_t current_sample, uint32_t samples_half_c
 	// Make sure difference can be negative.
 	result = amp + (m * (int32_t)(samples_half_cycle - current_sample));
 	return -(result*result);
+}
+
+// Integral of triangle wave is convex parabola going up and then concave parabola going down.
+float32_t gen_triangle_integral_angle(float32_t angle)
+{
+	float32_t val = 0.0;
+	float32_t m = 0.0;
+
+	angle = fmod(angle, 2*PI);		// TODO: pull this out into generate_waveforms().
+	m = 1/(PI);
+	if (angle < PI)
+
+	if(angle < PI)
+	{
+		val = m*angle;			// Generate linear value between 0 and 1
+		val = val*val;			// Square it.  Produces parabola y: 0 to 1
+		val = val*2;			// Double it.
+		val = val - 1;			// Shift it down
+		return val;
+	}
+
+	angle = angle - PI;
+	val = m*angle;			// Generate linear value between 0 and 1
+	val = val*val;			// Square it.  Produces parabola y: 0 to 1
+	val = 1 - val;			// Turn it upside down
+	val = val*2;			// Double it
+	val = val - 1;			// Shift it down
+	return val;
 }
