@@ -9,23 +9,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-
 volatile uint16_t buffer_output[BUFF_LEN] = {0};
 volatile uint16_t buffer_vco[BUFF_LEN] = {0};
+volatile uint16_t buffer_vco2[BUFF_LEN] = {0};
 volatile float32_t buffer_lfo_float[BUFF_LEN] = {0};
 volatile float32_t buffer_adsr[BUFF_LEN] = {0};			// Attack, sustain, decay, release
 
 // TODO: organize these globals into struct(s)
-volatile uint16_t freq_vco = 650;
-volatile float32_t freq_lfo = 10.0;						// Moderate LFO frequency
+// TODO: it might be that odd frequencies cause the ticking.  Might be able to detect with mod, fmod.
+volatile uint16_t freq_vco = 700;
+volatile uint16_t freq_vco2 = 701;
+volatile float32_t freq_lfo = 1.7;						// Moderate LFO frequency
 volatile uint32_t sample_count = 0;
 
-uint16_t wav_vco = WAVE_SQUARE;
+uint16_t wav_vco = WAVE_SINE;
 uint16_t wav_lfo = WAVE_SINE;
 uint16_t mod_type = MOD_FM;
 
 float32_t vco_amp = VCO_AMP;
-float32_t lfo_amp = 1.0;
+// float32_t lfo_amp = 1.0;
 float32_t lfo_offset = 2.0;
 
 float32_t square_min = 0.4;
@@ -39,10 +41,8 @@ float32_t sawtooth_lfo_max = 1.0;
 
 float32_t fm_mod_level = 0.6;
 
-
-
 // ADSR - Attack Decay Sustain Release
-uint16_t adsr = 1;									// Enable/disable ADSR.
+uint16_t adsr = 0;									// Enable/disable ADSR.
 
 // Set ADSR lengths in numbers of samples.
 // It's easier to think in terms of length, but it's easier to program in terms of start-end.
@@ -68,10 +68,32 @@ uint32_t blank_end = 0;
 // extern uint16_t adc_value;
 
 
+// uint16_t vfo_amp;
+
 // For first half of buffer, start = 0; end = buff_len/2
 // For second half, start = buff_len/2; end = buff_len
+
+/* Very important
+ *
+ * 1) Set max_sample_count to 48000 (= HALF_SECOND)
+ * 2) And set sample_count to roll over at TEN_SECOND:
+ * 		sample_count = sample_count % (TEN_SECOND);
+ * For some reason, certain combinations of these values will cause ticking in vco and/or lfo.
+ * But these HALF_SECOND and TEN_SECOND appear to avoid that.
+ *
+ * There is still a problem with the ADSR -- if it's length doesn't line up with TEN_SECOND, it makes a phase-click.
+ *
+ */
 void generate_waveforms(uint16_t start, uint16_t end)
 {
+	// TODO: time this function call to estimate processor load.
+	
+	uint32_t max_sample_count = HALF_SECOND/2;
+
+	// freq_vco = ( (float32_t) (ADCBuffer[1] & 0xffa0) / 50);
+	// freq_lfo = ( (float32_t) (ADCBuffer[0] & 0xffa0) / 500);
+
+
 	// Calculate start-end boundaries for each of attack, sustain, ...
 	// TODO: uncomment after testing.
 //	a_start = 0;
@@ -97,8 +119,11 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// freq_lfo = adc_value;
 
 	// For sine waveforms.
-	volatile float32_t angle_vco = freq_vco*PI/SAMPLERATE;
-	volatile float32_t angle_lfo = freq_lfo*PI/SAMPLERATE;
+	// TOOD: testing
+	// volatile float32_t angle_vco = freq_vco*PI/SAMPLERATE;
+	volatile float32_t angle_vco = freq_vco*PI/(max_sample_count);	// 'angle' based samples per cycle.
+	volatile float32_t angle_vco2 = freq_vco2*PI/(max_sample_count);
+	volatile float32_t angle_lfo = freq_lfo*PI/(max_sample_count);
 
 	// For adsr
 	volatile uint32_t sample_cycle_adsr = attack_len + decay_len + sustain_len + blank_len;
@@ -108,7 +133,9 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco);
+			buffer_vco[i] = vco_amp/2 + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco);
+			buffer_vco2[i] = vco_amp/2 + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco2);
+			buffer_vco[i] = buffer_vco[i] + buffer_vco2[i];
 		}
 	}
 
@@ -141,15 +168,15 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// SINE LFO
 	if(wav_lfo == WAVE_SINE)
 	{
-		if(wav_vco == WAVE_SAWTOOTH || wav_vco == WAVE_TRIANGLE)
-		{
-			lfo_offset = 0.5;
-			lfo_amp = 0.25;
-		}
+//		if(wav_vco == WAVE_SAWTOOTH || wav_vco == WAVE_TRIANGLE)
+//		{
+//			lfo_offset = 0.5;
+//			lfo_amp = 0.25;
+//		}
 
 		for(i = start; i < end; i++)
 		{
-			buffer_lfo_float[i] = lfo_offset + lfo_amp*arm_sin_f32((sample_count+(i-start))*angle_lfo);
+			buffer_lfo_float[i] = arm_sin_f32((sample_count+(i-start))*angle_lfo);
 		}
 	}
 
@@ -237,7 +264,9 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		{
 			// Using 40 for sine modulated with sine
 			// TODO: consider changing 1000 to a variable.
-			buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco + 1000*buffer_lfo_float[i]);
+			buffer_vco[i] = vco_amp/2 + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco + 100*buffer_lfo_float[i]);
+			buffer_vco2[i] = vco_amp/2 + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco2 + 100*buffer_lfo_float[i]);
+			buffer_vco[i] = buffer_vco[i] + buffer_vco2[i];
 			buffer_output[i] = buffer_vco[i];
 		}
 	}
@@ -326,7 +355,13 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	sample_count = sample_count + (i - start);
-	sample_count = sample_count % TWO_SECOND;
+	// sample_count = sample_count % TEN_SECOND; 	//no skipping for lfo = 1.2 Hz.
+	// sample_count = sample_count % FIVE_SECOND;	//no skipping for lfo = 1.2 Hz
+	// sample_count = sample_count % (FIVE_SECOND/2);	//no skipping for lfo = 1.2 Hz  SKIPS for lfo = 1.7 Hz
+	// sample_count = sample_count % (FIVE_SECOND/4);	// SKIPS for lfo = 1.2 Hz
+	// sample_count = sample_count % (max_sample_count);	//no skipping for lfo = 1.2 Hz  SKIPS for lfo = 1.7 Hz
+	sample_count = sample_count % (TEN_SECOND);
+
 
 	return;
 }

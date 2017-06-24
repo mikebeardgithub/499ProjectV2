@@ -19,12 +19,13 @@
 #include "stm32f4xx_it.h"
 
 #define SAMPLERATE              48000
-#define ONE_SECOND				96000			// Two seconds worth of samples (per channel).
+#define HALF_SECOND				48000			// Half second worth of samples (per channel).
+#define ONE_SECOND				96000			// One second worth of samples (per channel).
 #define TWO_SECOND				192000			// Two seconds worth of samples (per channel).
 #define FIVE_SECOND				480000			// Four seconds worth of samples (per channel).
 #define TEN_SECOND				960000			// Four seconds worth of samples (per channel).
 
-#define VOL                     80
+#define VOL                     70
 #define BUFF_LEN                64
 
 /* TODO: Used by Horrorophone project -- remove and test */
