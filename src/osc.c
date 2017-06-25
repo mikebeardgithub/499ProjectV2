@@ -17,16 +17,16 @@ volatile float32_t buffer_adsr[BUFF_LEN] = {0};			// Attack, sustain, decay, rel
 
 // TODO: organize these globals into struct(s)
 // TODO: it might be that odd frequencies cause the ticking.  Might be able to detect with mod, fmod.
-volatile uint16_t freq_vco = 700;
-volatile uint16_t freq_vco2 = 701;
-volatile float32_t freq_lfo = 1.7;						// Moderate LFO frequency
+volatile float32_t freq_vco = 700.0;
+volatile float32_t freq_vco2 = 710.0;
+volatile float32_t freq_lfo = 1.0;						// Moderate LFO frequency
 volatile uint32_t sample_count = 0;
 
-uint16_t wav_vco = WAVE_SINE;
-uint16_t wav_lfo = WAVE_SINE;
+uint16_t wav_vco = WAVE_TRIANGLE;
+uint16_t wav_lfo = WAVE_TRIANGLE;
 uint16_t mod_type = MOD_FM;
 
-float32_t vco_amp = VCO_AMP;
+float32_t vco_amp = VCO_AMP/2;
 // float32_t lfo_amp = 1.0;
 float32_t lfo_offset = 2.0;
 
@@ -88,21 +88,15 @@ void generate_waveforms(uint16_t start, uint16_t end)
 {
 	// TODO: time this function call to estimate processor load.
 	
-	uint32_t max_sample_count = HALF_SECOND/2;
+	uint32_t max_sample_count = HALF_SECOND/2;	// Good
 
 	// freq_vco = ( (float32_t) (ADCBuffer[1] & 0xffa0) / 50);
-	// freq_lfo = ( (float32_t) (ADCBuffer[0] & 0xffa0) / 500);
+	freq_lfo = (float)ADCBuffer[0];
+	freq_lfo = floor(freq_lfo / 100);
+	freq_lfo = freq_lfo / 10;
 
 
 	// Calculate start-end boundaries for each of attack, sustain, ...
-	// TODO: uncomment after testing.
-//	a_start = 0;
-//	d_start = attack_len;
-//	s_start = d_start + decay_len;
-//	r_start = s_start + sustain_len;
-//	b_start = r_start + release_len;
-//	b_end = b_start + blank_len;
-
 	attack_start = 0;
 	decay_start = attack_len;
 	sustain_start = decay_start + decay_len;
@@ -116,13 +110,12 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	volatile int i = 0;
 
-	// freq_lfo = adc_value;
-
 	// For sine waveforms.
 	// TOOD: testing
 	// volatile float32_t angle_vco = freq_vco*PI/SAMPLERATE;
-	volatile float32_t angle_vco = freq_vco*PI/(max_sample_count);	// 'angle' based samples per cycle.
-	volatile float32_t angle_vco2 = freq_vco2*PI/(max_sample_count);
+	volatile float32_t angle_vco = freq_vco*PI_DIV_2/(max_sample_count);	// 'angle' based samples per cycle.
+	volatile float32_t angle_vco2 = freq_vco2*PI_DIV_2/(max_sample_count);	// 'angle' based samples per cycle.
+	// volatile float32_t angle_vco2 = angle_vco;
 	volatile float32_t angle_lfo = freq_lfo*PI/(max_sample_count);
 
 	// For adsr
@@ -133,35 +126,45 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = vco_amp/2 + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco);
-			buffer_vco2[i] = vco_amp/2 + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco2);
+			buffer_vco[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco);
+			buffer_vco2[i] = vco_amp + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco2);
 			buffer_vco[i] = buffer_vco[i] + buffer_vco2[i];
 		}
 	}
 
 	// Square VCO
-	else if(wav_vco == WAVE_SQUARE && mod_type != MOD_FM)
+	if(wav_vco == WAVE_SQUARE && mod_type != MOD_FM)
 	{
 		for(i = start; i < end; i++)
 		{
 			buffer_vco[i] = vco_amp + vco_amp * gen_square_angle((sample_count+(i-start)) * angle_vco);
+			buffer_vco2[i] = vco_amp + vco_amp * gen_square_angle((sample_count+(i-start)) * angle_vco2);
+			buffer_vco[i] = buffer_vco[i] + buffer_vco2[i];
 		}
 	}
 
 	// Sawtooth VCO
-	else if(wav_vco == WAVE_SAWTOOTH && mod_type != MOD_FM)
+	if(wav_vco == WAVE_SAWTOOTH && mod_type != MOD_FM)
 	{
 		for(i = start; i < end; i++)
 		{
+			// angle = (sample_count+(i-start)) * angle_vco;
+
 			buffer_vco[i] = vco_amp + vco_amp * gen_sawtooth_angle((sample_count+(i-start)) * angle_vco);
+			buffer_vco2[i] = vco_amp + vco_amp * gen_sawtooth_angle((sample_count+(i-start)) * angle_vco2);
+			buffer_vco[i] = buffer_vco[i] + buffer_vco2[i];
 		}
 	}
 
-	else if(wav_vco == WAVE_TRIANGLE && mod_type != MOD_FM)
+	// Triangle VCO
+	if(wav_vco == WAVE_TRIANGLE && mod_type != MOD_FM)
 	{
 		for(i = start; i < end; i++)
 		{
 			buffer_vco[i] = vco_amp + vco_amp * gen_triangle_angle((sample_count+(i-start)) * angle_vco);
+			buffer_vco2[i] = vco_amp + vco_amp * gen_triangle_angle((sample_count+(i-start)) * angle_vco2);
+			buffer_vco[i] = buffer_vco[i] + buffer_vco2[i];
+
 		}
 	}
 
@@ -182,6 +185,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	// Square LFO
 	// TODO: amplitude adjustment -- so it's not just 000011111, but could be 0.2 0.2 0.2 0.6 0.6 0.6
+	// 			use square_min and square_max or use amp and offset.
 	else if(wav_lfo == WAVE_SQUARE)
 	{
 		if(mod_type != MOD_FM)
@@ -266,8 +270,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			// TODO: consider changing 1000 to a variable.
 			buffer_vco[i] = vco_amp/2 + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco + 100*buffer_lfo_float[i]);
 			buffer_vco2[i] = vco_amp/2 + vco_amp*arm_sin_f32((sample_count+(i-start))*angle_vco2 + 100*buffer_lfo_float[i]);
-			buffer_vco[i] = buffer_vco[i] + buffer_vco2[i];
-			buffer_output[i] = buffer_vco[i];
+			buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
 		}
 	}
 
@@ -277,7 +280,8 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		for(i = start; i < end; i++)
 		{
 			buffer_vco[i] = vco_amp + vco_amp * gen_square_angle((sample_count+(i-start))*angle_vco + 50*buffer_lfo_float[i]);
-			buffer_output[i] = buffer_vco[i];
+			buffer_vco2[i] = vco_amp + vco_amp * gen_square_angle((sample_count+(i-start))*angle_vco2 + 50*buffer_lfo_float[i]);
+			buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
 		}
 	}
 
@@ -286,8 +290,9 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = vco_amp + vco_amp * gen_sawtooth_angle((sample_count+(i-start))*angle_vco + 400*buffer_lfo_float[i]);
-			buffer_output[i] = buffer_vco[i];
+			buffer_vco[i] = vco_amp + vco_amp * gen_sawtooth_angle((sample_count+(i-start))*angle_vco + 50*buffer_lfo_float[i]);
+			buffer_vco2[i] = vco_amp + vco_amp * gen_sawtooth_angle((sample_count+(i-start))*angle_vco2 + 50*buffer_lfo_float[i]);
+			buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
 		}
 	}
 
@@ -296,8 +301,9 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = vco_amp + vco_amp * gen_triangle_angle((sample_count+(i-start))*angle_vco + 100*buffer_lfo_float[i]);
-			buffer_output[i] = buffer_vco[i];
+			buffer_vco[i] = vco_amp + vco_amp * gen_triangle_angle((sample_count+(i-start))*angle_vco + 50*buffer_lfo_float[i]);
+			buffer_vco2[i] = vco_amp + vco_amp * gen_triangle_angle((sample_count+(i-start))*angle_vco2 + 50*buffer_lfo_float[i]);
+			buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
 		}
 	}
 
@@ -433,10 +439,10 @@ float32_t gen_sawtooth_angle(float32_t angle)
 	float32_t m = 0.0;
 	float32_t val = 0.0;
 
-	angle = fmod(angle, 2*PI);
+	angle = fast_fmod(angle, 2*PI);
 
 	// y = mx + b
-	m = 2/(2*PI);	// TODO: # define for PI, 2*PI, 1/2*PI
+	m = ONE_DIV_PI;
 	val = -1+angle*m;
 	return val;
 }
@@ -446,19 +452,19 @@ float32_t gen_sawtooth_integral_angle(float32_t angle)
 	float32_t val = 0.0;
 	float32_t m = 0.0;
 
-	angle = fmod(angle, 2*PI);		// TODO: pull this out into generate_waveforms().
-	m = 1/(2*PI);					// TODO: # define for PI, 2*PI, 1/2*PI
-
-	// val = -1+angle*m;
-
+	angle = fast_fmod(angle, 2*PI);
+	m = ONE_DIV_2_PI;
 	val = m*angle;			// Generate linear value between 0 and 1
 	val = val*val;			// Square it.  Produces parabola y: 0 to 1
 	val = val*2;			// Double it.
 	val = val - 1;			// Shift it down
 	return val;
+
+	// Test
+	// return 2*(m*angle)*2 - 1;
+
+	// return 0;
 }
-
-
 
 float32_t gen_rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
 {
@@ -480,10 +486,10 @@ float32_t gen_rampdown_angle(float32_t angle)
 	float32_t m = 0.0;
 	float32_t val = 0.0;
 
-	angle = fmod(angle, 2*PI);		// TODO: pull this out into generate_waveforms().
+	angle = fast_fmod(angle, 2*PI);		// TODO: pull this out into generate_waveforms().
 
 	// y = mx + b
-	m = -1/(2*PI);
+	m = -ONE_DIV_2_PI;
 	val = angle*m;
 	return val;
 }
@@ -513,8 +519,8 @@ float32_t gen_triangle_angle(float32_t angle)
 	// Increase from a negative value to its opposite value. Eg. -1 to 1 over 1/2 the wave's period
 	// Then decrease from 1 to -1 over 1/2 the wave's period
 
-	angle = fmod(angle, 2*PI);		// TODO: pull this out into generate_waveforms().
-	m = 2/(PI);
+	angle = fast_fmod(angle, 2*PI);		// TODO: pull this out into generate_waveforms().
+	m = TWO_DIV_PI;
 	if (angle < PI)
 	{
 		val = -1 + m*angle;
@@ -553,8 +559,8 @@ float32_t gen_triangle_integral_angle(float32_t angle)
 	float32_t val = 0.0;
 	float32_t m = 0.0;
 
-	angle = fmod(angle, 2*PI);		// TODO: pull this out into generate_waveforms().
-	m = 1/(PI);
+	angle = fast_fmod(angle, 2*PI);		// TODO: pull this out into generate_waveforms().
+	m = ONE_DIV_PI;
 	if (angle < PI)
 
 	if(angle < PI)
@@ -574,3 +580,16 @@ float32_t gen_triangle_integral_angle(float32_t angle)
 	val = val - 1;			// Shift it down
 	return val;
 }
+
+/*
+ * Found similar function at this address: https://cboard.cprogramming.com/c-programming/105096-fmod.html
+ * Modified it to work with float32_t.
+ * NOTE: Possible alternative found here: https://stackoverflow.com/questions/26342823/implementation-of-fmod-function
+ * 	return (a - b * floor(a / b));
+ */
+float32_t fast_fmod(float32_t x,float32_t y)
+{
+	float32_t a;
+	return ( (a = x/y ) - (uint32_t)a ) * y;
+}
+

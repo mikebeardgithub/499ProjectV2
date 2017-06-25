@@ -25,7 +25,13 @@
 #define FIVE_SECOND				480000			// Four seconds worth of samples (per channel).
 #define TEN_SECOND				960000			// Four seconds worth of samples (per channel).
 
-#define VOL                     70
+#define TWO_PI					6.28318530718
+#define ONE_DIV_PI				0.31830988618
+#define TWO_DIV_PI				0.63661977236
+#define PI_DIV_2				1.57079632679
+#define ONE_DIV_2_PI			0.15915494309
+
+#define VOL                     80
 #define BUFF_LEN                64
 
 /* TODO: Used by Horrorophone project -- remove and test */
@@ -64,5 +70,7 @@ float32_t gen_sawtooth_integral_angle(float32_t angle);
 float32_t gen_rampdown_angle(float32_t angle);
 float32_t gen_triangle_angle(float32_t angle);
 float32_t gen_triangle_integral_angle(float32_t angle);
+
+float32_t fast_fmod(float32_t x, float32_t y);
 
 #endif /* OSC_H_ */

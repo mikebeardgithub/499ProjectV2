@@ -73,7 +73,7 @@ volatile uint16_t adc_value;
 int main(void)
 {
 	// ADC
-	adc_value = ADCBuffer[0];
+	// adc_value = ADCBuffer[0];
 
 	/**
 	*  IMPORTANT NOTE!
