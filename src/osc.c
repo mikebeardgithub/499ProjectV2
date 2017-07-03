@@ -26,11 +26,11 @@ osc_setting osc =
 	.freq_lfo = 1.75,						// Moderate LFO frequency
 
 	.wav_vco = WAVE_TRIANGLE,
-	.wav_lfo = WAVE_NONE,
+	.wav_lfo = WAVE_TRIANGLE,
 	.mod_type = MOD_NONE,
 
 	.vco_amp = VCO_AMP/2,
-	.vco_amp2 = VCO_AMP/6,
+	.vco_amp2 = VCO_AMP/10,
 	.lfo_offset = 2.0,
 
 	.square_min = 0.4,
@@ -51,33 +51,38 @@ volatile uint32_t sample_count_lfo = 0;
 volatile uint32_t sample_count_adsr = 0;
 
 // ADSR - Attack Decay Sustain Release
-uint16_t adsr = ON;									// Enable/disable ADSR.
+uint16_t adsr = OFF;						// Enable/disable ADSR.
 
-// Set ADSR lengths in numbers of samples.
-// It's easier to think in terms of length, but it's easier to program in terms of start-end.
+/*
+ *	Set ADSR lengths in numbers of samples.
+ */
+
+// Percussive
 adsr_setting adsr_01 = {
+		.attack_amp=1.0,
+		.decay_amp=0.7,
+		.sustain_amp=0.7,
+
+		.attack_len=200,
+		.decay_len=200,
+		.sustain_len=3500,
+		.release_len=700,
+		.blank_len=14000
+};
+
+// Bell
+adsr_setting adsr_02 = {
 		.attack_amp=1.0,
 		.decay_amp=0.3,
 		.sustain_amp=0.3,
 
-		.attack_len=400,
-		.decay_len=400,
-		.sustain_len=6500,
-		.release_len=700,
-		.blank_len=8000
+		.attack_len=300,
+		.decay_len=300,
+		.sustain_len=10000,
+		.release_len=30000,
+		.blank_len=30000
 };
 
-adsr_setting adsr_02 = {
-		.attack_amp=1.0,
-		.decay_amp=0.5,
-		.sustain_amp=0.5,
-
-		.attack_len=20,
-		.decay_len=10000,
-		.sustain_len=0,
-		.release_len=10000,
-		.blank_len=20000
-};
 
 adsr_setting adsr_03 = {
 		.attack_amp=1.0,
@@ -85,6 +90,18 @@ adsr_setting adsr_03 = {
 		.sustain_amp=0.5,
 
 		.attack_len=5000,
+		.decay_len=500,
+		.sustain_len=30000,
+		.release_len=900,
+		.blank_len=40000
+};
+
+adsr_setting adsr_04 = {
+		.attack_amp=1.0,
+		.decay_amp=0.3,
+		.sustain_amp=0.5,
+
+		.attack_len=300,
 		.decay_len=500,
 		.sustain_len=30000,
 		.release_len=900,
@@ -120,7 +137,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 //	freq_lfo = freq_lfo / 10;
 
 
-	adsr_setting adsr_settings = adsr_03;
+	adsr_setting adsr_settings = adsr_04;
 
 	// TODO: probably don't need to recalc over and over
 	// Calculate start-end boundaries for each of attack, sustain, ...
@@ -131,21 +148,16 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	blank_start = release_start + adsr_settings.release_len;
 	blank_end = blank_start + adsr_settings.blank_len;
 
-	// TODO: test frequency accuracy.
 	// TODO: Consider using arm_sin_q15 instead of arm_sin_f32.  However, results might cause clipping.
-	// TODO: Store vco default amplitude in global and set with a defined value.
-
 	volatile int i = 0;
 
 
 	// TODO: probably don't need to recalc over and over
-	// volatile float32_t angle_vco = freq_vco*PI/SAMPLERATE;
 	volatile float32_t angle_vco = osc.freq_vco*PI_DIV_2/(max_sample_count);	// 'angle' based samples per cycle.
 	volatile float32_t angle_vco2 = osc.freq_vco2*PI_DIV_2/(max_sample_count);	// 'angle' based samples per cycle.
-	// volatile float32_t angle_vco2 = angle_vco;
 	volatile float32_t angle_lfo = osc.freq_lfo*PI/(max_sample_count);
 
-	// volatile float32_t samples_cycle_vco = SAMPLERATE / freq_vco;
+	volatile float32_t samples_cycle_vco = SAMPLERATE / osc.freq_vco;
 	volatile uint32_t samples_cycle_lfo = SAMPLERATE / osc.freq_lfo;
 	volatile uint32_t samples_cycle_adsr = adsr_settings.attack_len + adsr_settings.decay_len + adsr_settings.sustain_len + adsr_settings.release_len + adsr_settings.blank_len;
 
@@ -165,9 +177,18 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = osc.vco_amp + osc.vco_amp * gen_square_angle((sample_count_vco+(i-start)) * angle_vco);
-			// buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2 * gen_square_angle((sample_count_vco+(i-start)) * angle_vco2);
-			// buffer_vco[i] = buffer_vco[i] + buffer_vco2[i];
+//			if (fast_fmod( (sample_count_vco+(i-start) ) * angle_vco, 2*PI) < PI)
+//			{
+//				buffer_vco[i] = -2000;
+//			}
+//			else
+//			{
+//				buffer_vco[i] = 2000;
+//			}
+
+			 buffer_vco[i] = osc.vco_amp + osc.vco_amp * gen_square_angle((sample_count_vco+(i-start)) * angle_vco);
+			 // buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2 * gen_square_angle((sample_count_vco+(i-start)) * angle_vco2);
+			 // buffer_vco[i] = buffer_vco[i] + buffer_vco2[i];
 		}
 	}
 
@@ -201,9 +222,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	{
 		for(i = start; i < end; i++)
 		{
-			// buffer_lfo_float[i] = arm_sin_f32((sample_count+(i-start))*angle_lfo);
 			buffer_lfo_float[i] = arm_sin_f32((sample_count_lfo+(i-start))*angle_lfo);
-
 		}
 	}
 
@@ -387,12 +406,11 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	// TODO: there should be multiple sample_counts: for vco, lfo, and adsr.
 	// Might need to modulus each based on wavelenth in samples.
-	sample_count = sample_count + (i - start);
-	sample_count = sample_count % (TEN_SECOND);
+//	sample_count = sample_count + (i - start);
+//	sample_count = sample_count % (TEN_SECOND);
 
-	sample_count_vco = sample_count;
-//	sample_count_vco = sample_count + (i - start);
-//	sample_count_vco = sample_count_vco % samples_cycle_vco;
+	sample_count_vco = sample_count_vco + (i - start);
+	sample_count_vco = sample_count_vco % TEN_SECOND;
 
 	sample_count_lfo = sample_count_lfo + (i - start);
 	sample_count_lfo = sample_count_lfo % samples_cycle_lfo;
@@ -611,6 +629,18 @@ float32_t gen_triangle_integral_angle(float32_t angle)
 	val = val*2;			// Double it
 	val = val - 1;			// Shift it down
 	return val;
+}
+
+/*
+ * Param: value - sample value
+ * Returns: running accumulation of values.
+ * Assumes that input signal is centered around zero, so that accumulation centers around zero.
+ */
+float32_t integration(float32_t value)
+{
+	static float32_t sum;
+	sum = sum + value;
+	return sum;
 }
 
 /*
