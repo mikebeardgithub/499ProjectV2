@@ -57,6 +57,49 @@
 #define LFO_AMP_FM				0.5
 #define LFO_AMP_FM2				10
 
+
+typedef struct osc_setting
+{
+	volatile float32_t freq_vco;
+	volatile float32_t freq_vco2;
+	volatile float32_t freq_lfo;
+
+	uint16_t wav_vco;
+	uint16_t wav_lfo;
+	uint16_t mod_type;
+
+	float32_t vco_amp;
+	float32_t vco_amp2;
+	// float32_t lfo_amp;
+	float32_t lfo_offset;
+
+	float32_t square_min;
+	float32_t square_max;
+
+	float32_t sawtooth_vco_min;
+	float32_t sawtooth_vco_max;
+
+	float32_t sawtooth_lfo_min;
+	float32_t sawtooth_lfo_max;
+
+	float32_t fm_mod_level;
+
+} osc_setting;
+
+typedef struct adsr_setting
+{
+	float32_t attack_amp;
+	float32_t decay_amp;
+	float32_t sustain_amp;
+
+	uint32_t attack_len;
+	uint32_t decay_len;
+	uint32_t sustain_len;
+	uint32_t release_len;
+	uint32_t blank_len;			// Blank time between 'note'.  Can be zero.
+} adsr_setting;
+
+
 void generate_waveforms(uint16_t start, uint16_t end);
 float32_t gen_square(uint16_t current_sample, uint16_t samples_half_cycle);
 float32_t gen_sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max);
@@ -72,5 +115,7 @@ float32_t gen_triangle_angle(float32_t angle);
 float32_t gen_triangle_integral_angle(float32_t angle);
 
 float32_t fast_fmod(float32_t x, float32_t y);
+
+
 
 #endif /* OSC_H_ */
