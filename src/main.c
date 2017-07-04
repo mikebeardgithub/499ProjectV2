@@ -99,7 +99,7 @@ int main(void)
 	  /********************************testing variables gona leave in for know *****************************/
 
 	  //used for testing the selector
-//	  selector_state testvfo,testlfo;	//
+	selector_state testvfo,testlfo;		// will contain sine, sawtooth, ... the state of the selector.
 
 	  /* Used for Testing ADC Values can be thrown out*/
 //	  uint16_t vfo_amp = ADCBuffer[0];

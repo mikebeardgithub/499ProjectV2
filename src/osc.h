@@ -88,14 +88,14 @@ typedef struct osc_setting
 
 typedef struct adsr_setting
 {
-	float32_t attack_amp;
-	float32_t decay_amp;
+	// float32_t attack_amp;
+	// float32_t decay_amp;
 	float32_t sustain_amp;
 
 	uint32_t attack_len;
 	uint32_t decay_len;
 	uint32_t sustain_len;
-	uint32_t release_len;
+	// uint32_t release_len;
 	uint32_t blank_len;			// Blank time between 'note'.  Can be zero.
 } adsr_setting;
 
@@ -113,6 +113,8 @@ float32_t gen_sawtooth_integral_angle(float32_t angle);
 float32_t gen_rampdown_angle(float32_t angle);
 float32_t gen_triangle_angle(float32_t angle);
 float32_t gen_triangle_integral_angle(float32_t angle);
+
+float32_t integrate(float32_t value);
 
 float32_t fast_fmod(float32_t x, float32_t y);
 
