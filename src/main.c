@@ -99,7 +99,7 @@ int main(void)
 	  /********************************testing variables gona leave in for know *****************************/
 
 	  //used for testing the selector
-	selector_state testvfo,testlfo;		// will contain sine, sawtooth, ... the state of the selector.
+	// selector_state testvfo,testlfo;		// will contain sine, sawtooth, ... the state of the selector.
 
 	  /* Used for Testing ADC Values can be thrown out*/
 //	  uint16_t vfo_amp = ADCBuffer[0];
@@ -107,10 +107,10 @@ int main(void)
 //	  uint16_t lfo_amp = ADCBuffer[2];
 //	  uint16_t lfo_freq = ADCBuffer[3];
 //	  uint16_t volume = ADCBuffer[4];
-//	  uint16_t env_attack = ADCBuffer[5];
-//	  uint16_t env_decay = ADCBuffer[6];
-//	  uint16_t env_sustain = ADCBuffer[7];
-//	  uint16_t env_release = ADCBuffer[8];
+//	uint16_t env_attack = ADCBuffer[5];
+//	uint16_t env_decay = ADCBuffer[6];
+//	uint16_t env_sustain = ADCBuffer[7];
+//	uint16_t env_release = ADCBuffer[8];
 //	  uint16_t fc_low = ADCBuffer[9];
 //	  uint16_t fc_high = ADCBuffer[10];
 //	  uint16_t fc_resonance = ADCBuffer[11];

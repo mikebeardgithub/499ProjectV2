@@ -30,6 +30,7 @@
 #define TWO_DIV_PI				0.63661977236
 #define PI_DIV_2				1.57079632679
 #define ONE_DIV_2_PI			0.15915494309
+#define ONE_DIV_4_PI			0.07957747155
 
 #define VOL                     80
 #define BUFF_LEN                64
@@ -70,7 +71,7 @@ typedef struct osc_setting
 
 	float32_t vco_amp;
 	float32_t vco_amp2;
-	// float32_t lfo_amp;
+	float32_t lfo_amp;
 	float32_t lfo_offset;
 
 	float32_t square_min;
@@ -88,14 +89,12 @@ typedef struct osc_setting
 
 typedef struct adsr_setting
 {
-	// float32_t attack_amp;
-	// float32_t decay_amp;
 	float32_t sustain_amp;
 
 	uint32_t attack_len;
 	uint32_t decay_len;
 	uint32_t sustain_len;
-	// uint32_t release_len;
+	uint32_t release_len;
 	uint32_t blank_len;			// Blank time between 'note'.  Can be zero.
 } adsr_setting;
 
