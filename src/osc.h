@@ -108,6 +108,10 @@ float32_t gen_triangle_integral(uint32_t current_sample, uint32_t samples_half_c
 
 float32_t gen_square_angle(float32_t angle);
 float32_t gen_sawtooth_angle(float32_t angle);
+
+// TODO: test then rename
+float32_t gen_sawtooth_angle2( float32_t angle, float32_t delta, uint32_t len);
+
 float32_t gen_sawtooth_integral_angle(float32_t angle);
 float32_t gen_rampdown_angle(float32_t angle);
 float32_t gen_triangle_angle(float32_t angle);

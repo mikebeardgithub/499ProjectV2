@@ -22,13 +22,13 @@ volatile float32_t buffer_adsr_freq[BUFF_LEN] = {0};
 // TODO: it might be that odd frequencies cause the ticking.  Might be able to detect with mod, fmod.
 osc_setting osc =
 {
-	.freq_vco = 685.7,
-	.freq_vco2 = 690.7,
+	.freq_vco = 500.0,
+	.freq_vco2 = 505.0,
 	.freq_lfo = 1.75,						// Moderate LFO frequency
 
 	.wav_vco = WAVE_SINE,
 	.wav_lfo = WAVE_NONE,
-	.mod_type = MOD_FM,
+	.mod_type = MOD_NONE,
 
 	.vco_amp = VCO_AMP/2,
 	.vco_amp2 = VCO_AMP/10,
@@ -311,7 +311,27 @@ void generate_waveforms(uint16_t start, uint16_t end)
 //				buffer_adsr_freq[i] = 0.5 * buffer_adsr_freq[i] * buffer_adsr_freq[i];
 //				buffer_adsr_freq[i] = buffer_adsr_freq[i] * 500;
 
-				buffer_adsr_freq[i] = 1.0 + gen_sawtooth_angle( (sample_count_adsr+(i-start)) % samples_cycle_adsr * angle_attack);
+				/*
+				 * TODO: (TRY)
+				 * 1) For all of the a,d,s,r segments,
+				 * 	a) call gen_sawtooth_angle
+				 * 	b) if increasing, add a value larger than 0 (maybe??)
+				 * 	c) if decreasing, add a value lower than 0
+				 * 	d) if sustain, add 0
+				 *
+				 *
+				 * 	Eg. buffer_adsr_freq[i] = buffer_adsr_freq[i] + buffer_adsr_freq[i-1] + 0.5;
+				 * 	Eg. buffer_adsr_freq[i] = buffer_adsr_freq[i] + buffer_adsr_freq[i-1] - 0.5;
+				 * 	Eg. buffer_adsr_freq[i] = buffer_adsr_freq[i] + buffer_adsr_freq[i-1] + 0;
+				 *
+				 * or
+				 *
+				 * 1) Instead of calling gen_sawtooth_angle, just start with a value and add each iteration.
+				 *
+				 *
+				 */
+
+				buffer_adsr_freq[i] = 1.0 + 1.0 * gen_sawtooth_angle( (sample_count_adsr+(i-start)) % samples_cycle_adsr * angle_attack);
 				if(i > 0)
 				{
 					buffer_adsr_freq[i] = buffer_adsr_freq[i] + buffer_adsr_freq[i-1];
@@ -330,6 +350,11 @@ void generate_waveforms(uint16_t start, uint16_t end)
 				// buffer_adsr_freq[i] = adsr_settings.sustain_amp + (1.0 - adsr_settings.sustain_amp) * buffer_adsr_freq[i];
 
 				buffer_adsr_freq[i] = gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
+				buffer_adsr_freq[i] = buffer_adsr_freq[i] * (1.0 - adsr_settings.sustain_amp);
+				buffer_adsr_freq[i] = buffer_adsr_freq[i] + adsr_settings.sustain_amp;
+//				buffer_adsr_freq[i] = gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
+//				buffer_adsr_freq[i] = buffer_adsr_freq[i] * adsr_settings.sustain_amp;
+//				buffer_adsr_freq[i] = buffer_adsr_freq[i] + (1.0 - adsr_settings.sustain_amp);
 				if(i > 0)
 				{
 					buffer_adsr_freq[i] = buffer_adsr_freq[i] + buffer_adsr_freq[i-1];
@@ -344,6 +369,13 @@ void generate_waveforms(uint16_t start, uint16_t end)
  			else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < release_start)
 			{
 				// Sustain
+
+ 				// 1) Get the slope from the previous two samples:  buffer_adsr_freq[i-1] - buffer_adsr_freq[i-2]
+ 				// Careful.
+ 				//			 if(i > 1) { slope = buffer_adsr_freq[i-2] - buffer_adsr_freq[i-1]; }
+ 				//			 else if(i == 0) { slope = buffer_adsr_freq[buff_length-2] - buffer_adsr_freq[buff_length-1]; }
+ 				// 	         else if(i == 1) { slope = buffer_adsr_freq[buff_length-1] - buffer_adsr_freq[i-1]; }
+
 				// buffer_adsr_freq[i] = integrate(gen_rampdown((sample_count_adsr+i-start-sustain_start) % samples_cycle_adsr, adsr_settings.sustain_len, adsr_settings.sustain_amp, adsr_settings.sustain_amp));
 				// buffer_adsr_amp[i] = adsr_settings.sustain_amp;
 				// buffer_adsr_freq[i] = 1.0 + gen_sawtooth_angle( (sample_count_adsr+(i-start-release_start)) % samples_cycle_adsr * angle_release);
@@ -352,15 +384,44 @@ void generate_waveforms(uint16_t start, uint16_t end)
  				// buffer_adsr_freq[i] = 1.0 + gen_sawtooth_angle( (sample_count_adsr+(i-start-sustain_start)) % samples_cycle_adsr * angle_sustain);
 
  				// TODO: the slope should depend on adsr_settings.sustain_amp
- 				buffer_adsr_freq[i] = gen_sawtooth_angle( (sample_count_adsr+(i-start-sustain_start)) % samples_cycle_adsr * angle_sustain);
+ 				float32_t delta;
+ 				// buffer_adsr_freq[i] = buffer_adsr_freq[i-1];
+ 				if(i > 1)
+ 				{
+ 					delta = buffer_adsr_freq[i-1] - buffer_adsr_freq[i-2];
+ 				}
+ 				else if(i == 0)
+ 				{
+ 					delta = buffer_adsr_freq[BUFF_LEN-1] - buffer_adsr_freq[BUFF_LEN-2];
+ 				}
+ 				else if(i == 1)
+ 				{
+ 					delta = buffer_adsr_freq[i-1] - buffer_adsr_freq[BUFF_LEN-1];
+ 				}
+ 				// buffer_adsr_freq[i] = buffer_adsr_freq[i] + delta;
+ 				// buffer_adsr_freq[i] = gen_sawtooth_angle( (sample_count_adsr+(i-start-sustain_start)) % samples_cycle_adsr * angle_sustain);
+ 				buffer_adsr_freq[i] = gen_sawtooth_angle2( (sample_count_adsr+(i-start-sustain_start)) % samples_cycle_adsr * angle_sustain, delta, adsr_settings.sustain_len);
+
+ 				// buffer_adsr_freq[i] = buffer_adsr_freq[i] + 0.999975383;
 			}
 
 			else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < blank_start)
 			{
 				// Release
 
+
+
 				// TODO: the initial slope should be the same as the previous section (sustain).
 				//			So that the frequency is continuous.
+
+				/*
+				 * 2) For a smooth transition, get the slope of the previous 'graph':
+				 * 		delta = y[i-1] - y[i-2]
+				 * 		Then
+				 * 		y[i] = y[i-1] + delta
+				 *
+				 */
+
 				buffer_adsr_freq[i] = adsr_settings.sustain_amp * gen_rampdown_angle( (sample_count_adsr+(i-start-release_start)) % samples_cycle_adsr * angle_release);
 				if(i > 0)
 				{
@@ -370,7 +431,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 				{
 					buffer_adsr_freq[i] = buffer_adsr_freq[i] + buffer_adsr_freq[BUFF_LEN-1];
 				}
-
+				buffer_adsr_freq[i] = 0;
 
 			}
 			else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < blank_end)
@@ -584,6 +645,20 @@ float32_t gen_sawtooth_angle(float32_t angle)
 	// y = mx + b
 	m = ONE_DIV_PI;
 	val = -1+angle*m;
+	return val;
+}
+
+float32_t gen_sawtooth_angle2( float32_t angle, float32_t delta, uint32_t len)
+{
+	float32_t m = 0.0;
+	float32_t val = 0.0;
+
+	angle = fast_fmod(angle, len);
+
+	// y = mx + b
+	// m = delta * len;
+	m = delta * len;
+	val = angle*m;
 	return val;
 }
 
