@@ -49,9 +49,9 @@
 #define WAVE_NOISE				5
 
 /* Defines for modulation types */
-#define MOD_NONE				0
-#define MOD_AM					1
-#define MOD_FM					2
+//#define MOD_NONE				0
+//#define MOD_AM					1
+//#define MOD_FM					2
 
 #define VCO_AMP					4000
 #define LFO_AMP_AM				0.4
@@ -67,12 +67,13 @@ typedef struct osc_setting
 
 	uint16_t wav_vco;
 	uint16_t wav_lfo;
-	uint16_t mod_type;
+	uint16_t am_mod;
+	uint16_t fm_mod;
 
 	float32_t vco_amp;
 	float32_t vco_amp2;
 	float32_t lfo_amp;
-	float32_t lfo_offset;
+	// float32_t lfo_offset;
 
 	float32_t square_min;
 	float32_t square_max;

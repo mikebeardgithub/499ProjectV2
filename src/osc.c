@@ -15,25 +15,26 @@ volatile uint16_t buffer_output[BUFF_LEN] = {0};
 volatile uint16_t buffer_vco[BUFF_LEN] = {0};
 volatile uint16_t buffer_vco2[BUFF_LEN] = {0};
 volatile float32_t buffer_lfo_float[BUFF_LEN] = {0};
-volatile float32_t buffer_adsr_amp[BUFF_LEN] = {0};			// Attack, sustain, decay, release
-volatile float32_t buffer_adsr_freq[BUFF_LEN] = {0};
+volatile float32_t buffer_adsr_am[BUFF_LEN] = {0};			// Attack, sustain, decay, release
+volatile float32_t buffer_adsr_fm[BUFF_LEN] = {0};
 
 // TODO: organize these globals into struct(s)
 // TODO: it might be that odd frequencies cause the ticking.  Might be able to detect with mod, fmod.
 osc_setting osc =
 {
 	.freq_vco = 500.0,
-	.freq_vco2 = 505.0,
+	.freq_vco2 = 500.0,
 	.freq_lfo = 1.75,						// Moderate LFO frequency
 
 	.wav_vco = WAVE_SINE,
-	.wav_lfo = WAVE_NONE,
-	.mod_type = MOD_NONE,
+	.wav_lfo = WAVE_SINE,
+	.am_mod = ON,
+	.fm_mod = OFF,
 
 	.vco_amp = VCO_AMP/2,
 	.vco_amp2 = VCO_AMP/10,
 	.lfo_amp = 1.0,
-	.lfo_offset = 2.0,
+	// .lfo_offset = 2.0,
 
 	.square_min = 0.4,
 	.square_max = 1.0,
@@ -53,8 +54,8 @@ volatile uint32_t sample_count_lfo = 0;
 volatile uint32_t sample_count_adsr = 0;
 
 // ADSR - Attack Decay Sustain Release
-uint16_t adsr_amp = OFF;						// Enable/disable ADSR amplitude envelope.
-uint16_t adsr_freq = ON;						// Enable/disable ADSR frequency envelope.
+uint16_t adsr_am = OFF;					// Enable/disable ADSR amplitude envelope.
+uint16_t adsr_fm = OFF;					// Enable/disable ADSR frequency envelope.
 
 /*
  *	Set ADSR lengths in numbers of samples.
@@ -113,6 +114,12 @@ uint32_t release_start = 0;
 uint32_t blank_start = 0;
 uint32_t blank_end = 0;
 
+
+// TODO: for adsr frequency.  Test and remove if not needed.
+volatile float32_t delta = 0.0;
+
+
+
 // extern uint16_t adc_value;
 
 /*
@@ -153,7 +160,6 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// TODO: Consider using arm_sin_q15 instead of arm_sin_f32.  However, results might cause clipping.
 	volatile int i = 0;
 
-
 	// TODO: probably don't need to recalc over and over
 	volatile float32_t angle_vco = osc.freq_vco*PI_DIV_2/(max_sample_count);	// 'angle' based samples per cycle.
 	volatile float32_t angle_vco2 = osc.freq_vco2*PI_DIV_2/(max_sample_count);	// 'angle' based samples per cycle.
@@ -169,46 +175,46 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	volatile uint32_t samples_cycle_adsr = adsr_settings.attack_len + adsr_settings.decay_len + adsr_settings.sustain_len + adsr_settings.release_len + adsr_settings.blank_len;
 
 	// Sine VCO
-	if(osc.wav_vco == WAVE_SINE && osc.mod_type != MOD_FM)
+	if(osc.wav_vco == WAVE_SINE && osc.fm_mod == OFF)
 	{
 		for(i = start; i < end; i++)
 		{
 			buffer_vco[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32((sample_count_vco+(i-start))*angle_vco);
-			buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2*arm_sin_f32((sample_count_vco+(i-start))*angle_vco2);
-			buffer_vco[i] = buffer_vco[i] + buffer_vco2[i];
+			// buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2*arm_sin_f32((sample_count_vco+(i-start))*angle_vco2);
+			buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
 		}
 	}
 
 	// Square VCO
-	else if(osc.wav_vco == WAVE_SQUARE && osc.mod_type != MOD_FM)
+	else if(osc.wav_vco == WAVE_SQUARE && osc.fm_mod == OFF)
 	{
 		for(i = start; i < end; i++)
 		{
 			 buffer_vco[i] = osc.vco_amp + osc.vco_amp * gen_square_angle((sample_count_vco+(i-start)) * angle_vco);
 			 // buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2 * gen_square_angle((sample_count_vco+(i-start)) * angle_vco2);
-			 // buffer_vco[i] = buffer_vco[i] + buffer_vco2[i];
+			 buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
 		}
 	}
 
 	// Sawtooth VCO
-	else if(osc.wav_vco == WAVE_SAWTOOTH && osc.mod_type != MOD_FM)
+	else if(osc.wav_vco == WAVE_SAWTOOTH && osc.fm_mod == OFF)
 	{
 		for(i = start; i < end; i++)
 		{
 			buffer_vco[i] = osc.vco_amp + osc.vco_amp * gen_sawtooth_angle((sample_count_vco+(i-start)) * angle_vco);
 			buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2 * gen_sawtooth_angle((sample_count_vco+(i-start)) * angle_vco2);
-			buffer_vco[i] = buffer_vco[i] + buffer_vco2[i];
+			buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
 		}
 	}
 
 	// Triangle VCO
-	else if(osc.wav_vco == WAVE_TRIANGLE && osc.mod_type != MOD_FM)
+	else if(osc.wav_vco == WAVE_TRIANGLE && osc.fm_mod == OFF)
 	{
 		for(i = start; i < end; i++)
 		{
 			buffer_vco[i] = osc.vco_amp + osc.vco_amp * gen_triangle_angle((sample_count_vco+(i-start)) * angle_vco);
 			buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2 * gen_triangle_angle((sample_count_vco+(i-start)) * angle_vco2);
-			buffer_vco[i] = buffer_vco[i] + buffer_vco2[i];
+			buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
 		}
 	}
 
@@ -224,7 +230,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// Square LFO
 	else if(osc.wav_lfo == WAVE_SQUARE)
 	{
-		if(osc.mod_type != MOD_FM)
+		if(osc.fm_mod == OFF)
 		{
 			for(i = start; i < end; i++)
 			{
@@ -244,7 +250,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// Sawtooth LFO
 	else if(osc.wav_lfo == WAVE_SAWTOOTH)
 	{
-		if(osc.mod_type != MOD_FM)
+		if(osc.fm_mod == OFF)
 		{
 			for(i = start; i < end; i++)
 			{
@@ -264,7 +270,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	else if(osc.wav_lfo == WAVE_TRIANGLE)
 	{
-		if(osc.mod_type != MOD_FM)
+		if(osc.fm_mod == OFF)
 		{
 			for(i = start; i < end; i++)
 			{
@@ -282,18 +288,9 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		}
 	}
 
-	// AM modulation
-	if(osc.mod_type == MOD_AM)
-	{
-		for(i = start; i < end; i++)
-		{
-			buffer_output[i] = buffer_vco[i] * buffer_lfo_float[i];
-		}
-	}
-
 	// TODO: move this before the FM section
 	// ADSR frequency envelope
-	if(adsr_freq)
+	if(adsr_fm)
 	{
 		// float32_t temp;
 		for(i = start; i < end; i++)
@@ -302,14 +299,14 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			if( (sample_count_adsr+(i-start))%samples_cycle_adsr < decay_start)
 			{
 				// Attack
-				// buffer_adsr_freq[i] = integrate(gen_sawtooth( (sample_count_adsr+(i-start)) % samples_cycle_adsr, adsr_settings.attack_len, 0.0, 1.0));
-				// buffer_adsr_freq[i] = integrate(1.0 + gen_sawtooth_angle( (sample_count_adsr+(i-start)) % samples_cycle_adsr * angle_attack));
+				// buffer_adsr_fm[i] = integrate(gen_sawtooth( (sample_count_adsr+(i-start)) % samples_cycle_adsr, adsr_settings.attack_len, 0.0, 1.0));
+				// buffer_adsr_fm[i] = integrate(1.0 + gen_sawtooth_angle( (sample_count_adsr+(i-start)) % samples_cycle_adsr * angle_attack));
 
-				// buffer_adsr_freq[i] = 0;
+				// buffer_adsr_fm[i] = 0;
 
-//				buffer_adsr_freq[i] = 1.0 + gen_sawtooth_angle( (sample_count_adsr+(i-start)) % samples_cycle_adsr * angle_attack);
-//				buffer_adsr_freq[i] = 0.5 * buffer_adsr_freq[i] * buffer_adsr_freq[i];
-//				buffer_adsr_freq[i] = buffer_adsr_freq[i] * 500;
+//				buffer_adsr_fm[i] = 1.0 + gen_sawtooth_angle( (sample_count_adsr+(i-start)) % samples_cycle_adsr * angle_attack);
+//				buffer_adsr_fm[i] = 0.5 * buffer_adsr_fm[i] * buffer_adsr_fm[i];
+//				buffer_adsr_fm[i] = buffer_adsr_fm[i] * 500;
 
 				/*
 				 * TODO: (TRY)
@@ -320,9 +317,9 @@ void generate_waveforms(uint16_t start, uint16_t end)
 				 * 	d) if sustain, add 0
 				 *
 				 *
-				 * 	Eg. buffer_adsr_freq[i] = buffer_adsr_freq[i] + buffer_adsr_freq[i-1] + 0.5;
-				 * 	Eg. buffer_adsr_freq[i] = buffer_adsr_freq[i] + buffer_adsr_freq[i-1] - 0.5;
-				 * 	Eg. buffer_adsr_freq[i] = buffer_adsr_freq[i] + buffer_adsr_freq[i-1] + 0;
+				 * 	Eg. buffer_adsr_fm[i] = buffer_adsr_fm[i] + buffer_adsr_fm[i-1] + 0.5;
+				 * 	Eg. buffer_adsr_fm[i] = buffer_adsr_fm[i] + buffer_adsr_fm[i-1] - 0.5;
+				 * 	Eg. buffer_adsr_fm[i] = buffer_adsr_fm[i] + buffer_adsr_fm[i-1] + 0;
 				 *
 				 * or
 				 *
@@ -331,86 +328,103 @@ void generate_waveforms(uint16_t start, uint16_t end)
 				 *
 				 */
 
-				buffer_adsr_freq[i] = 1.0 + 1.0 * gen_sawtooth_angle( (sample_count_adsr+(i-start)) % samples_cycle_adsr * angle_attack);
+				buffer_adsr_fm[i] = 1.0 + 1.0 * gen_sawtooth_angle( (sample_count_adsr+(i-start)) % samples_cycle_adsr * angle_attack);
 				if(i > 0)
 				{
-					buffer_adsr_freq[i] = buffer_adsr_freq[i] + buffer_adsr_freq[i-1];
+					buffer_adsr_fm[i] = buffer_adsr_fm[i] + buffer_adsr_fm[i-1];
 				}
 				else
 				{
-					buffer_adsr_freq[i] = buffer_adsr_freq[i] + buffer_adsr_freq[BUFF_LEN-1];
+					buffer_adsr_fm[i] = buffer_adsr_fm[i] + buffer_adsr_fm[BUFF_LEN-1];
 				}
 			}
 
 			else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < sustain_start)
 			{
 				// Decay
-				// buffer_adsr_freq[i] = integrate(gen_rampdown((sample_count_adsr+i-start-decay_start) % samples_cycle_adsr, adsr_settings.decay_len, adsr_settings.sustain_amp, 1));
-				// buffer_adsr_freq[i] = gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
-				// buffer_adsr_freq[i] = adsr_settings.sustain_amp + (1.0 - adsr_settings.sustain_amp) * buffer_adsr_freq[i];
+				// buffer_adsr_fm[i] = integrate(gen_rampdown((sample_count_adsr+i-start-decay_start) % samples_cycle_adsr, adsr_settings.decay_len, adsr_settings.sustain_amp, 1));
+				// buffer_adsr_fm[i] = gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
+				// buffer_adsr_fm[i] = adsr_settings.sustain_amp + (1.0 - adsr_settings.sustain_amp) * buffer_adsr_fm[i];
 
-				buffer_adsr_freq[i] = gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
-				buffer_adsr_freq[i] = buffer_adsr_freq[i] * (1.0 - adsr_settings.sustain_amp);
-				buffer_adsr_freq[i] = buffer_adsr_freq[i] + adsr_settings.sustain_amp;
-//				buffer_adsr_freq[i] = gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
-//				buffer_adsr_freq[i] = buffer_adsr_freq[i] * adsr_settings.sustain_amp;
-//				buffer_adsr_freq[i] = buffer_adsr_freq[i] + (1.0 - adsr_settings.sustain_amp);
+				buffer_adsr_fm[i] = gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
+				buffer_adsr_fm[i] = buffer_adsr_fm[i] * (1.0 - adsr_settings.sustain_amp);
+				buffer_adsr_fm[i] = buffer_adsr_fm[i] + adsr_settings.sustain_amp;
+//				buffer_adsr_fm[i] = gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
+//				buffer_adsr_fm[i] = buffer_adsr_fm[i] * adsr_settings.sustain_amp;
+//				buffer_adsr_fm[i] = buffer_adsr_fm[i] + (1.0 - adsr_settings.sustain_amp);
 				if(i > 0)
 				{
-					buffer_adsr_freq[i] = buffer_adsr_freq[i] + buffer_adsr_freq[i-1];
+					buffer_adsr_fm[i] = buffer_adsr_fm[i] + buffer_adsr_fm[i-1];
 				}
 				else
 				{
-					buffer_adsr_freq[i] = buffer_adsr_freq[i] + buffer_adsr_freq[BUFF_LEN-1];
+					buffer_adsr_fm[i] = buffer_adsr_fm[i] + buffer_adsr_fm[BUFF_LEN-1];
 				}
-
 			}
 
  			else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < release_start)
 			{
 				// Sustain
 
- 				// 1) Get the slope from the previous two samples:  buffer_adsr_freq[i-1] - buffer_adsr_freq[i-2]
+ 				// 1) Get the slope from the previous two samples:  buffer_adsr_fm[i-1] - buffer_adsr_fm[i-2]
  				// Careful.
- 				//			 if(i > 1) { slope = buffer_adsr_freq[i-2] - buffer_adsr_freq[i-1]; }
- 				//			 else if(i == 0) { slope = buffer_adsr_freq[buff_length-2] - buffer_adsr_freq[buff_length-1]; }
- 				// 	         else if(i == 1) { slope = buffer_adsr_freq[buff_length-1] - buffer_adsr_freq[i-1]; }
+ 				//			 if(i > 1) { slope = buffer_adsr_fm[i-2] - buffer_adsr_fm[i-1]; }
+ 				//			 else if(i == 0) { slope = buffer_adsr_fm[buff_length-2] - buffer_adsr_fm[buff_length-1]; }
+ 				// 	         else if(i == 1) { slope = buffer_adsr_fm[buff_length-1] - buffer_adsr_fm[i-1]; }
 
-				// buffer_adsr_freq[i] = integrate(gen_rampdown((sample_count_adsr+i-start-sustain_start) % samples_cycle_adsr, adsr_settings.sustain_len, adsr_settings.sustain_amp, adsr_settings.sustain_amp));
-				// buffer_adsr_amp[i] = adsr_settings.sustain_amp;
-				// buffer_adsr_freq[i] = 1.0 + gen_sawtooth_angle( (sample_count_adsr+(i-start-release_start)) % samples_cycle_adsr * angle_release);
-				// buffer_adsr_freq[i] = 0;
+				// buffer_adsr_fm[i] = integrate(gen_rampdown((sample_count_adsr+i-start-sustain_start) % samples_cycle_adsr, adsr_settings.sustain_len, adsr_settings.sustain_amp, adsr_settings.sustain_amp));
+				// buffer_adsr_am[i] = adsr_settings.sustain_amp;
+				// buffer_adsr_fm[i] = 1.0 + gen_sawtooth_angle( (sample_count_adsr+(i-start-release_start)) % samples_cycle_adsr * angle_release);
+				// buffer_adsr_fm[i] = 0;
 
- 				// buffer_adsr_freq[i] = 1.0 + gen_sawtooth_angle( (sample_count_adsr+(i-start-sustain_start)) % samples_cycle_adsr * angle_sustain);
+ 				// buffer_adsr_fm[i] = 1.0 + gen_sawtooth_angle( (sample_count_adsr+(i-start-sustain_start)) % samples_cycle_adsr * angle_sustain);
 
  				// TODO: the slope should depend on adsr_settings.sustain_amp
- 				float32_t delta;
- 				// buffer_adsr_freq[i] = buffer_adsr_freq[i-1];
- 				if(i > 1)
- 				{
- 					delta = buffer_adsr_freq[i-1] - buffer_adsr_freq[i-2];
- 				}
- 				else if(i == 0)
- 				{
- 					delta = buffer_adsr_freq[BUFF_LEN-1] - buffer_adsr_freq[BUFF_LEN-2];
- 				}
- 				else if(i == 1)
- 				{
- 					delta = buffer_adsr_freq[i-1] - buffer_adsr_freq[BUFF_LEN-1];
- 				}
- 				// buffer_adsr_freq[i] = buffer_adsr_freq[i] + delta;
- 				// buffer_adsr_freq[i] = gen_sawtooth_angle( (sample_count_adsr+(i-start-sustain_start)) % samples_cycle_adsr * angle_sustain);
- 				buffer_adsr_freq[i] = gen_sawtooth_angle2( (sample_count_adsr+(i-start-sustain_start)) % samples_cycle_adsr * angle_sustain, delta, adsr_settings.sustain_len);
 
- 				// buffer_adsr_freq[i] = buffer_adsr_freq[i] + 0.999975383;
+
+ 				// DO this only once--get last delta from previous section.
+ 				if( (sample_count_adsr+(i-start))%samples_cycle_adsr == sustain_start)
+ 				{
+ 	 				// buffer_adsr_fm[i] = buffer_adsr_fm[i-1];
+ 	 				if(i > 1)
+ 	 				{
+ 	 					delta = buffer_adsr_fm[i-1] - buffer_adsr_fm[i-2];
+ 	 				}
+ 	 				else if(i == 0)
+ 	 				{
+ 	 					delta = buffer_adsr_fm[BUFF_LEN-1] - buffer_adsr_fm[BUFF_LEN-2];
+ 	 				}
+ 	 				else if(i == 1)
+ 	 				{
+ 	 					delta = buffer_adsr_fm[i-1] - buffer_adsr_fm[BUFF_LEN-1];
+ 	 				}
+ 	 				buffer_adsr_fm[i] = 0.0;
+ 				}
+ 				else
+ 				{
+ 					// float32_t test_delta = buffer_adsr_fm[i-1] - buffer_adsr_fm[i-2];
+
+ 	 				if(i > 0)
+ 	 				{
+ 	 					buffer_adsr_fm[i] = buffer_adsr_fm[i-1] + delta;
+ 	 				}
+ 	 				else
+ 	 				{
+ 	 					buffer_adsr_fm[i] = buffer_adsr_fm[BUFF_LEN-1] + delta;
+ 	 				}
+ 				}
+
+
+ 				// buffer_adsr_fm[i] = buffer_adsr_fm[i] + delta;
+ 				// buffer_adsr_fm[i] = gen_sawtooth_angle( (sample_count_adsr+(i-start-sustain_start)) % samples_cycle_adsr * angle_sustain);
+ 				// buffer_adsr_fm[i] = gen_sawtooth_angle2( (sample_count_adsr+(i-start-sustain_start)) % samples_cycle_adsr * angle_sustain, delta, adsr_settings.sustain_len);
+ 				// buffer_adsr_fm[i] = gen_rampdown_angle( (sample_count_adsr+(i-start-sustain_start)) % samples_cycle_adsr * angle_sustain);
+
 			}
 
 			else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < blank_start)
 			{
 				// Release
-
-
-
 				// TODO: the initial slope should be the same as the previous section (sustain).
 				//			So that the frequency is continuous.
 
@@ -422,36 +436,36 @@ void generate_waveforms(uint16_t start, uint16_t end)
 				 *
 				 */
 
-				buffer_adsr_freq[i] = adsr_settings.sustain_amp * gen_rampdown_angle( (sample_count_adsr+(i-start-release_start)) % samples_cycle_adsr * angle_release);
+				buffer_adsr_fm[i] = adsr_settings.sustain_amp * gen_rampdown_angle( (sample_count_adsr+(i-start-release_start)) % samples_cycle_adsr * angle_release);
 				if(i > 0)
 				{
-					buffer_adsr_freq[i] = buffer_adsr_freq[i] + buffer_adsr_freq[i-1];
+					buffer_adsr_fm[i] = buffer_adsr_fm[i] + buffer_adsr_fm[i-1];
 				}
 				else
 				{
-					buffer_adsr_freq[i] = buffer_adsr_freq[i] + buffer_adsr_freq[BUFF_LEN-1];
+					buffer_adsr_fm[i] = buffer_adsr_fm[i] + buffer_adsr_fm[BUFF_LEN-1];
 				}
-				buffer_adsr_freq[i] = 0;
+				// buffer_adsr_fm[i] = 0;
 
 			}
 			else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < blank_end)
 			{
 				// Blank
-				buffer_adsr_freq[i] = 0;
+				buffer_adsr_fm[i] = 0;
 			}
-			// buffer_lfo_float[i] = buffer_lfo_float[i] + buffer_adsr_freq[i];
+			// buffer_lfo_float[i] = buffer_lfo_float[i] + buffer_adsr_fm[i];
 		}
 
 	}
 
-	// TODO: add buffer_adsr_freq[i] to phase
+	// TODO: add buffer_adsr_fm[i] to phase
 	// FM for sine wave VCO.
-	if(osc.wav_vco == WAVE_SINE && ( osc.mod_type == MOD_FM || adsr_freq == ON ) )
+	if(osc.wav_vco == WAVE_SINE && ( osc.fm_mod == ON || adsr_fm == ON ) )
 	{
 		for(i = start; i < end; i++)
 		{
 			// buffer_vco[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32((sample_count_vco+(i-start))*angle_vco + 100*buffer_lfo_float[i]);
-			buffer_vco[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32((sample_count_vco+(i-start))*angle_vco + 100*buffer_lfo_float[i] + buffer_adsr_freq[i]);
+			buffer_vco[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32((sample_count_vco+(i-start))*angle_vco + 100*buffer_lfo_float[i] + buffer_adsr_fm[i]);
 			// buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2*arm_sin_f32((sample_count_vco+(i-start))*angle_vco2 + 100*buffer_lfo_float[i]);
 			// buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
 			buffer_output[i] = buffer_vco[i];
@@ -460,18 +474,19 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// FM for square wave VCO.
-	else if(osc.wav_vco == WAVE_SQUARE && osc.mod_type == MOD_FM)
+	else if(osc.wav_vco == WAVE_SQUARE && ( osc.fm_mod == ON || adsr_fm == ON ) )
 	{
 		for(i = start; i < end; i++)
 		{
 			buffer_vco[i] = osc.vco_amp + osc.vco_amp * gen_square_angle((sample_count_vco+(i-start))*angle_vco + 50*buffer_lfo_float[i]);
 			// buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2 * gen_square_angle((sample_count_vco+(i-start))*angle_vco2 + 50*buffer_lfo_float[i]);
 			// buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
+			buffer_output[i] = buffer_vco[i];
 		}
 	}
 
 	// FM for sawtooth wave VCO.
-	else if(osc.wav_vco == WAVE_SAWTOOTH && osc.mod_type == MOD_FM)
+	else if(osc.wav_vco == WAVE_SAWTOOTH && ( osc.fm_mod == ON || adsr_fm == ON ) )
 	{
 		for(i = start; i < end; i++)
 		{
@@ -482,7 +497,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// FM for triangle wave VCO.
-	else if(osc.wav_vco == WAVE_TRIANGLE && osc.mod_type == MOD_FM)
+	else if(osc.wav_vco == WAVE_TRIANGLE && ( osc.fm_mod == ON || adsr_fm == ON ) )
 	{
 		for(i = start; i < end; i++)
 		{
@@ -492,19 +507,30 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		}
 	}
 
-	// No modulation
-	else
+	// No fm modulation
+//	else if (osc.fm_mod == OFF)
+//	{
+//		for(i = start; i < end; i++)
+//		{
+//			buffer_output[i] = buffer_vco[i];
+//		}
+//	}
+
+	// AM modulation
+	if(osc.am_mod == ON)
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_output[i] = buffer_vco[i];
+			buffer_output[i] = buffer_output[i] * buffer_lfo_float[i];
 		}
 	}
+
+
 
 	// TODO: use gen_sawtooth_angle instead of gen_sawtooth.  Etc.
 	// ADSR amplitude envelope
 	// The waveform contains 5 segments (asdr + a blank space)
-	if(adsr_amp)
+	if(adsr_am)
 	{
 		for(i = start; i < end; i++)
 		{
@@ -512,39 +538,39 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			if( (sample_count_adsr+(i-start))%samples_cycle_adsr < decay_start)
 			{
 				// Attack
-				// buffer_adsr_amp[i] = gen_sawtooth( (sample_count_adsr+(i-start)) % samples_cycle_adsr, adsr_settings.attack_len, 0.0, 1.0);
-				buffer_adsr_amp[i] = 1.0 + gen_sawtooth_angle( (sample_count_adsr+(i-start)) % samples_cycle_adsr * angle_attack);
+				// buffer_adsr_am[i] = gen_sawtooth( (sample_count_adsr+(i-start)) % samples_cycle_adsr, adsr_settings.attack_len, 0.0, 1.0);
+				buffer_adsr_am[i] = 1.0 + gen_sawtooth_angle( (sample_count_adsr+(i-start)) % samples_cycle_adsr * angle_attack);
 			}
 
 			else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < sustain_start)
 			{
 				// Decay
-				// buffer_adsr_amp[i] = gen_rampdown( (sample_count_adsr+i-start-decay_start) % samples_cycle_adsr, adsr_settings.decay_len, adsr_settings.sustain_amp, 1.0);
-				buffer_adsr_amp[i] = adsr_settings.sustain_amp + (1.0 - adsr_settings.sustain_amp) * gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
-				// buffer_adsr_amp[i] = gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
+				// buffer_adsr_am[i] = gen_rampdown( (sample_count_adsr+i-start-decay_start) % samples_cycle_adsr, adsr_settings.decay_len, adsr_settings.sustain_amp, 1.0);
+				buffer_adsr_am[i] = adsr_settings.sustain_amp + (1.0 - adsr_settings.sustain_amp) * gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
+				// buffer_adsr_am[i] = gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
 			}
 
 			else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < release_start)
 			{
 				// Sustain
-				buffer_adsr_amp[i] = adsr_settings.sustain_amp;
+				buffer_adsr_am[i] = adsr_settings.sustain_amp;
 			}
 
 			else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < blank_start)
 			{
 				// Release
-				// buffer_adsr_amp[i] = gen_rampdown( (sample_count_adsr+i-start-release_start) % samples_cycle_adsr, adsr_settings.release_len, 0.0, adsr_settings.sustain_amp);
-				// buffer_adsr_amp[i] = 1.0 + gen_rampdown_angle( (sample_count_adsr+(i-start)) % samples_cycle_adsr * angle_release);
-				buffer_adsr_amp[i] = adsr_settings.sustain_amp * gen_rampdown_angle( (sample_count_adsr+(i-start-release_start)) % samples_cycle_adsr * angle_release);
+				// buffer_adsr_am[i] = gen_rampdown( (sample_count_adsr+i-start-release_start) % samples_cycle_adsr, adsr_settings.release_len, 0.0, adsr_settings.sustain_amp);
+				// buffer_adsr_am[i] = 1.0 + gen_rampdown_angle( (sample_count_adsr+(i-start)) % samples_cycle_adsr * angle_release);
+				buffer_adsr_am[i] = adsr_settings.sustain_amp * gen_rampdown_angle( (sample_count_adsr+(i-start-release_start)) % samples_cycle_adsr * angle_release);
 
 			}
 			else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < blank_end)
 			{
 				// Blank
-				buffer_adsr_amp[i] = 0;
+				buffer_adsr_am[i] = 0;
 			}
 
-			buffer_output[i] = buffer_output[i] * buffer_adsr_amp[i];
+			buffer_output[i] = buffer_output[i] * buffer_adsr_am[i];
 		}
 	}
 
@@ -657,7 +683,7 @@ float32_t gen_sawtooth_angle2( float32_t angle, float32_t delta, uint32_t len)
 
 	// y = mx + b
 	// m = delta * len;
-	m = delta * len;
+	m = delta * SAMPLERATE;
 	val = angle*m;
 	return val;
 }
