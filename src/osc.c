@@ -2,7 +2,7 @@
  * osc.c
  *
  *  Created on: Jun 12, 2017
- *      Author: admin
+ *      Author: Mike Beard
  */
 
 #include "osc.h"
@@ -22,14 +22,14 @@ volatile float32_t buffer_adsr_fm[BUFF_LEN] = {0};
 // TODO: it might be that odd frequencies cause the ticking.  Might be able to detect with mod, fmod.
 osc_setting osc =
 {
-	.freq_vco = 7000.0,
-	.freq_vco2 = 50.0,
-	.freq_lfo = 200.0,						// Moderate LFO frequency
+	.vco_freq = 400.0,
+	.vco2_freq = 400.0,
+	.lfo_freq = 1.5,						// Moderate LFO frequency
 
-	.wav_vco = WAVE_SINE,
-	.wav_lfo = WAVE_SINE,
-	.am_mod = ON,
-	.fm_mod = OFF,
+	.vco_wav = WAVE_SINE,
+	.lfo_wav = WAVE_SINE,
+	.am_mod = OFF,
+	.fm_mod = ON,
 
 	.vco_amp = VCO_AMP/2,
 	.vco_amp2 = VCO_AMP/5,
@@ -127,18 +127,17 @@ void generate_waveforms(uint16_t start, uint16_t end)
 {
 	uint32_t max_sample_count = QUARTER_SECOND;
 
-	// freq_vco = ( (float32_t) (ADCBuffer[1] & 0xffa0) / 50);
+	osc.vco_wav = vfo_state;
+	osc.lfo_wav = lfo_state;
 
-	// TODO: fast log
-//	freq_lfo = (float)ADCBuffer[0];
-//	freq_lfo = floor(freq_lfo / 50);
-//	freq_lfo = freq_lfo / 10;
-
-
+	osc.vco_amp = ADCBuffer[0];
+	osc.vco_freq = ADCBuffer[1];
+	osc.lfo_amp = (float) ADCBuffer[2]/4095;		// AM: div by 4095
+	osc.lfo_freq = (float) ADCBuffer[3]/20;			// AM: div by 20
 
 	adsr_setting adsr_settings = adsr_03;
 	adsr_settings.attack_len = ADCBuffer[5]*20;		// A5
-	adsr_settings.decay_len = (ADCBuffer[6])*20;		// A6
+	adsr_settings.decay_len = (ADCBuffer[6])*20;	// A6
 	adsr_settings.sustain_len = ADCBuffer[7]*10;	// A7
 	adsr_settings.release_len = ADCBuffer[8]*10;	// B0
 	adsr_settings.blank_len = ADCBuffer[10]*20;		// C0
@@ -158,21 +157,22 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	// TODO: probably don't need to recalc over and over
 	// TODO: simplify these calculations
-	volatile float32_t angle_vco = osc.freq_vco*PI_DIV_2/(max_sample_count);	// 'angle' based samples per cycle.
-	volatile float32_t angle_vco2 = osc.freq_vco2*PI_DIV_2/(max_sample_count);	// 'angle' based samples per cycle.
-	volatile float32_t angle_lfo = osc.freq_lfo*PI_DIV_2/(max_sample_count);
+	volatile float32_t angle_vco = osc.vco_freq*PI_DIV_2/(max_sample_count);	// 'angle' based samples per cycle.
+	// volatile float32_t angle_vco2 = osc.vco2_freq*PI_DIV_2/(max_sample_count);	// 'angle' based samples per cycle.
+	volatile float32_t angle_lfo = osc.lfo_freq*PI_DIV_2/(max_sample_count);
 
 	volatile float32_t angle_attack = PI/adsr_settings.attack_len;
 	volatile float32_t angle_decay = PI/adsr_settings.decay_len;
-	volatile float32_t angle_sustain = PI/adsr_settings.sustain_len;
+	// volatile float32_t angle_sustain = PI/adsr_settings.sustain_len;
 	volatile float32_t angle_release = PI/adsr_settings.release_len;
 
-	// volatile float32_t samples_cycle_vco = SAMPLERATE / osc.freq_vco;
-	volatile uint32_t samples_cycle_lfo = 2 * SAMPLERATE / osc.freq_lfo;
+	// volatile float32_t samples_cycle_vco = SAMPLERATE / osc.vco_freq;
+	volatile uint32_t samples_cycle_lfo = 2 * SAMPLERATE / osc.lfo_freq;
 	volatile uint32_t samples_cycle_adsr = adsr_settings.attack_len + adsr_settings.decay_len + adsr_settings.sustain_len + adsr_settings.release_len + adsr_settings.blank_len;
 
 	// Sine VCO
-	if(osc.wav_vco == WAVE_SINE && osc.fm_mod == OFF)
+	// if(osc.vco_wav == WAVE_SINE && osc.fm_mod == OFF)
+	if(osc.vco_wav == sine && osc.fm_mod == OFF)
 	{
 		for(i = start; i < end; i++)
 		{
@@ -186,7 +186,8 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// Square VCO
-	else if(osc.wav_vco == WAVE_SQUARE && osc.fm_mod == OFF)
+	// else if(osc.vco_wav == WAVE_SQUARE && osc.fm_mod == OFF)
+	else if(osc.vco_wav == square && osc.fm_mod == OFF)
 	{
 		for(i = start; i < end; i++)
 		{
@@ -197,7 +198,8 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// Sawtooth VCO
-	else if(osc.wav_vco == WAVE_SAWTOOTH && osc.fm_mod == OFF)
+	// else if(osc.vco_wav == WAVE_SAWTOOTH && osc.fm_mod == OFF)
+	else if(osc.vco_wav == sawtooth && osc.fm_mod == OFF)
 	{
 		for(i = start; i < end; i++)
 		{
@@ -208,7 +210,8 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// Triangle VCO
-	else if(osc.wav_vco == WAVE_TRIANGLE && osc.fm_mod == OFF)
+	// else if(osc.vco_wav == WAVE_TRIANGLE && osc.fm_mod == OFF)
+	else if(osc.vco_wav == triangle && osc.fm_mod == OFF)
 	{
 		for(i = start; i < end; i++)
 		{
@@ -220,7 +223,8 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// SINE LFO
-	if(osc.wav_lfo == WAVE_SINE)
+	// if(osc.lfo_wav == WAVE_SINE)
+	if(osc.lfo_wav == sine)
 	{
 		if(osc.fm_mod == OFF)
 		{
@@ -241,7 +245,8 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// Square LFO
-	else if(osc.wav_lfo == WAVE_SQUARE)
+	// else if(osc.lfo_wav == WAVE_SQUARE)
+	else if(osc.lfo_wav == square)
 	{
 		if(osc.fm_mod == OFF)
 		{
@@ -263,7 +268,8 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// Sawtooth LFO
-	else if(osc.wav_lfo == WAVE_SAWTOOTH)
+	// else if(osc.lfo_wav == WAVE_SAWTOOTH)
+	else if(osc.lfo_wav == sawtooth)
 	{
 		if(osc.fm_mod == OFF)
 		{
@@ -283,7 +289,8 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		}
 	}
 
-	else if(osc.wav_lfo == WAVE_TRIANGLE)
+	// else if(osc.lfo_wav == WAVE_TRIANGLE)
+	else if(osc.lfo_wav == triangle)
 	{
 		if(osc.fm_mod == OFF)
 		{
@@ -490,7 +497,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	// TODO: add buffer_adsr_fm[i] to phase
 	// FM for sine wave VCO.
-	if(osc.wav_vco == WAVE_SINE && ( osc.fm_mod == ON || adsr_fm == ON ) )
+	if(osc.vco_wav == sine && ( osc.fm_mod == ON || adsr_fm == ON ) )
 	{
 		for(i = start; i < end; i++)
 		{
@@ -504,7 +511,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// FM for square wave VCO.
-	else if(osc.wav_vco == WAVE_SQUARE && ( osc.fm_mod == ON || adsr_fm == ON ) )
+	else if(osc.vco_wav == square && ( osc.fm_mod == ON || adsr_fm == ON ) )
 	{
 		for(i = start; i < end; i++)
 		{
@@ -516,7 +523,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// FM for sawtooth wave VCO.
-	else if(osc.wav_vco == WAVE_SAWTOOTH && ( osc.fm_mod == ON || adsr_fm == ON ) )
+	else if(osc.vco_wav == sawtooth && ( osc.fm_mod == ON || adsr_fm == ON ) )
 	{
 		for(i = start; i < end; i++)
 		{
@@ -528,7 +535,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// FM for triangle wave VCO.
-	else if(osc.wav_vco == WAVE_TRIANGLE && ( osc.fm_mod == ON || adsr_fm == ON ) )
+	else if(osc.vco_wav == triangle && ( osc.fm_mod == ON || adsr_fm == ON ) )
 	{
 		for(i = start; i < end; i++)
 		{

@@ -183,8 +183,8 @@ void init_adc(volatile uint16_t ADCBuffer[NUM_CHANNELS]){
 
 
 /*
- * Sets up the 5 position selectors
-
+ * Sets up the 5 position selectors and TIM4 to be used to debounce
+ * if the interrupt priorities need to be changed make sure timer is higher than EXTI
  */
 
 void init_gpios(){
@@ -221,13 +221,13 @@ void init_gpios(){
 
 	/*
 	 * C bank pins
-	 * PC12		lfo_other2
+	 * PC6		lfo_other2
 	 */
 	GPIO_StructInit(&GPIO_InitStructure);							//default values
-	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_13;
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_6;
 	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;					//input
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;				//slow
-	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;				//pull down
+	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;				//no pull
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 
 
@@ -238,7 +238,7 @@ void init_gpios(){
 	tim4_base_struct.TIM_CounterMode = TIM_CounterMode_Up;
 	tim4_base_struct.TIM_Period = MYTIM4_PERIOD;
 	tim4_base_struct.TIM_Prescaler = myTIM4_PRESCALER;
-	TIM_TimeBaseInit(TIM2, &tim4_base_struct);
+	TIM_TimeBaseInit(TIM4, &tim4_base_struct);
 
 	TIM4_NVIC_init_struct.NVIC_IRQChannel = TIM4_IRQn;
 	TIM4_NVIC_init_struct.NVIC_IRQChannelCmd = ENABLE;
@@ -285,5 +285,222 @@ void init_gpios(){
 
 
 
+
+}
+
+
+/*
+ * Initialzes the pushbutton and pushbutton interrupts and limiting timer,
+ * if the interrupt priorities need to be changed make sure timer is higher than EXTI
+ */
+void  init_push_buttons(){
+
+	GPIO_InitTypeDef GPIO_InitStructure;
+	TIM_TimeBaseInitTypeDef tim3_base_struct;
+	EXTI_InitTypeDef EXTI_init_struct;
+	NVIC_InitTypeDef EXTI_NVIC_init_struct, TIM3_NVIC_init_struct;
+
+
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE,ENABLE); 			//This is already turned on in init gpio's but turn on incase
+
+	/*
+	 * E bank pins
+	 * PE0		Menu up
+	 * PE1		Menu down
+	 * PE2		Menu back
+	 * PE3		Menu enter
+	 */
+	GPIO_StructInit(&GPIO_InitStructure);							//default values
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3;
+	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;					//input
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;				//medium
+	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;				//pull down
+	GPIO_Init(GPIOE, &GPIO_InitStructure);
+
+
+	/*Configure Tim3 for debouncing	 */
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+	TIM_TimeBaseStructInit(&tim3_base_struct);
+	tim3_base_struct.TIM_ClockDivision = TIM_CKD_DIV1;
+	tim3_base_struct.TIM_CounterMode = TIM_CounterMode_Up;
+	tim3_base_struct.TIM_Period = MYTIM3_PERIOD;
+	tim3_base_struct.TIM_Prescaler = myTIM3_PRESCALER;
+	TIM_TimeBaseInit(TIM3, &tim3_base_struct);
+
+	TIM3_NVIC_init_struct.NVIC_IRQChannel = TIM3_IRQn;
+	TIM3_NVIC_init_struct.NVIC_IRQChannelCmd = ENABLE;
+	TIM3_NVIC_init_struct.NVIC_IRQChannelPreemptionPriority = 0x00;
+	TIM3_NVIC_init_struct.NVIC_IRQChannelSubPriority = 0x00;
+	NVIC_Init(&TIM3_NVIC_init_struct);
+
+	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
+
+
+	/*Configure pins as EXTI*/
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG,ENABLE);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource0);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource1);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource2);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOE, EXTI_PinSource3);
+
+
+
+	//init EXTI
+	EXTI_init_struct.EXTI_Line = EXTI_Line0 | EXTI_Line1 | EXTI_Line2 | EXTI_Line3;
+	EXTI_init_struct.EXTI_LineCmd = ENABLE;
+	EXTI_init_struct.EXTI_Mode =  EXTI_Mode_Interrupt;
+	EXTI_init_struct.EXTI_Trigger = EXTI_Trigger_Rising;
+	EXTI_Init(&EXTI_init_struct);
+
+	EXTI_NVIC_init_struct.NVIC_IRQChannel = EXTI0_IRQn;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelPreemptionPriority = 0x0F;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelSubPriority = 0x0F;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&EXTI_NVIC_init_struct);
+
+
+	EXTI_NVIC_init_struct.NVIC_IRQChannel = EXTI1_IRQn;;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelPreemptionPriority = 0x0F;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelSubPriority = 0x0F;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&EXTI_NVIC_init_struct);
+	EXTI_NVIC_init_struct.NVIC_IRQChannel = EXTI2_IRQn;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelPreemptionPriority = 0x0F;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelSubPriority = 0x0F;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&EXTI_NVIC_init_struct);
+
+
+	EXTI_NVIC_init_struct.NVIC_IRQChannel = EXTI3_IRQn;;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelPreemptionPriority = 0x0F;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelSubPriority = 0x0F;
+	EXTI_NVIC_init_struct.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&EXTI_NVIC_init_struct);
+
+
+}
+
+
+
+
+/*
+ * Initializes the SPI for the LCD Screen PC3 MOSI, PB10 SCK, PC5 chip select active low
+ */
+
+void init_spi(){
+
+	GPIO_InitTypeDef GPIO_InitStructure;
+	SPI_InitTypeDef SPI_InitTypeDefStruct;
+
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE,ENABLE); 			//This is already turned on in init gpio's but turn on incase
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC,ENABLE); 			//This is already turned on in init gpio's but turn on incase
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);			// enable SPI Clock
+
+	/*
+	 * C bank pins
+	 * PC3		SPI MOSI for LCD screen
+	 * PC5		Chip Select for LCD screen
+	 */
+	GPIO_StructInit(&GPIO_InitStructure);							//default values
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_3;
+	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;					//alternate function for SPI
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;				//medium
+	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;				//no pull down
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+	GPIO_StructInit(&GPIO_InitStructure);							//default values
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_5;
+	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;					//CS output
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;				//medium
+	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;					//pull down
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+
+	/*
+	 * B bank pins
+	 * PB10		SPI sck for LCD screen
+	 */
+	GPIO_StructInit(&GPIO_InitStructure);							//default values
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_10;
+	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;					//alternate function for SPI
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;				//medium
+	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL ;				//pull down
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	/*
+	 * B bank pins
+	 * PB9 		Chip select
+	 */
+//	GPIO_StructInit(&GPIO_InitStructure);							//default values
+//	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_15;
+//	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;					//input
+//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;				//medium
+//	GPIO_InitStructure.GPIO_PuPd  =   GPIO_PuPd_DOWN;				//pull down
+//	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	GPIO_PinAFConfig(GPIOB, GPIO_PinSource10, GPIO_AF_SPI2);
+	GPIO_PinAFConfig(GPIOC, GPIO_PinSource3, GPIO_AF_SPI2);
+	//GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_SPI2);
+
+	//SPI struct
+	SPI_InitTypeDefStruct.SPI_Direction = SPI_Direction_1Line_Tx;
+	SPI_InitTypeDefStruct.SPI_Mode = SPI_Mode_Master;
+	SPI_InitTypeDefStruct.SPI_DataSize = SPI_DataSize_16b;
+	SPI_InitTypeDefStruct.SPI_CPOL = SPI_CPOL_Low;
+	SPI_InitTypeDefStruct.SPI_CPHA = SPI_CPHA_1Edge;
+	SPI_InitTypeDefStruct.SPI_NSS = SPI_NSS_Soft;
+	SPI_InitTypeDefStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_256;
+	SPI_InitTypeDefStruct.SPI_FirstBit = SPI_FirstBit_MSB;
+	SPI_InitTypeDefStruct.SPI_CRCPolynomial = 7;					//not sure if i need this cause not using CRC
+
+	SPI_Init(SPI2, &SPI_InitTypeDefStruct);
+
+	GPIO_SetBits(GPIOC, GPIO_Pin_5);								//Set chip select high
+	SPI_Cmd(SPI2, ENABLE);
+
+}
+
+
+
+void init_parallel(){
+
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE,ENABLE); 			//This is already turned on in init gpio's but turn on incase
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD,ENABLE); 			//This is already turned on in init gpio's but turn on incase
+
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+	/*
+	 * C bank pins
+	 * PC2		LCD Enable
+	 * PC7		LCD R/W
+	 * PC8		LCD DB0
+	 * PC9		LCD DB1
+	 * PC11		LCD DB2
+	 * PC13		LCD DB3
+	 * PC14 	LCD DB4
+	 * PC15		LCD DB5
+	 */
+	GPIO_StructInit(&GPIO_InitStructure);							//default values
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_2 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
+	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;					//CS output
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;				//medium
+	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;				// no pull up/down
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+	/*
+	 * D bank pins
+	 * PD13		LCD DB6
+	 * PD14		LCD DB7
+	 * PD15		LCD RS
+	 */
+	GPIO_StructInit(&GPIO_InitStructure);							//default values
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
+	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;					//CS output
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;				//medium
+	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;				// no pull up/down
+	GPIO_Init(GPIOD, &GPIO_InitStructure);
+
+	//set enable high
+	GPIO_ResetBits(GPIOC, GPIO_Pin_2);
 
 }

@@ -1,0 +1,44 @@
+
+
+	Gain (Maybe)
+	------------------------
+	A4		VCO-Volume			volume = ADCBuffer[4] (Maybe)
+	
+	
+	Oscillators - Pots
+	------------------------
+	A0		VCO-Amplitude			ADCBuffer[0]
+	A1		VCO-Frequency			ADCBuffer[1]
+	
+	A2		LFO-Amplitude			ADCBuffer[2]
+	A3		LFO-Frequency			ADCBuffer[3]
+
+	
+	Envelope - Pots
+	------------------------
+	A5		ENVELOPE-Attack			ADCBuffer[5]
+	A6		ENVELOPE-decay			ADCBuffer[6]
+	A7		ENVELOPE-Sustain		ADCBuffer[7]
+	B0		ENVELOPE-Release		ADCBuffer[8]
+
+	
+	Filters - Pots
+	------------------------
+	B1		FILTER-FreqLow			ADCBuffer[9]
+	C0		FILTER-FreqHigh			ADCBuffer[10]
+	C1		FILTER-FreqResonance	ADCBuffer[11]
+	C4		FILTER-FreqGain			ADCBuffer[12]
+	
+	Waveform Types - Selectors
+	------------------------
+	PE7 		vco_sine
+	PE8			vco_sawtooth
+	PE9			vco_square
+	PE10		vco_triangle
+
+	PE12 		lfo_sine
+	PE13		lfo_sawtooth
+	PE14		lfo_square
+	PE15		lfo_triangle	
+	
+	

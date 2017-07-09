@@ -1,0 +1,6 @@
+osc.h
+osc.c
+system_stm32f4xx.c
+	see comments with "mike beard" -- for fpu, i2c, pll
+main.c
+	probably just includes

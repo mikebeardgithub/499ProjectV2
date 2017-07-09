@@ -152,18 +152,12 @@ int main(void)
 		// TODO: From Horrorophone - remove
 		if (STM_EVAL_PBGetState(BUTTON_USER) && (state == OFF))
 		{
-			state = ON;			// From Horrorophone
-			STM_EVAL_LEDOn(LED6); // blue LED ON	// From Horrorophone
-			// wav_vco = (wav_vco + 1)%4; // Count up to 3 and then roll over to 0.
-			// freq_lfo =   ( (float32_t)( ADC3ConvertedValue & 0xffb )/10);
+
 		}
-		else
+		else if (! STM_EVAL_PBGetState(BUTTON_USER))
 		{
-			if (! STM_EVAL_PBGetState(BUTTON_USER))
-			{
-				state = OFF;		// From Horrorophone
-				STM_EVAL_LEDOff(LED6); // blue LED OFF
-			}
+
+
 		}
 	}
 }

@@ -2,7 +2,7 @@
  * osc.h
  *
  *  Created on: May 19, 2017
- *      Author: admin
+ *      Author: Mike Beard
  */
 
 
@@ -58,12 +58,12 @@
 
 typedef struct osc_setting
 {
-	volatile float32_t freq_vco;
-	volatile float32_t freq_vco2;
-	volatile float32_t freq_lfo;
+	float32_t vco_freq;
+	float32_t vco2_freq;
+	float32_t lfo_freq;
 
-	uint16_t wav_vco;
-	uint16_t wav_lfo;
+	selector_state vco_wav;
+	selector_state lfo_wav;
 	uint16_t am_mod;
 	uint16_t fm_mod;
 
