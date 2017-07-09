@@ -27,15 +27,6 @@ SOFTWARE.
 ******************************************************************************
 */
 
-/*
- * This file was downloaded and heavily modified from the project found here:
- * https://github.com/MrBlueXav/horrorophone-eclipse-with-makefile
- *
- * There may be very little of the original file left.
- *
- */
-
-
 /* Includes */
 #include "initial_ization.h"
 #include "user_interface.h"
@@ -158,7 +149,7 @@ int main(void)
 
 
 
-		// From Horrorophone
+		// TODO: From Horrorophone - remove
 		if (STM_EVAL_PBGetState(BUTTON_USER) && (state == OFF))
 		{
 			state = ON;			// From Horrorophone

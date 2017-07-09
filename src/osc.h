@@ -5,11 +5,6 @@
  *      Author: admin
  */
 
-/*
- * This file was downloaded and adapted from the project found here:
- * https://github.com/MrBlueXav/horrorophone-eclipse-with-makefile
- * Almost none of the original code remains.
- */
 
 #ifndef OSC_H_
 #define OSC_H_
@@ -19,6 +14,7 @@
 #include "stm32f4xx_it.h"
 
 #define SAMPLERATE              48000
+#define QUARTER_SECOND			24000			// Half second worth of samples (per channel).
 #define HALF_SECOND				48000			// Half second worth of samples (per channel).
 #define ONE_SECOND				96000			// One second worth of samples (per channel).
 #define TWO_SECOND				192000			// Two seconds worth of samples (per channel).
@@ -29,6 +25,7 @@
 #define ONE_DIV_PI				0.31830988618
 #define TWO_DIV_PI				0.63661977236
 #define PI_DIV_2				1.57079632679
+#define PI_DIV_4				0.78539816339
 #define ONE_DIV_2_PI			0.15915494309
 #define ONE_DIV_4_PI			0.07957747155
 
@@ -37,8 +34,8 @@
 
 /* TODO: Used by Horrorophone project -- remove and test */
 #define BUFF_LEN_DIV2           32
-#define ON                      1
 #define OFF                     0
+#define ON                      1
 
 /* Defines for wave shapes */
 #define WAVE_NONE				0
@@ -115,13 +112,15 @@ float32_t gen_sawtooth_angle2( float32_t angle, float32_t delta, uint32_t len);
 
 float32_t gen_sawtooth_integral_angle(float32_t angle);
 float32_t gen_rampdown_angle(float32_t angle);
+float32_t gen_rampdown_angle2( float32_t angle, float32_t min, float32_t max);
+
 float32_t gen_triangle_angle(float32_t angle);
 float32_t gen_triangle_integral_angle(float32_t angle);
 
 float32_t integrate(float32_t value);
 
 float32_t fast_fmod(float32_t x, float32_t y);
-
+uint32_t ilog10c(uint64_t v);
 
 
 #endif /* OSC_H_ */
