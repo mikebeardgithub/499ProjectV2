@@ -19,7 +19,8 @@
 #define ONE_SECOND				96000			// One second worth of samples (per channel).
 #define TWO_SECOND				192000			// Two seconds worth of samples (per channel).
 #define FIVE_SECOND				480000			// Four seconds worth of samples (per channel).
-#define TEN_SECOND				960000			// Four seconds worth of samples (per channel).
+#define TEN_SECOND				960000			// Ten seconds worth of samples (per channel).
+#define TWENTY_SECOND				1920000			// 20 seconds worth of samples (per channel).
 
 #define TWO_PI					6.28318530718
 #define ONE_DIV_PI				0.31830988618
@@ -64,8 +65,11 @@ typedef struct osc_setting
 
 	selector_state vco_wav;
 	selector_state lfo_wav;
-	uint16_t am_mod;
-	uint16_t fm_mod;
+
+	modulation_state mod;
+
+//	uint16_t am_mod;
+//	uint16_t fm_mod;
 
 	float32_t vco_amp;
 	float32_t vco_amp2;
@@ -87,6 +91,8 @@ typedef struct osc_setting
 
 typedef struct adsr_setting
 {
+	modulation_state mod;
+
 	float32_t sustain_amp;
 
 	uint32_t attack_len;
@@ -121,6 +127,8 @@ float32_t integrate(float32_t value);
 
 float32_t fast_fmod(float32_t x, float32_t y);
 uint32_t ilog10c(uint64_t v);
+
+uint32_t movingAvg(uint32_t *ptrArrNumbers, uint32_t *ptrSum, uint32_t pos, uint32_t len, uint16_t nextNum);
 
 
 #endif /* OSC_H_ */

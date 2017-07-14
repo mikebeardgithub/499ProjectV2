@@ -22,14 +22,13 @@ volatile float32_t buffer_adsr_fm[BUFF_LEN] = {0};
 // TODO: it might be that odd frequencies cause the ticking.  Might be able to detect with mod, fmod.
 osc_setting osc =
 {
-	.vco_freq = 400.0,
-	.vco2_freq = 400.0,
-	.lfo_freq = 1.5,						// Moderate LFO frequency
+	.vco_freq = 413.7,
+	.vco2_freq = 413.7,
+	.lfo_freq = 1.73,
 
-	.vco_wav = WAVE_SINE,
-	.lfo_wav = WAVE_SINE,
-	.am_mod = OFF,
-	.fm_mod = ON,
+	.vco_wav = square,
+	.lfo_wav = other2,		// other2 means OFF, for now.
+	.mod = NO_MOD,
 
 	.vco_amp = VCO_AMP/2,
 	.vco_amp2 = VCO_AMP/5,
@@ -53,16 +52,14 @@ volatile uint32_t sample_count_vco = 0;
 volatile uint32_t sample_count_lfo = 0;
 volatile uint32_t sample_count_adsr = 0;
 
-// ADSR - Attack Decay Sustain Release
-uint16_t adsr_am = OFF;					// Enable/disable ADSR amplitude envelope.
-uint16_t adsr_fm = OFF;					// Enable/disable ADSR frequency envelope.
-
 /*
  *	Set ADSR lengths in numbers of samples.
  */
 
 // Percussive
 adsr_setting adsr_01 = {
+		.mod = VCOamp,
+
 		.sustain_amp=0.7,
 
 		.attack_len=400,
@@ -74,6 +71,7 @@ adsr_setting adsr_01 = {
 
 // Bell
 adsr_setting adsr_02 = {
+		.mod = VCOamp,
 		.sustain_amp=0.3,
 
 		.attack_len=300,
@@ -85,6 +83,7 @@ adsr_setting adsr_02 = {
 
 
 adsr_setting adsr_03 = {
+		.mod = VCOamp,
 		.sustain_amp=0.5,
 
 		.attack_len=5000,
@@ -95,6 +94,7 @@ adsr_setting adsr_03 = {
 };
 
 adsr_setting adsr_04 = {
+		.mod = VCOamp,
 		.sustain_amp=0.5,
 
 		.attack_len=300,
@@ -115,6 +115,15 @@ uint32_t blank_start = 0;
 uint32_t blank_end = 0;
 
 
+/*
+ * Moving average -- TODO: remove after testing.
+ */
+#define MOV_AVG_BUFF_LEN		128
+volatile uint32_t mov_avg [MOV_AVG_BUFF_LEN] = {0};
+volatile uint32_t mov_avg_index = 0;
+volatile uint32_t mov_avg_sum;
+
+
 // TODO: for adsr frequency.  Test and remove if not needed.
 volatile float32_t delta = 0.0;
 
@@ -127,24 +136,63 @@ void generate_waveforms(uint16_t start, uint16_t end)
 {
 	uint32_t max_sample_count = QUARTER_SECOND;
 
+
 	osc.vco_wav = vfo_state;
 	osc.lfo_wav = lfo_state;
 
-	osc.vco_amp = ADCBuffer[0];
-	osc.vco_freq = ADCBuffer[1];
-	osc.lfo_amp = (float) ADCBuffer[2]/4095;		// AM: div by 4095
-	osc.lfo_freq = (float) ADCBuffer[3]/20;			// AM: div by 20
+	// osc.vco_amp = (float) (ADCBuffer[0] & 0xfffe);			// A0
+	osc.vco_freq = (float) (ADCBuffer[1] & 0xfff0);			// A1
+	// osc.lfo_amp = (float) (ADCBuffer[2] & 0xfffe)/4095;		// AM: div by 4095
+	// osc.lfo_freq = (float) (ADCBuffer[3] & 0xfff0)/20;			// AM: div by 20
 
-	adsr_setting adsr_settings = adsr_03;
+	// My moving average filter.
+	// Moving average filter osc.vco_freq
+//	mov_avg[mov_avg_index] = ADCBuffer[1] & 0xff00;								// Get most recent value
+//	mov_avg_sum += ADCBuffer[1] & 0xff00;										// Accumulate
+//	mov_avg_sum -= mov_avg[(mov_avg_index + 1) % MOV_AVG_BUFF_LEN];				// Subract oldest
+//	mov_avg_index = (mov_avg_index + 1) % MOV_AVG_BUFF_LEN;						// Increment index
+//	osc.vco_freq = ( (float32_t)  mov_avg_sum)/MOV_AVG_BUFF_LEN;
+
+	// Someone else's moving average filter.
+	// Found here: https://gist.github.com/bmccormack/d12f4bf0c96423d03f82
+	// Note that this discards bits and then smooths it.  What if it did this the other way around?
+
+	osc.vco_freq = log10(ADCBuffer[1] & 0xffff)*200;
+
+//	osc.vco_freq = movingAvg(mov_avg, &mov_avg_sum, mov_avg_index, MOV_AVG_BUFF_LEN, ADCBuffer[1] & 0xfff0);
+//	mov_avg_index++;
+//	if (mov_avg_index >= MOV_AVG_BUFF_LEN)
+//	{
+//		mov_avg_index = 0;
+//	}
+
+	// Additional settings
+	// volume = ADCBuffer[4];
+	// fc_low = ADCBuffer[9];
+	// fc_high = ADCBuffer[10];
+	// fc_resonance = ADCBuffer[11];
+	// gain = ADCBuffer[12];
+
+
+	// Get ADSR values.
+	adsr_setting adsr_settings = adsr_03;			// Fall back on this.
+
+	// TODO: turn this off...
+	// adsr_settings.mod = DualMode_VCO;
+	adsr_settings.mod = NO_MOD;
+	/*
+	 * TODO: Turn this on...
+	 * 	adsr_settings.mod = menu_state.adsr_mod;
+	 */
+
 	adsr_settings.attack_len = ADCBuffer[5]*20;		// A5
 	adsr_settings.decay_len = (ADCBuffer[6])*20;	// A6
 	adsr_settings.sustain_len = ADCBuffer[7]*10;	// A7
-	adsr_settings.release_len = ADCBuffer[8]*10;	// B0
+	adsr_settings.release_len = ADCBuffer[8]*20;	// B0
 	adsr_settings.blank_len = ADCBuffer[10]*20;		// C0
 	adsr_settings.sustain_amp = (float32_t) ADCBuffer[12]/4095;		// C4
 
-	// TODO: probably don't need to recalc over and over
-	// Calculate start-end boundaries for each of attack, sustain, ...
+	// Calculate ADSR boundaries.
 	attack_start = 0;
 	decay_start = adsr_settings.attack_len;
 	sustain_start = decay_start + adsr_settings.decay_len;
@@ -152,11 +200,9 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	blank_start = release_start + adsr_settings.release_len;
 	blank_end = blank_start + adsr_settings.blank_len;
 
-	// TODO: Consider using arm_sin_q15 instead of arm_sin_f32.  However, results might cause clipping.
 	volatile int i = 0;
 
-	// TODO: probably don't need to recalc over and over
-	// TODO: simplify these calculations
+	// Calculate "angles".  This is the sample position in a cycle.
 	volatile float32_t angle_vco = osc.vco_freq*PI_DIV_2/(max_sample_count);	// 'angle' based samples per cycle.
 	// volatile float32_t angle_vco2 = osc.vco2_freq*PI_DIV_2/(max_sample_count);	// 'angle' based samples per cycle.
 	volatile float32_t angle_lfo = osc.lfo_freq*PI_DIV_2/(max_sample_count);
@@ -166,89 +212,81 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// volatile float32_t angle_sustain = PI/adsr_settings.sustain_len;
 	volatile float32_t angle_release = PI/adsr_settings.release_len;
 
+	// Calculate number of cycles.
 	// volatile float32_t samples_cycle_vco = SAMPLERATE / osc.vco_freq;
 	volatile uint32_t samples_cycle_lfo = 2 * SAMPLERATE / osc.lfo_freq;
 	volatile uint32_t samples_cycle_adsr = adsr_settings.attack_len + adsr_settings.decay_len + adsr_settings.sustain_len + adsr_settings.release_len + adsr_settings.blank_len;
 
 	// Sine VCO
-	// if(osc.vco_wav == WAVE_SINE && osc.fm_mod == OFF)
-	if(osc.vco_wav == sine && osc.fm_mod == OFF)
+	// if(osc.vco_wav == sine && osc.fm_mod == OFF)
+	if(osc.vco_wav == sine && (osc.mod == NO_MOD || osc.mod == VCOamp ))
 	{
 		for(i = start; i < end; i++)
 		{
-			// buffer_vco[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32((sample_count_vco+(i-start))*angle_vco);
-			// buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2*arm_sin_f32((sample_count_vco+(i-start))*angle_vco2);
-			// buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
-			// buffer_output[i] = buffer_vco[i];
-
 			buffer_output[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32((sample_count_vco+(i-start))*angle_vco);
+			// buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2*arm_sin_f32((sample_count_vco+(i-start))*angle_vco2);
 		}
 	}
 
 	// Square VCO
-	// else if(osc.vco_wav == WAVE_SQUARE && osc.fm_mod == OFF)
-	else if(osc.vco_wav == square && osc.fm_mod == OFF)
+	// else if(osc.vco_wav == square && osc.fm_mod == OFF)
+	if(osc.vco_wav == square && (osc.mod == NO_MOD || osc.mod == VCOamp ) )
 	{
 		for(i = start; i < end; i++)
 		{
-			 buffer_vco[i] = osc.vco_amp + osc.vco_amp * gen_square_angle((sample_count_vco+(i-start)) * angle_vco);
-			 // buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2 * gen_square_angle((sample_count_vco+(i-start)) * angle_vco2);
-			 buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
+			buffer_output[i] = osc.vco_amp + osc.vco_amp * gen_square_angle((sample_count_vco+(i-start)) * angle_vco);
+			// buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2 * gen_square_angle((sample_count_vco+(i-start)) * angle_vco2);
 		}
 	}
 
 	// Sawtooth VCO
-	// else if(osc.vco_wav == WAVE_SAWTOOTH && osc.fm_mod == OFF)
-	else if(osc.vco_wav == sawtooth && osc.fm_mod == OFF)
+	// else if(osc.vco_wav == sawtooth && osc.fm_mod == OFF)
+	if(osc.vco_wav == sawtooth && (osc.mod == NO_MOD || osc.mod == VCOamp ) )
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = osc.vco_amp + osc.vco_amp * gen_sawtooth_angle((sample_count_vco+(i-start)) * angle_vco);
+			buffer_output[i] = osc.vco_amp + osc.vco_amp * gen_sawtooth_angle((sample_count_vco+(i-start)) * angle_vco);
 			// buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2 * gen_sawtooth_angle((sample_count_vco+(i-start)) * angle_vco2);
-			buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
 		}
 	}
 
 	// Triangle VCO
-	// else if(osc.vco_wav == WAVE_TRIANGLE && osc.fm_mod == OFF)
-	else if(osc.vco_wav == triangle && osc.fm_mod == OFF)
+	// else if(osc.vco_wav == triangle && osc.fm_mod == OFF)
+	if(osc.vco_wav == triangle && (osc.mod == NO_MOD || osc.mod == VCOamp ) )
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = osc.vco_amp + osc.vco_amp * gen_triangle_angle((sample_count_vco+(i-start)) * angle_vco);
+			buffer_output[i] = osc.vco_amp + osc.vco_amp * gen_triangle_angle((sample_count_vco+(i-start)) * angle_vco);
 			// buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2 * gen_triangle_angle((sample_count_vco+(i-start)) * angle_vco2);
-			// buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
-			buffer_output[i] = buffer_vco[i];
 		}
 	}
 
 	// SINE LFO
-	// if(osc.lfo_wav == WAVE_SINE)
 	if(osc.lfo_wav == sine)
 	{
-		if(osc.fm_mod == OFF)
+		// if(osc.fm_mod == OFF)
+		if(osc.mod == VCOamp || osc.mod == DualMode_VCO)
 		{
 			for(i = start; i < end; i++)
 			{
-				// AM
+				// AM - Requires an amplitude offset.
 				buffer_lfo_float[i] = osc.lfo_amp + osc.lfo_amp*arm_sin_f32((sample_count_lfo+(i-start))*angle_lfo);
 			}
 		}
-		else
+		else if(osc.mod == VCOfreq)
 		{
 			for(i = start; i < end; i++)
 			{
-				// FM
+				// FM - No offset.
 				buffer_lfo_float[i] = osc.lfo_amp*arm_cos_f32((sample_count_lfo+(i-start))*angle_lfo);
 			}
 		}
 	}
 
 	// Square LFO
-	// else if(osc.lfo_wav == WAVE_SQUARE)
 	else if(osc.lfo_wav == square)
 	{
-		if(osc.fm_mod == OFF)
+		if(osc.mod == VCOamp || osc.mod == DualMode_VCO)
 		{
 			// AM
 			for(i = start; i < end; i++)
@@ -256,7 +294,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 				buffer_lfo_float[i] = osc.lfo_amp*gen_square_angle((sample_count_lfo+(i-start))*angle_lfo);
 			}
 		}
-		else
+		else if(osc.mod == VCOfreq)
 		{
 			// FM
 			for(i = start; i < end; i++)
@@ -268,10 +306,9 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// Sawtooth LFO
-	// else if(osc.lfo_wav == WAVE_SAWTOOTH)
 	else if(osc.lfo_wav == sawtooth)
 	{
-		if(osc.fm_mod == OFF)
+		if(osc.mod == VCOamp || osc.mod == DualMode_VCO)
 		{
 			for(i = start; i < end; i++)
 			{
@@ -280,7 +317,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		}
 
 		// If FM mod, need integral of modulating signal.  Integral of ramp is right side of parabola.
-		else
+		else if(osc.mod == VCOfreq)
 		{
 			for(i = start; i < end; i++)
 			{
@@ -289,10 +326,9 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		}
 	}
 
-	// else if(osc.lfo_wav == WAVE_TRIANGLE)
 	else if(osc.lfo_wav == triangle)
 	{
-		if(osc.fm_mod == OFF)
+		if(osc.mod == VCOamp || osc.mod == DualMode_VCO)
 		{
 			for(i = start; i < end; i++)
 			{
@@ -301,7 +337,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		}
 
 		// If FM mod, need integral of modulating signal.
-		else
+		else if(osc.mod == VCOfreq)
 		{
 			for(i = start; i < end; i++)
 			{
@@ -312,7 +348,8 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	// Generic ADSR envelope
 	// The waveform contains 5 segments (asdr + a blank space)
-	if(adsr_am || adsr_fm)
+	// if(adsr_am || adsr_fm)
+	if(adsr_settings.mod == VCOamp || adsr_settings.mod == VCOfreq || adsr_settings.mod == DualMode_VCO)
 	{
 		for(i = start; i < end; i++)
 		{
@@ -326,57 +363,10 @@ void generate_waveforms(uint16_t start, uint16_t end)
 				buffer_adsr_am[i] = 1.0 + 1.0 * gen_sawtooth_angle( (sample_count_adsr+(i-start)) % samples_cycle_adsr * angle_attack);
 			}
 
-			// TODO: This segment has unwanted harmonics.
 			else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < sustain_start)
 			{
 				// Decay
-				// buffer_adsr_am[i] = gen_rampdown( (sample_count_adsr+i-start-decay_start) % samples_cycle_adsr, adsr_settings.decay_len, adsr_settings.sustain_amp, 1.0);
-				// buffer_adsr_am[i] = gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
-
-
-				//-------------------------------------
-//				float32_t m = 0.0;
-//				float32_t val = 0.0;
-//				float32_t angle = (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay;
-//				angle = fast_fmod(angle, TWO_PI);
-//				// y = mx + b
-//				val = 1.0 - angle*(ONE_DIV_PI);
-//				buffer_adsr_am[i] = adsr_settings.sustain_amp + one_min_sust_amp * val;
-
-				//-------------------------------------
-				// The (1.0 - ...) causes noise.  Not sure why...
-				// buffer_adsr_am[i] = gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
-				// buffer_adsr_am[i] = (1.0 - adsr_settings.sustain_amp) * buffer_adsr_am[i];
-				// buffer_adsr_am[i] = adsr_settings.sustain_amp + buffer_adsr_am[i];
-				//-------------------------------------
-
-				// buffer_adsr_am[i] = adsr_settings.sustain_amp + (1.0 - adsr_settings.sustain_amp) * gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
-
-
-
-				//-------------------------------------
-				// buffer_adsr_am[i] = 1.0;
-				//-------------------------------------
-
-				//-------------------------------------
-				// buffer_adsr_am[i] = adsr_settings.sustain_amp + (1.0 - adsr_settings.sustain_amp) * gen_rampdown_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
-				//-------------------------------------
-				// buffer_adsr_am[i] = gen_sawtooth_angle( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay);
-				// buffer_adsr_am[i] = 0.5 - 0.5 * buffer_adsr_am[i];
-				// buffer_adsr_am[i] = adsr_settings.sustain_amp + (1.0 - adsr_settings.sustain_amp) * buffer_adsr_am[i];
-				//-------------------------------------
-				// buffer_adsr_am[i] = gen_rampdown((sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr, samples_cycle_adsr, 0.0, 1.0);
-				//-------------------------------------
-
-				// Sine, FM --> Try 1.0
-				// Square, FM --> Use 0.4
-				// Triangle, FM ---> Try 2.0
 				buffer_adsr_am[i] = 1.0 * gen_rampdown_angle2( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay, adsr_settings.sustain_amp, 1.0);
-//				if(buffer_adsr_am[i] < adsr_settings.sustain_amp + 0.01)
-//				{
-//					uint16_t test;
-//					test = 1;
-//				}
 			}
 
 			else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < release_start)
@@ -404,8 +394,8 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	 * ADSR frequency envelope.
 	 * Uses the ADSR amplitude envelope and integrates each of the shapes.
 	 */
-	//
-	if(adsr_fm)
+	// if(adsr_fm)
+	if(adsr_settings.mod == VCOfreq || adsr_settings.mod == DualMode_VCO)
 	{
 		for(i = start; i < end; i++)
 		{
@@ -413,7 +403,6 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			if( (sample_count_adsr+(i-start))%samples_cycle_adsr < decay_start)
 			{
 				// Attack
-				// buffer_adsr_fm[i] = 0.5 * buffer_adsr_am[i] * buffer_adsr_am[i];
 				buffer_adsr_fm[i] = buffer_adsr_am[i];
 				if(i > 0)
 				{
@@ -428,7 +417,6 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < sustain_start)
 			{
 				// Decay
-				// buffer_adsr_fm[i] = 0.5 * buffer_adsr_am[i] * buffer_adsr_am[i];
 				buffer_adsr_fm[i] = buffer_adsr_am[i];
 				if(i > 0)
 				{
@@ -446,7 +434,6 @@ void generate_waveforms(uint16_t start, uint16_t end)
 				// DO this only once--get last delta from previous section.
 				if( (sample_count_adsr+(i-start))%samples_cycle_adsr == sustain_start)
 				{
-					// buffer_adsr_fm[i] = buffer_adsr_fm[i-1];
 					if(i > 1)
 					{
 						delta = buffer_adsr_fm[i-1] - buffer_adsr_fm[i-2];
@@ -495,59 +482,52 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		}
 	}
 
-	// TODO: add buffer_adsr_fm[i] to phase
 	// FM for sine wave VCO.
-	if(osc.vco_wav == sine && ( osc.fm_mod == ON || adsr_fm == ON ) )
+	if(osc.vco_wav == sine && ( osc.mod == VCOfreq || osc.mod == DualMode_VCO || adsr_settings.mod == VCOfreq || adsr_settings.mod == DualMode_VCO ) )
 	{
 		for(i = start; i < end; i++)
 		{
-			// buffer_vco[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32((sample_count_vco+(i-start))*angle_vco + 100*buffer_lfo_float[i]);
-			buffer_vco[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32((sample_count_vco+(i-start))*angle_vco + 100*buffer_lfo_float[i] + buffer_adsr_fm[i]);
+			buffer_output[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32((sample_count_vco+(i-start))*angle_vco + 100*buffer_lfo_float[i] + buffer_adsr_fm[i]);
 			// buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2*arm_sin_f32((sample_count_vco+(i-start))*angle_vco2 + 100*buffer_lfo_float[i]);
-			// buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
-			buffer_output[i] = buffer_vco[i];
-
 		}
 	}
 
 	// FM for square wave VCO.
-	else if(osc.vco_wav == square && ( osc.fm_mod == ON || adsr_fm == ON ) )
+	// else if(osc.vco_wav == square && ( osc.mod == ON || adsr_fm == ON ) )
+	else if(osc.vco_wav == square && ( osc.mod == VCOfreq || osc.mod == DualMode_VCO || adsr_settings.mod == VCOfreq || adsr_settings.mod == DualMode_VCO ) )
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = osc.vco_amp + osc.vco_amp * gen_square_angle((sample_count_vco+(i-start))*angle_vco + 100*buffer_lfo_float[i] + 0.3 * buffer_adsr_fm[i]);
+			buffer_output[i] = osc.vco_amp + osc.vco_amp * gen_square_angle((sample_count_vco+(i-start))*angle_vco + 100*buffer_lfo_float[i] + 0.3 * buffer_adsr_fm[i]);
 			// buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2 * gen_square_angle((sample_count_vco+(i-start))*angle_vco2 + 50*buffer_lfo_float[i]);
-			// buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
-			buffer_output[i] = buffer_vco[i];
 		}
 	}
 
 	// FM for sawtooth wave VCO.
-	else if(osc.vco_wav == sawtooth && ( osc.fm_mod == ON || adsr_fm == ON ) )
+	// else if(osc.vco_wav == sawtooth && ( osc.mod == ON || adsr_fm == ON ) )
+	else if(osc.vco_wav == sawtooth && ( osc.mod == VCOfreq || osc.mod == DualMode_VCO || adsr_settings.mod == VCOfreq || adsr_settings.mod == DualMode_VCO ) )
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = osc.vco_amp + osc.vco_amp * gen_sawtooth_angle((sample_count_vco+(i-start))*angle_vco + 50*buffer_lfo_float[i] + 0.3 * buffer_adsr_fm[i]);
+			buffer_output[i] = osc.vco_amp + osc.vco_amp * gen_sawtooth_angle((sample_count_vco+(i-start))*angle_vco + 50*buffer_lfo_float[i] + 0.3 * buffer_adsr_fm[i]);
 			// buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2 * gen_sawtooth_angle((sample_count_vco+(i-start))*angle_vco2 + 50*buffer_lfo_float[i] + 0.3 * buffer_adsr_fm[i]);
-			// buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
-			buffer_output[i] = buffer_vco[i];
 		}
 	}
 
 	// FM for triangle wave VCO.
-	else if(osc.vco_wav == triangle && ( osc.fm_mod == ON || adsr_fm == ON ) )
+	// else if(osc.vco_wav == triangle && ( osc.mod == ON || adsr_fm == ON ) )
+	else if(osc.vco_wav == triangle && ( osc.mod == VCOfreq || osc.mod == DualMode_VCO || adsr_settings.mod == VCOfreq || adsr_settings.mod == DualMode_VCO ) )
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_vco[i] = osc.vco_amp + osc.vco_amp * gen_triangle_angle((sample_count_vco+(i-start))*angle_vco + 50*buffer_lfo_float[i] + 0.01 * buffer_adsr_fm[i]);
+			buffer_output[i] = osc.vco_amp + osc.vco_amp * gen_triangle_angle((sample_count_vco+(i-start))*angle_vco + 50*buffer_lfo_float[i] + 0.01 * buffer_adsr_fm[i]);
 			// buffer_vco2[i] = osc.vco_amp2 + osc.vco_amp2 * gen_triangle_angle((sample_count_vco+(i-start))*angle_vco2 + 50*buffer_lfo_float[i]);
-			// buffer_output[i] = buffer_vco[i] + buffer_vco2[i];
-			buffer_output[i] = buffer_vco[i];
 		}
 	}
 
 	// AM modulation.
-	if(osc.am_mod == ON)
+	// if(osc.am_mod == ON)
+	if(osc.mod == VCOamp || osc.mod == DualMode_VCO)
 	{
 		for(i = start; i < end; i++)
 		{
@@ -557,17 +537,14 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	// ADSR amplitude envelope
 	// The waveform contains 5 segments (asdr + a blank space)
-	if(adsr_am)
+	// if(adsr_am)
+	if(adsr_settings.mod == VCOamp || adsr_settings.mod == DualMode_VCO)
 	{
 		for(i = start; i < end; i++)
 		{
 			buffer_output[i] = buffer_output[i] * buffer_adsr_am[i];
 		}
 	}
-
-
-	//	sample_count = sample_count + (i - start);
-	//	sample_count = sample_count % (TEN_SECOND);
 
 	/*
 	 * TODO
@@ -580,7 +557,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	 * ** Multiple samples_cycle_vco by 100 or 1000 and mod that....  Might be close enough.
 	 */
 	sample_count_vco = sample_count_vco + (i - start);
-	sample_count_vco = sample_count_vco % ONE_SECOND;
+	sample_count_vco = sample_count_vco % TWENTY_SECOND;
 
 	sample_count_lfo = sample_count_lfo + (i - start);
 	sample_count_lfo = sample_count_lfo % samples_cycle_lfo;
@@ -912,10 +889,24 @@ void count_cycles()
 	/* ************************************************************** */
 
 
-
 	/* ************************************************************* */
 	// TODO: for measuring time.
 	// number of cycles stored in count variable
 	count = *DWT_CYCCNT;
 	/* ************************************************************* */
+}
+
+
+/*
+ * TODO: Remove after testing
+ * Found here: https://gist.github.com/bmccormack/d12f4bf0c96423d03f82
+ */
+uint32_t movingAvg(uint32_t *ptrArrNumbers, uint32_t *ptrSum, uint32_t pos, uint32_t len, uint16_t nextNum)
+{
+  //Subtract the oldest number from the prev sum, add the new number
+  *ptrSum = *ptrSum - ptrArrNumbers[pos] + nextNum;
+  //Assign the nextNum to the position in the array
+  ptrArrNumbers[pos] = nextNum;
+  //return the average
+  return (uint32_t) *ptrSum / len;
 }
