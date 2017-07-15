@@ -59,15 +59,6 @@ int main(void)
 	*  E.g.  SCB->VTOR = 0x20000000;
 	*/
 
-	/* Initialize LEDS */
-	STM_EVAL_LEDInit(LED3); // orange LED		// From Horrorophone
-	STM_EVAL_LEDInit(LED4); // green LED		// From Horrorophone
-	STM_EVAL_LEDInit(LED5); // red LED			// From Horrorophone
-	STM_EVAL_LEDInit(LED6); // blue LED			// From Horrorophone
-
-	/* Green Led On: start of application */
-	STM_EVAL_LEDOn(LED4);						// From Horrorophone
-
 	/**************************** Run Initialization functions timer for tim2 started in init_adc*****************************/
 
 	init_gpios();								//initialize gpios
