@@ -18,11 +18,10 @@ volatile float32_t buffer_lfo_float[BUFF_LEN] = {0};
 volatile float32_t buffer_adsr_am[BUFF_LEN] = {0};			// Attack, sustain, decay, release
 volatile float32_t buffer_adsr_fm[BUFF_LEN] = {0};
 
-// TODO: organize these globals into struct(s)
-// TODO: it might be that odd frequencies cause the ticking.  Might be able to detect with mod, fmod.
+// Defaults
 osc_setting osc =
 {
-	.vco_freq = 413.7,
+	.vco_freq = 0.000001,
 	.vco2_freq = 413.7,
 	.lfo_freq = 1.73,
 
@@ -118,11 +117,15 @@ uint32_t blank_end = 0;
 /*
  * Moving average -- TODO: remove after testing.
  */
-#define MOV_AVG_BUFF_LEN		128
+#define MOV_AVG_BUFF_LEN		256
 volatile uint32_t mov_avg [MOV_AVG_BUFF_LEN] = {0};
 volatile uint32_t mov_avg_index = 0;
 volatile uint32_t mov_avg_sum;
 
+#define SPIKE_FILTER_LEN		2
+float32_t spike_buff [SPIKE_FILTER_LEN] = {0};
+uint16_t spike_buff_index = 0;
+float32_t prev_osc_freq = 0;
 
 // TODO: for adsr frequency.  Test and remove if not needed.
 volatile float32_t delta = 0.0;
@@ -132,7 +135,297 @@ volatile float32_t delta = 0.0;
  * For first half of buffer, start = 0; end = buff_len/2
  * For second half, start = buff_len/2; end = buff_len
  */
+
+float32_t theta_vco = 0;
+float32_t theta_lfo = 0;
+float32_t theta_adsr = 0;
+
 void generate_waveforms(uint16_t start, uint16_t end)
+{
+	// Get wave shape.
+	osc.vco_wav = vfo_state;
+	osc.lfo_wav = lfo_state;
+
+	// osc.vco_wav = sine;
+	// osc.vco_wav = sine;
+
+	// Oscillators - amplitude and frequency.
+	osc.vco_amp = (float) (ADCBuffer[0] & 0xffff);					// A0
+	osc.vco_freq = (float) (ADCBuffer[1] & 0xffff) * 2 * PI;		// A1
+	osc.lfo_amp = (float) (ADCBuffer[2] & 0xffff)/200;				// AM: div by 4095
+	osc.lfo_freq = (float) (ADCBuffer[3] & 0xffff)/20;				// TODO: AM: div by 20
+
+	uint32_t i = 0;
+
+	// Get ADSR values.
+	// adsr_setting adsr_settings = adsr_03;			// Fall back on this.
+	adsr_setting adsr_settings;
+
+
+	// adsr_settings.mod = DualMode_VCO;
+	adsr_settings.mod = NO_MOD;						// TODO: turn this off when LCD activated.
+	/*
+	 * TODO: Turn this on when LCD activated.
+	 * 	adsr_settings.mod = menu_state.adsr_mod;
+	 */
+
+	adsr_settings.attack_len = ADCBuffer[5]*20;		// A5
+	adsr_settings.decay_len = (ADCBuffer[6])*20;	// A6
+	adsr_settings.sustain_len = ADCBuffer[7]*10;	// A7
+	adsr_settings.release_len = ADCBuffer[8]*20;	// B0
+	adsr_settings.blank_len = ADCBuffer[10]*20;		// C0
+	adsr_settings.sustain_amp = (float32_t) ADCBuffer[12]/4095;		// C4
+
+	// Calculate ADSR boundaries.
+	attack_start = 0;
+	decay_start = adsr_settings.attack_len;
+	sustain_start = decay_start + adsr_settings.decay_len;
+	release_start = sustain_start + adsr_settings.sustain_len;
+	blank_start = release_start + adsr_settings.release_len;
+	blank_end = blank_start + adsr_settings.blank_len;
+
+	// Calculate angle amount to increment per sample.
+	float32_t rads_per_sample_vco = osc.vco_freq / ONE_SECOND;		// Radians to increment for each iteration.
+	float32_t rads_per_sample_lfo = osc.lfo_freq / ONE_SECOND;		// Radians to increment for each iteration.
+	// TODO: float32_t rads_per_sample_adsr = 1 * TWO_PI / ONE_SECOND;
+
+	// One cycle is the entire ADSR envelope plus blank space.
+	uint32_t samples_cycle_adsr = adsr_settings.attack_len + adsr_settings.decay_len + adsr_settings.sustain_len + adsr_settings.release_len + adsr_settings.blank_len;
+	// float32_t rads_per_sample_adsr = TWO_PI / samples_cycle_adsr;
+
+	adsr_settings.attack_len_rad = adsr_settings.attack_len  * TWO_PI / samples_cycle_adsr;
+	adsr_settings.decay_len_rad = adsr_settings.decay_len  * TWO_PI / samples_cycle_adsr;
+	adsr_settings.sustain_len_rad = adsr_settings.sustain_len  * TWO_PI / samples_cycle_adsr;
+	adsr_settings.release_len_rad = adsr_settings.release_len  * TWO_PI / samples_cycle_adsr;
+	adsr_settings.blank_len_rad = adsr_settings.blank_len  * TWO_PI / samples_cycle_adsr;
+
+	// float32_t attack_start_rad = 0.0;
+	float32_t decay_start_rad = adsr_settings.attack_len_rad;
+	float32_t sustain_start_rad = decay_start_rad + adsr_settings.decay_len_rad;
+	float32_t release_start_rad = sustain_start_rad + adsr_settings.sustain_len_rad;
+	float32_t blank_start_rad = release_start_rad + adsr_settings.release_len_rad;
+	float32_t blank_end_rad = blank_start_rad + adsr_settings.blank_len_rad;
+
+
+//	// Generic ADSR envelope
+//	// The waveform contains 5 segments (asdr + a blank space)
+//	// if(adsr_am || adsr_fm)
+	if(adsr_settings.mod == VCOamp || adsr_settings.mod == VCOfreq || adsr_settings.mod == DualMode_VCO)
+	{
+		for(i = start; i < end; i++)
+		{
+			// First part tells us sample number into the adsr cycle: (sample_count+(i-start))%sample_cycle_adsr
+			// if( (sample_count_adsr+(i-start))%samples_cycle_adsr < decay_start)
+			if(theta_adsr < decay_start_rad)
+			{
+				// Attack
+				// Sine, FM --> Try 1.0
+				// Square, FM --> Use 0.4
+				// Triangle, FM ---> Try 2.0
+				// buffer_adsr_am[i] = 1.0 + 1.0 * gen_sawtooth_angle( (sample_count_adsr+(i-start)) % samples_cycle_adsr * angle_attack);
+				buffer_adsr_am[i] = 1.0 + 1.0 * gen_sawtooth_angle( theta_adsr);
+			}
+
+			// else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < sustain_start)
+			else if(theta_adsr < sustain_start_rad)
+			{
+				// Decay
+				// buffer_adsr_am[i] = 1.0 * gen_rampdown_angle2( (sample_count_adsr+(i-start-decay_start)) % samples_cycle_adsr * angle_decay, adsr_settings.sustain_amp, 1.0);
+				buffer_adsr_am[i] = 1.0 * gen_rampdown_angle2(theta_adsr, adsr_settings.sustain_amp, 1.0);
+			}
+
+			// else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < release_start)
+			else if(theta_adsr < release_start_rad)
+			{
+				// Sustain
+				buffer_adsr_am[i] = adsr_settings.sustain_amp;
+			}
+
+			// else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < blank_start)
+			else if(theta_adsr < blank_start_rad)
+			{
+				// Release
+				// buffer_adsr_am[i] = adsr_settings.sustain_amp * gen_rampdown_angle( (sample_count_adsr+(i-start-release_start)) % samples_cycle_adsr * angle_release);
+				buffer_adsr_am[i] = adsr_settings.sustain_amp * gen_rampdown_angle( theta_adsr );
+			}
+
+			// else if( (sample_count_adsr+(i-start))%samples_cycle_adsr < blank_end)
+			else if(theta_adsr < blank_end_rad)
+			{
+				// Blank
+				buffer_adsr_am[i] = 0;
+			}
+			// TODO: I think we do this later.
+			// buffer_output[i] = buffer_output[i] * buffer_adsr_am[i];
+		}
+	}
+
+
+	// Sine LFO
+	if(osc.lfo_wav == sine)
+	{
+
+		for(i = start; i < end; i++)
+		{
+			theta_lfo = theta_lfo + rads_per_sample_lfo;
+			buffer_lfo_float[i] = osc.lfo_amp + osc.lfo_amp*arm_sin_f32(theta_lfo);
+		}
+	}
+
+	// Square LFO
+	if(osc.lfo_wav == square)
+	{
+
+		for(i = start; i < end; i++)
+		{
+			theta_lfo = theta_lfo + rads_per_sample_lfo;
+			buffer_lfo_float[i] = osc.lfo_amp + osc.lfo_amp*gen_square_angle(theta_lfo);
+		}
+	}
+
+	// Sawtooth LFO
+	if(osc.lfo_wav == sawtooth)
+	{
+
+		for(i = start; i < end; i++)
+		{
+			theta_lfo = theta_lfo + rads_per_sample_lfo;
+			buffer_lfo_float[i] = osc.lfo_amp + osc.lfo_amp*gen_sawtooth_angle(theta_lfo);
+		}
+	}
+
+	// Triangle LFO
+	if(osc.lfo_wav == triangle)
+	{
+
+		for(i = start; i < end; i++)
+		{
+			theta_lfo = theta_lfo + rads_per_sample_lfo;
+			buffer_lfo_float[i] = osc.lfo_amp + osc.lfo_amp*gen_triangle_angle(theta_lfo);
+		}
+	}
+
+	// Sine VCO
+	if(osc.vco_wav == sine)
+	{
+
+		for(i = start; i < end; i++)
+		{
+			theta_vco = theta_vco + rads_per_sample_vco;
+			buffer_output[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32(theta_vco + buffer_lfo_float[i] + buffer_adsr_fm[i]);
+		}
+	}
+
+	// Square VCO
+	if(osc.vco_wav == square)
+	{
+
+		for(i = start; i < end; i++)
+		{
+			theta_vco = theta_vco + rads_per_sample_vco;
+			buffer_output[i] = osc.vco_amp + osc.vco_amp*gen_square_angle(theta_vco + 100*buffer_lfo_float[i] + buffer_adsr_fm[i]);
+		}
+	}
+
+	// Sawtooth VCO
+	if(osc.vco_wav == sawtooth)
+	{
+
+		for(i = start; i < end; i++)
+		{
+			theta_vco = theta_vco + rads_per_sample_vco;
+			buffer_output[i] = osc.vco_amp + osc.vco_amp*gen_sawtooth_angle(theta_vco + 100*buffer_lfo_float[i] + buffer_adsr_fm[i]);
+		}
+	}
+
+	// Triangle VCO
+	if(osc.vco_wav == triangle)
+	{
+
+		for(i = start; i < end; i++)
+		{
+			theta_vco = theta_vco + rads_per_sample_vco;
+			buffer_output[i] = osc.vco_amp + osc.vco_amp*gen_triangle_angle(theta_vco + 100*buffer_lfo_float[i] + buffer_adsr_fm[i]);
+		}
+	}
+
+	// AM Modulate VCO with LFO
+	if(osc.mod == VCOamp || osc.mod == DualMode_VCO)
+	{
+		for(i = start; i < end; i++)
+		{
+			buffer_output[i] = buffer_output[i] * buffer_lfo_float[i];
+		}
+	}
+
+	// AM Modulate VCO with ADSR
+	if(adsr_settings.mod == VCOamp || adsr_settings.mod == DualMode_VCO)
+	{
+		for(i = start; i < end; i++)
+		{
+			buffer_output[i] = buffer_output[i] * buffer_adsr_am[i];
+		}
+	}
+
+	theta_vco = fast_fmod(theta_vco, TWO_PI);
+	theta_lfo = fast_fmod(theta_lfo, TWO_PI);
+	theta_adsr = fast_fmod(theta_adsr, TWO_PI);
+
+	return;
+}
+
+
+
+/*
+ * Clean version - for testing only
+ */
+void generate_waveforms2(uint16_t start, uint16_t end)
+{
+	uint32_t i = 0;
+	osc.vco_wav = square;
+	osc.vco_freq = (float) (ADCBuffer[1] & 0xffff) * 2 * PI;					// A1
+
+
+//	// Trying to eliminate frequency fluctuations.
+//	if (osc.vco_freq + 750.0 < prev_osc_freq || osc.vco_freq - 750.0 > prev_osc_freq &&  prev_osc_freq > 100.0)
+//	{
+//		osc.vco_freq = prev_osc_freq;
+//	}
+//	prev_osc_freq = osc.vco_freq;
+
+	// ---------------------------------------
+	// Someone else's moving average filter.
+	// Found here: https://gist.github.com/bmccormack/d12f4bf0c96423d03f82
+	// Note that this discards bits and then smooths it.  What if it did this the other way around?
+	// osc.vco_freq = log10(ADCBuffer[1] & 0xffff)*200;
+	osc.vco_freq = movingAvg(mov_avg, &mov_avg_sum, mov_avg_index, MOV_AVG_BUFF_LEN, ADCBuffer[1] & 0xfffc);
+	mov_avg_index++;
+	if (mov_avg_index >= MOV_AVG_BUFF_LEN)
+	{
+		mov_avg_index = 0;
+	}
+
+	float32_t rads_per_sample = osc.vco_freq / ONE_SECOND;		// Radians to increment for each iteration.
+
+	for(i = start; i < end; i++)
+	{
+		theta_vco = theta_vco + rads_per_sample;
+		// buffer_output[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32(theta_vco);
+		buffer_output[i] = osc.vco_amp + osc.vco_amp*gen_square_angle(theta_vco);
+	}
+
+
+
+	theta_vco = fast_fmod(theta_vco, 2 * PI);
+
+	return;
+}
+
+
+
+
+
+void generate_waveforms1(uint16_t start, uint16_t end)
 {
 	uint32_t max_sample_count = QUARTER_SECOND;
 
@@ -141,24 +434,27 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	osc.lfo_wav = lfo_state;
 
 	// osc.vco_amp = (float) (ADCBuffer[0] & 0xfffe);			// A0
-	osc.vco_freq = (float) (ADCBuffer[1] & 0xfff0);			// A1
+	osc.vco_freq = (float) (ADCBuffer[1]);			// A1
 	// osc.lfo_amp = (float) (ADCBuffer[2] & 0xfffe)/4095;		// AM: div by 4095
 	// osc.lfo_freq = (float) (ADCBuffer[3] & 0xfff0)/20;			// AM: div by 20
 
 	// My moving average filter.
 	// Moving average filter osc.vco_freq
-//	mov_avg[mov_avg_index] = ADCBuffer[1] & 0xff00;								// Get most recent value
-//	mov_avg_sum += ADCBuffer[1] & 0xff00;										// Accumulate
-//	mov_avg_sum -= mov_avg[(mov_avg_index + 1) % MOV_AVG_BUFF_LEN];				// Subract oldest
-//	mov_avg_index = (mov_avg_index + 1) % MOV_AVG_BUFF_LEN;						// Increment index
+//	mov_avg[mov_avg_index] = ADCBuffer[1] & 0xff00;								// Get most recent value.
+//	mov_avg_sum += ADCBuffer[1] & 0xff00;										// Accumulate.
+//	mov_avg_sum -= mov_avg[(mov_avg_index + 1) % MOV_AVG_BUFF_LEN];				// Subtract oldest.
+//	mov_avg_index++;
+//	if (mov_avg_index >= MOV_AVG_BUFF_LEN)
+//	{
+//		mov_avg_index = 0;
+//	}
 //	osc.vco_freq = ( (float32_t)  mov_avg_sum)/MOV_AVG_BUFF_LEN;
 
+	// ---------------------------------------
 	// Someone else's moving average filter.
 	// Found here: https://gist.github.com/bmccormack/d12f4bf0c96423d03f82
 	// Note that this discards bits and then smooths it.  What if it did this the other way around?
-
-	osc.vco_freq = log10(ADCBuffer[1] & 0xffff)*200;
-
+	// osc.vco_freq = log10(ADCBuffer[1] & 0xffff)*200;
 //	osc.vco_freq = movingAvg(mov_avg, &mov_avg_sum, mov_avg_index, MOV_AVG_BUFF_LEN, ADCBuffer[1] & 0xfff0);
 //	mov_avg_index++;
 //	if (mov_avg_index >= MOV_AVG_BUFF_LEN)
@@ -166,7 +462,24 @@ void generate_waveforms(uint16_t start, uint16_t end)
 //		mov_avg_index = 0;
 //	}
 
-	// Additional settings
+
+	/*
+	 * Noise from ADC seems to be very fast spikes.
+	 * Attempt to remove them by ignoring samples that differ greatly from previous samples.
+	 */
+//	spike_buff[spike_buff_index] = ADCBuffer[1];
+//	spike_buff_index++;
+//	if (spike_buff_index >= SPIKE_FILTER_LEN)
+//	{
+//		spike_buff_index = 0;
+//	}
+//	osc.vco_freq = spike_filter(spike_buff, spike_buff_index, 2000);
+
+
+
+	/*
+	 * Additional ADC values.
+	 */
 	// volume = ADCBuffer[4];
 	// fc_low = ADCBuffer[9];
 	// fc_high = ADCBuffer[10];
@@ -216,6 +529,10 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// volatile float32_t samples_cycle_vco = SAMPLERATE / osc.vco_freq;
 	volatile uint32_t samples_cycle_lfo = 2 * SAMPLERATE / osc.lfo_freq;
 	volatile uint32_t samples_cycle_adsr = adsr_settings.attack_len + adsr_settings.decay_len + adsr_settings.sustain_len + adsr_settings.release_len + adsr_settings.blank_len;
+
+	/*
+	 * TODO: these VCO calculations can be combined with the FM ones -- for AM no modulation, just set phase to 0.
+	 */
 
 	// Sine VCO
 	// if(osc.vco_wav == sine && osc.fm_mod == OFF)
@@ -910,3 +1227,40 @@ uint32_t movingAvg(uint32_t *ptrArrNumbers, uint32_t *ptrSum, uint32_t pos, uint
   //return the average
   return (uint32_t) *ptrSum / len;
 }
+
+
+/*
+ * Attempt to remove noise spikes from adc inputs.
+ * Param: buffer.  Buffer of last few samples.  Could possibly contain just 2 samples.
+ * Param: i.  Index of current sample in buffer.
+ * Param: max_diff.  Sets max allowable difference.
+ */
+float32_t spike_filter(float32_t buffer[], uint16_t i, float32_t max_diff)
+{
+	// Choose previous index.
+	uint16_t prev_i = 0;
+	if (i == 0)
+	{
+		prev_i = SPIKE_FILTER_LEN - 1;
+	}
+	else
+	{
+		prev_i = i - 1;
+	}
+
+	// If new value exceeds difference, then ignore it.
+//	if (buffer[i] + max_diff < buffer[prev_i] || buffer[i] - max_diff > buffer[prev_i])
+//	{
+//		buffer[i] = buffer[prev_i];
+//	}
+
+
+	// If new value exceeds difference, then ignore it.
+	if (buffer[i] + max_diff < buffer[prev_i] || buffer[i] - max_diff > buffer[prev_i])
+	{
+		return buffer[prev_i];
+	}
+
+	return buffer[i];
+}
+

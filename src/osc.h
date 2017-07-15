@@ -20,7 +20,7 @@
 #define TWO_SECOND				192000			// Two seconds worth of samples (per channel).
 #define FIVE_SECOND				480000			// Four seconds worth of samples (per channel).
 #define TEN_SECOND				960000			// Ten seconds worth of samples (per channel).
-#define TWENTY_SECOND				1920000			// 20 seconds worth of samples (per channel).
+#define TWENTY_SECOND			1920000			// 20 seconds worth of samples (per channel).
 
 #define TWO_PI					6.28318530718
 #define ONE_DIV_PI				0.31830988618
@@ -100,10 +100,18 @@ typedef struct adsr_setting
 	uint32_t sustain_len;
 	uint32_t release_len;
 	uint32_t blank_len;			// Blank time between 'note'.  Can be zero.
+
+	float32_t attack_len_rad;
+	float32_t decay_len_rad;
+	float32_t sustain_len_rad;
+	float32_t release_len_rad;
+	float32_t blank_len_rad;			// Blank time between 'note'.  Can be zero.
+
 } adsr_setting;
 
 
 void generate_waveforms(uint16_t start, uint16_t end);
+void generate_waveforms2(uint16_t start, uint16_t end);
 float32_t gen_square(uint16_t current_sample, uint16_t samples_half_cycle);
 float32_t gen_sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max);
 float32_t gen_rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max);
@@ -130,5 +138,6 @@ uint32_t ilog10c(uint64_t v);
 
 uint32_t movingAvg(uint32_t *ptrArrNumbers, uint32_t *ptrSum, uint32_t pos, uint32_t len, uint16_t nextNum);
 
+float32_t spike_filter(float32_t buffer[], uint16_t i, float32_t max_diff);
 
 #endif /* OSC_H_ */
