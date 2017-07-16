@@ -126,6 +126,10 @@ volatile uint32_t mov_avg2 [MOV_AVG_BUFF_LEN] = {0};
 volatile uint32_t mov_avg_index2 = 0;
 volatile uint32_t mov_avg_sum2;
 
+volatile uint32_t mov_avg3 [MOV_AVG_BUFF_LEN] = {0};
+volatile uint32_t mov_avg_index3 = 0;
+volatile uint32_t mov_avg_sum3;
+
 #define SPIKE_FILTER_LEN		2
 float32_t spike_buff [SPIKE_FILTER_LEN] = {0};
 uint16_t spike_buff_index = 0;
@@ -179,6 +183,13 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	if (mov_avg_index2 >= MOV_AVG_BUFF_LEN)
 	{
 		mov_avg_index2 = 0;
+	}
+
+	osc.lfo_amp = movingAvg(mov_avg3, &mov_avg_sum3, mov_avg_index3, MOV_AVG_BUFF_LEN, (ADCBuffer[2] & 0xfffc)/200);
+	mov_avg_index3++;
+	if (mov_avg_index3 >= MOV_AVG_BUFF_LEN)
+	{
+		mov_avg_index3 = 0;
 	}
 
 	volatile uint32_t i = 0;
