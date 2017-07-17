@@ -444,7 +444,7 @@ void adsr(uint16_t start, uint16_t end)
 	volatile uint32_t samples_cycle_adsr = adsr_settings.attack_len + adsr_settings.decay_len + adsr_settings.sustain_len + adsr_settings.release_len + adsr_settings.blank_len;
 
 	// Calculate ADSR boundaries.
-	uint32_t attack_start = 0;
+	// uint32_t attack_start = 0;
 	uint32_t decay_start = adsr_settings.attack_len;
 	uint32_t sustain_start = decay_start + adsr_settings.decay_len;
 	uint32_t release_start = sustain_start + adsr_settings.sustain_len;
@@ -634,7 +634,7 @@ void adsr_rad(uint16_t start, uint16_t end)
 	volatile float32_t blank_end_rad = blank_start_rad + adsr_settings.blank_len_rad;
 
 	// for testing - should be 6.28...
-	volatile float32_t adsr_length_rad = adsr_settings.attack_len_rad + decay_start_rad + adsr_settings.decay_len_rad + sustain_start_rad + adsr_settings.sustain_len_rad + release_start_rad + adsr_settings.release_len_rad + blank_start_rad + adsr_settings.blank_len_rad;
+	// volatile float32_t adsr_length_rad = adsr_settings.attack_len_rad + decay_start_rad + adsr_settings.decay_len_rad + sustain_start_rad + adsr_settings.sustain_len_rad + release_start_rad + adsr_settings.release_len_rad + blank_start_rad + adsr_settings.blank_len_rad;
 
 	// Generic ADSR envelope
 	// The waveform contains 5 segments (asdr + a blank space)
@@ -806,21 +806,21 @@ void adsr_rad(uint16_t start, uint16_t end)
 }
 
 
-/*
- * square()
- * Returns 0 if 0.0 < current_sample < samples_half_cycle
- * Returns 1 if current_sample > samples_half_cycle
- *
- * Parameter angle: value from 0.0 to 1.0.
- */
-float32_t gen_square(uint16_t current_sample, uint16_t samples_half_cycle)
-{
-	if (current_sample < samples_half_cycle)
-	{
-		return osc.square_min;
-	}
-	return osc.square_max;
-}
+///*
+// * square()
+// * Returns 0 if 0.0 < current_sample < samples_half_cycle
+// * Returns 1 if current_sample > samples_half_cycle
+// *
+// * Parameter angle: value from 0.0 to 1.0.
+// */
+//float32_t gen_square(uint16_t current_sample, uint16_t samples_half_cycle)
+//{
+//	if (current_sample < samples_half_cycle)
+//	{
+//		return osc.square_min;
+//	}
+//	return osc.square_max;
+//}
 
 /* Parameters:
  * 	angle: normalized angle between 0 and 2*PI.  Similar to sine function.
@@ -834,7 +834,6 @@ float32_t gen_square_angle(float32_t angle)
 	}
 	return 1;
 }
-
 
 /*
  * sawtooth()
@@ -855,17 +854,17 @@ float32_t gen_square_angle(float32_t angle)
 
  *
  */
-float32_t gen_sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
-{
-	float32_t m = 0.0;
-	float32_t val = 0.0;
-
-	// y = mx + b
-	m = (max - min)/samples_cycle;
-	val = (m * current_sample) + min;
-
-	return val;
-}
+//float32_t gen_sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
+//{
+//	float32_t m = 0.0;
+//	float32_t val = 0.0;
+//
+//	// y = mx + b
+//	m = (max - min)/samples_cycle;
+//	val = (m * current_sample) + min;
+//
+//	return val;
+//}
 
 float32_t gen_sawtooth_angle(float32_t angle)
 {
@@ -913,20 +912,20 @@ float32_t gen_sawtooth_integral_angle(float32_t angle)
 	// return 0;
 }
 
-float32_t gen_rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
-{
-	float32_t m = 0.0;
-	float32_t val = 0.0;
-
-	// y = mx + b
-	// m = (max - min)/samples_cycle;
-	// val = max - m * current_sample + min;
-
-	m = (min - max)/samples_cycle;
-	val = m * current_sample + max;
-
-	return val;
-}
+//float32_t gen_rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
+//{
+//	float32_t m = 0.0;
+//	float32_t val = 0.0;
+//
+//	// y = mx + b
+//	// m = (max - min)/samples_cycle;
+//	// val = max - m * current_sample + min;
+//
+//	m = (min - max)/samples_cycle;
+//	val = m * current_sample + max;
+//
+//	return val;
+//}
 
 /*
  * Generate ramp value from +1 down to 0 based on angle.
@@ -961,29 +960,29 @@ float32_t gen_rampdown_angle2( float32_t angle, float32_t min, float32_t max)
 	return val;
 }
 
-// TODO:
-float32_t gen_rampdown_integral_angle(float32_t angle)
-{
-	return 0.0;
-}
+//// TODO:
+//float32_t gen_rampdown_integral_angle(float32_t angle)
+//{
+//	return 0.0;
+//}
 
 
-float32_t gen_triangle(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp)
-{
-	float32_t m = 0.0;
-
-	// Increase from a negative value to its opposite value. Eg. -1 to 1 over 1/2 the wave's period
-	// Then decrease from 1 to -1 over 1/2 the wave's period
-
-	m = amp/(samples_half_cycle);
-
-	if(current_sample < samples_half_cycle)
-	{
-		return (m * current_sample);
-	}
-	// Make sure difference can be negative.
-	return amp + (m * (int32_t)(samples_half_cycle - current_sample));
-}
+//float32_t gen_triangle(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp)
+//{
+//	float32_t m = 0.0;
+//
+//	// Increase from a negative value to its opposite value. Eg. -1 to 1 over 1/2 the wave's period
+//	// Then decrease from 1 to -1 over 1/2 the wave's period
+//
+//	m = amp/(samples_half_cycle);
+//
+//	if(current_sample < samples_half_cycle)
+//	{
+//		return (m * current_sample);
+//	}
+//	// Make sure difference can be negative.
+//	return amp + (m * (int32_t)(samples_half_cycle - current_sample));
+//}
 
 float32_t gen_triangle_angle(float32_t angle)
 {
@@ -1008,24 +1007,24 @@ float32_t gen_triangle_angle(float32_t angle)
 
 
 
-float32_t gen_triangle_integral(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp)
-{
-	float32_t m = 0.0;
-	float32_t result = 0.0;
-
-	// Increase from a negative value to its opposite value. Eg. -1 to 1 over 1/2 the wave's period
-	// Then decrease from 1 to -1 over 1/2 the wave's period
-	m = amp/(samples_half_cycle);
-
-	if(current_sample < samples_half_cycle)
-	{
-		result = m*current_sample;
-		return result*result;
-	}
-	// Make sure difference can be negative.
-	result = amp + (m * (int32_t)(samples_half_cycle - current_sample));
-	return -(result*result);
-}
+//float32_t gen_triangle_integral(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp)
+//{
+//	float32_t m = 0.0;
+//	float32_t result = 0.0;
+//
+//	// Increase from a negative value to its opposite value. Eg. -1 to 1 over 1/2 the wave's period
+//	// Then decrease from 1 to -1 over 1/2 the wave's period
+//	m = amp/(samples_half_cycle);
+//
+//	if(current_sample < samples_half_cycle)
+//	{
+//		result = m*current_sample;
+//		return result*result;
+//	}
+//	// Make sure difference can be negative.
+//	result = amp + (m * (int32_t)(samples_half_cycle - current_sample));
+//	return -(result*result);
+//}
 
 // Integral of triangle wave is convex parabola going up and then concave parabola going down.
 float32_t gen_triangle_integral_angle(float32_t angle)
@@ -1056,18 +1055,6 @@ float32_t gen_triangle_integral_angle(float32_t angle)
 }
 
 /*
- * Param: value - sample value
- * Returns: running accumulation of values.
- * Assumes that input signal is centered around zero, so that accumulation centers around zero.
- */
-float32_t integrate(float32_t value)
-{
-	static float32_t sum;
-	sum = sum + value;
-	return sum;
-}
-
-/*
  * Found similar function at this address: https://cboard.cprogramming.com/c-programming/105096-fmod.html
  * Modified it to work with float32_t.
  * NOTE: Possible alternative found here: https://stackoverflow.com/questions/26342823/implementation-of-fmod-function
@@ -1080,62 +1067,6 @@ float32_t fast_fmod(float32_t x,float32_t y)
 }
 
 /*
- * This function was found at this address: https://gist.github.com/CAFxX/ad150f2403a0604e14cc
- */
-uint32_t ilog10c(uint64_t v)
-{
-  static const uint64_t thr[64] = {
-    10000000000000000000ULL, 0, 0, 0, 1000000000000000000ULL, 0, 0, 100000000000000000ULL, 0, 0,
-       10000000000000000ULL, 0, 0, 0,    1000000000000000ULL, 0, 0,    100000000000000ULL, 0, 0,
-          10000000000000ULL, 0, 0, 0,       1000000000000ULL, 0, 0,       100000000000ULL, 0, 0,
-             10000000000ULL, 0, 0, 0,          1000000000ULL, 0, 0,          100000000ULL, 0, 0,
-                10000000ULL, 0, 0, 0,             1000000ULL, 0, 0,             100000ULL, 0, 0,
-                   10000ULL, 0, 0, 0,                1000ULL, 0, 0,                100ULL, 0, 0,
-                      10ULL, 0, 0, 0
-  };
-  uint32_t lz = __builtin_clzll(v);
-  return (63 - lz) * 3 / 10 + (v >= thr[lz]);
-}
-
-
-// TODO
-void count_cycles()
-{
-	/* ************************************************************** */
-	// TODO: time this function call to estimate processor load.
-	/*
-	 * CPU cycle counting to measure duration of code.
-	 * This cycle-counting code was copied from here:
-	 * http://embeddedb.blogspot.ca/2013/10/how-to-count-cycles-on-arm-cortex-m.html
-	 */
-//	volatile uint32_t count = 0;
-//
-//	// addresses of registers
-//	volatile uint32_t *DWT_CONTROL = (uint32_t *)0xE0001000;
-//	volatile uint32_t *DWT_CYCCNT = (uint32_t *)0xE0001004;
-//	volatile uint32_t *DEMCR = (uint32_t *)0xE000EDFC;
-//
-//	// enable the use DWT
-//	*DEMCR = *DEMCR | 0x01000000;
-//
-//	// Reset cycle counter
-//	*DWT_CYCCNT = 0;
-//
-//	// enable cycle counter
-//	*DWT_CONTROL = *DWT_CONTROL | 1 ;
-	/* ************************************************************** */
-
-
-	/* ************************************************************* */
-	// TODO: for measuring time.
-	// number of cycles stored in count variable
-//	count = *DWT_CYCCNT;
-	/* ************************************************************* */
-}
-
-
-/*
- * TODO: Remove after testing
  * Found here: https://gist.github.com/bmccormack/d12f4bf0c96423d03f82
  */
 uint32_t movingAvg(uint32_t *ptrArrNumbers, uint32_t *ptrSum, uint32_t pos, uint32_t len, uint16_t nextNum)
@@ -1149,58 +1080,124 @@ uint32_t movingAvg(uint32_t *ptrArrNumbers, uint32_t *ptrSum, uint32_t pos, uint
 }
 
 
+///*
+// * Param: value - sample value
+// * Returns: running accumulation of values.
+// * Assumes that input signal is centered around zero, so that accumulation centers around zero.
+// */
+//float32_t integrate(float32_t value)
+//{
+//	static float32_t sum;
+//	sum = sum + value;
+//	return sum;
+//}
+
+///*
+// * This function was found at this address: https://gist.github.com/CAFxX/ad150f2403a0604e14cc
+// */
+//uint32_t ilog10c(uint64_t v)
+//{
+//  static const uint64_t thr[64] = {
+//    10000000000000000000ULL, 0, 0, 0, 1000000000000000000ULL, 0, 0, 100000000000000000ULL, 0, 0,
+//       10000000000000000ULL, 0, 0, 0,    1000000000000000ULL, 0, 0,    100000000000000ULL, 0, 0,
+//          10000000000000ULL, 0, 0, 0,       1000000000000ULL, 0, 0,       100000000000ULL, 0, 0,
+//             10000000000ULL, 0, 0, 0,          1000000000ULL, 0, 0,          100000000ULL, 0, 0,
+//                10000000ULL, 0, 0, 0,             1000000ULL, 0, 0,             100000ULL, 0, 0,
+//                   10000ULL, 0, 0, 0,                1000ULL, 0, 0,                100ULL, 0, 0,
+//                      10ULL, 0, 0, 0
+//  };
+//  uint32_t lz = __builtin_clzll(v);
+//  return (63 - lz) * 3 / 10 + (v >= thr[lz]);
+//}
+
+
+//void count_cycles()
+//{
+//	/* ************************************************************** */
+//	// TODO: time this function call to estimate processor load.
+//	/*
+//	 * CPU cycle counting to measure duration of code.
+//	 * This cycle-counting code was copied from here:
+//	 * http://embeddedb.blogspot.ca/2013/10/how-to-count-cycles-on-arm-cortex-m.html
+//	 */
+////	volatile uint32_t count = 0;
+////
+////	// addresses of registers
+////	volatile uint32_t *DWT_CONTROL = (uint32_t *)0xE0001000;
+////	volatile uint32_t *DWT_CYCCNT = (uint32_t *)0xE0001004;
+////	volatile uint32_t *DEMCR = (uint32_t *)0xE000EDFC;
+////
+////	// enable the use DWT
+////	*DEMCR = *DEMCR | 0x01000000;
+////
+////	// Reset cycle counter
+////	*DWT_CYCCNT = 0;
+////
+////	// enable cycle counter
+////	*DWT_CONTROL = *DWT_CONTROL | 1 ;
+//	/* ************************************************************** */
+//
+//
+//	/* ************************************************************* */
+//	// TODO: for measuring time.
+//	// number of cycles stored in count variable
+////	count = *DWT_CYCCNT;
+//	/* ************************************************************* */
+//}
+
+
 /*
  * Attempt to remove noise spikes from adc inputs.
  * Param: buffer.  Buffer of last few samples.  Could possibly contain just 2 samples.
  * Param: i.  Index of current sample in buffer.
  * Param: max_diff.  Sets max allowable difference.
  */
-float32_t spike_filter(float32_t buffer[], uint16_t i, float32_t max_diff)
-{
-	// Choose previous index.
-	uint16_t prev_i = 0;
-	if (i == 0)
-	{
-		prev_i = SPIKE_FILTER_LEN - 1;
-	}
-	else
-	{
-		prev_i = i - 1;
-	}
-
-	// If new value exceeds difference, then ignore it.
+//float32_t spike_filter(float32_t buffer[], uint16_t i, float32_t max_diff)
+//{
+//	// Choose previous index.
+//	uint16_t prev_i = 0;
+//	if (i == 0)
+//	{
+//		prev_i = SPIKE_FILTER_LEN - 1;
+//	}
+//	else
+//	{
+//		prev_i = i - 1;
+//	}
+//
+//	// If new value exceeds difference, then ignore it.
+////	if (buffer[i] + max_diff < buffer[prev_i] || buffer[i] - max_diff > buffer[prev_i])
+////	{
+////		buffer[i] = buffer[prev_i];
+////	}
+//
+//
+//	// If new value exceeds difference, then ignore it.
 //	if (buffer[i] + max_diff < buffer[prev_i] || buffer[i] - max_diff > buffer[prev_i])
 //	{
-//		buffer[i] = buffer[prev_i];
+//		return buffer[prev_i];
 //	}
-
-
-	// If new value exceeds difference, then ignore it.
-	if (buffer[i] + max_diff < buffer[prev_i] || buffer[i] - max_diff > buffer[prev_i])
-	{
-		return buffer[prev_i];
-	}
-
-	return buffer[i];
-}
+//
+//	return buffer[i];
+//}
 
 /*
  *
  * Found here: https://stackoverflow.com/questions/5989191/compare-two-floats
  */
-uint16_t floatcmp(float32_t float1, float32_t float2, uint16_t precision)
-{
-	uint16_t int1, int2;
-
-   if (float1 > 0)
-      int1 = (uint16_t)(float1 * precision + .5);
-   else
-      int1 = (uint16_t)(float1 * precision - .5);
-
-   if (float2 > 0)
-      int2 = (uint16_t)(float2 * precision + .5);
-   else
-      int2 = (uint16_t)(float2 * precision - .5);
-
-   return (int1 == int2);
-}
+//uint16_t floatcmp(float32_t float1, float32_t float2, uint16_t precision)
+//{
+//	uint16_t int1, int2;
+//
+//   if (float1 > 0)
+//      int1 = (uint16_t)(float1 * precision + .5);
+//   else
+//      int1 = (uint16_t)(float1 * precision - .5);
+//
+//   if (float2 > 0)
+//      int2 = (uint16_t)(float2 * precision + .5);
+//   else
+//      int2 = (uint16_t)(float2 * precision - .5);
+//
+//   return (int1 == int2);
+//}
