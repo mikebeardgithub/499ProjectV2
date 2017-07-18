@@ -38,3 +38,5 @@ void lcd_scaled_update(int, int, int, double, int, double);
 void delay(int);
 void LCD_CLEAR(void);
 void LCD_WRITE(int data);
+void lcd_writeline(char * str, int row);
+void LCD_SETDDRAM(int DDADress);

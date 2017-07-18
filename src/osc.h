@@ -116,12 +116,6 @@ void generate_waveforms2(uint16_t start, uint16_t end);
 void adsr(uint16_t start, uint16_t end);
 void adsr_rad(uint16_t start, uint16_t end);
 
-float32_t gen_square(uint16_t current_sample, uint16_t samples_half_cycle);
-float32_t gen_sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max);
-float32_t gen_rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max);
-float32_t gen_triangle(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp);
-float32_t gen_triangle_integral(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp);
-
 float32_t gen_square_angle(float32_t angle);
 float32_t gen_sawtooth_angle(float32_t angle);
 
@@ -135,15 +129,7 @@ float32_t gen_rampdown_angle2( float32_t angle, float32_t min, float32_t max);
 float32_t gen_triangle_angle(float32_t angle);
 float32_t gen_triangle_integral_angle(float32_t angle);
 
-float32_t integrate(float32_t value);
-
 float32_t fast_fmod(float32_t x, float32_t y);
-uint32_t ilog10c(uint64_t v);
-
-uint32_t movingAvg(uint32_t *ptrArrNumbers, uint32_t *ptrSum, uint32_t pos, uint32_t len, uint16_t nextNum);
-
-float32_t spike_filter(float32_t buffer[], uint16_t i, float32_t max_diff);
-
-uint16_t floatcmp(float32_t float1, float32_t float2, uint16_t precision);
+uint32_t moving_avg(uint32_t *ptrArrNumbers, uint32_t *ptrSum, uint32_t pos, uint32_t len, uint16_t nextNum);
 
 #endif /* OSC_H_ */

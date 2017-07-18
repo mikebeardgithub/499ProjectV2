@@ -19,9 +19,7 @@
 #define	MYTIM4_PERIOD ((uint16_t)0x396C)				// debouncing timer runs for 150ms
 #define myTIM4_PRESCALER ((uint32_t)0x7D0)				// so need to count to 25200000/2000=12600=0x3138
 #define myTIM2_PRESCALER ((uint16_t)0x03E8)				//want ADC to run every 75ms =13.3Hz board is at 168MHz prescale by 1000
-// #define myTIM2_PRESCALER ((uint16_t)0x0fa0)				// MB: 4000
 #define myTIM2_PERIOD ((uint32_t)0x3138)				//so need to count to count to 12600=0x3138 gona change for testing
-// #define myTIM2_PERIOD ((uint32_t)0x690)				// MB
 #define NUM_CHANNELS 13
 #define ACTIVE 1
 #define NOT_ACTIVE 0
@@ -67,10 +65,10 @@ typedef enum modulation_state
 	NO_MOD,
 	VCOfreq,
 	VCOamp,
-//	LFOfreq,
-//	LFOamp,
+	LFOfreq,			// MB: this is not needed.
+	LFOamp,				// MB: this is not needed.
 	FILTER_freq,
-//	DualMode_LFO,
+	DualMode_LFO,		// MB: this is not needed.
 	DualMode_VCO
 }modulation_state;
 
@@ -102,6 +100,6 @@ typedef struct
 volatile uint16_t ADCBuffer[NUM_CHANNELS];	//DMA buffer for ADC values
 selector_state lfo_state, vfo_state;		//state variables for selectors
 button_state menubutton;
-
+menu_state current_menu_state;
 
 #endif /* MAIN_H_ */

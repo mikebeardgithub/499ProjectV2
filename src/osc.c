@@ -46,89 +46,28 @@ osc_setting osc =
 	.fm_mod_level = 0.6
 };
 
-//volatile uint32_t sample_count = 0;						// TODO remove
-//volatile uint32_t sample_count_vco = 0;
-//volatile uint32_t sample_count_lfo = 0;
 volatile uint32_t sample_count_adsr = 0;
-
-/*
- *	Set ADSR lengths in numbers of samples.
- */
-
-// Percussive
-volatile adsr_setting adsr_01 = {
-		.mod = VCOamp,
-
-		.sustain_amp=0.7,
-
-		.attack_len=400,
-		.decay_len=400,
-		.sustain_len=3500,
-		.release_len=700,
-		.blank_len=14000
-};
-
-// Bell
-volatile adsr_setting adsr_02 = {
-		.mod = VCOamp,
-		.sustain_amp=0.3,
-
-		.attack_len=300,
-		.decay_len=300,
-		.sustain_len=10000,
-		.release_len=30000,
-		.blank_len=30000
-};
-
-
-volatile adsr_setting adsr_03 = {
-		.mod = VCOamp,
-		.sustain_amp=0.5,
-
-		.attack_len=5000,
-		.decay_len=500,
-		.sustain_len=30000,
-		.release_len=900,
-		.blank_len=40000
-};
-
-volatile adsr_setting adsr_04 = {
-		.mod = VCOamp,
-		.sustain_amp=0.5,
-
-		.attack_len=300,
-		.decay_len=500,
-		.sustain_len=30000,
-		.release_len=900,
-		.blank_len=40000
-};
-
-
-// Start-end samples.  These are calculated later.
-// TODO: probably don't need to be global.
-//volatile uint32_t attack_start = 0;
-//volatile uint32_t decay_start = 0;
-//volatile uint32_t sustain_start = 0;
-//volatile uint32_t release_start = 0;
-//volatile uint32_t blank_start = 0;
-//volatile uint32_t blank_end = 0;
 
 
 /*
  * Moving average -- TODO: remove after testing.
  */
 #define MOV_AVG_BUFF_LEN		256
-volatile uint32_t mov_avg1 [MOV_AVG_BUFF_LEN] = {0};
-volatile uint32_t mov_avg_index1 = 0;
-volatile uint32_t mov_avg_sum1;
+uint32_t mov_avg1 [MOV_AVG_BUFF_LEN] = {0};
+uint32_t mov_avg_index1 = 0;
+uint32_t mov_avg_sum1;
 
-volatile uint32_t mov_avg2 [MOV_AVG_BUFF_LEN] = {0};
-volatile uint32_t mov_avg_index2 = 0;
-volatile uint32_t mov_avg_sum2;
+uint32_t mov_avg2 [MOV_AVG_BUFF_LEN] = {0};
+uint32_t mov_avg_index2 = 0;
+uint32_t mov_avg_sum2;
 
-volatile uint32_t mov_avg3 [MOV_AVG_BUFF_LEN] = {0};
-volatile uint32_t mov_avg_index3 = 0;
-volatile uint32_t mov_avg_sum3;
+uint32_t mov_avg3 [MOV_AVG_BUFF_LEN] = {0};
+uint32_t mov_avg_index3 = 0;
+uint32_t mov_avg_sum3;
+
+uint32_t mov_avg4 [MOV_AVG_BUFF_LEN] = {0};
+uint32_t mov_avg_index4 = 0;
+uint32_t mov_avg_sum4;
 
 #define SPIKE_FILTER_LEN		2
 float32_t spike_buff [SPIKE_FILTER_LEN] = {0};
@@ -156,36 +95,38 @@ volatile adsr_setting adsr_settings;			// Fall back on this.
 void generate_waveforms(uint16_t start, uint16_t end)
 {
 	// Get wave shape.
-	// osc.vco_wav = vfo_state;
-	// osc.lfo_wav = lfo_state;
+	osc.vco_wav = vfo_state;
+	osc.vco_wav = sine;					// TODO: comment when adding lcd and buttons
 
-	osc.vco_wav = sine;
-	osc.lfo_wav = square;
-	osc.mod = VCOfreq;
+	osc.lfo_wav = lfo_state;
+	osc.lfo_wav = square;					// TODO: comment when adding lcd and buttons
+
+	osc.mod = current_menu_state.lfo_mod;
+	osc.mod = VCOfreq;					// TODO: comment when adding lcd and buttons
 	// osc.mod = VCOamp;
-	//osc.mod = NO_MOD
+	// osc.mod = NO_MOD;
 
 	// Oscillators - amplitude and frequency.
 	osc.vco_amp = (float) (ADCBuffer[0] & 0xffff);					// A0
-	osc.vco_freq = (float) (ADCBuffer[1] & 0xfffc) * 2 * PI;		// A1
-	osc.lfo_amp = (float) (ADCBuffer[2] & 0xfffc)/200;				// AM: div by 4095
-	osc.lfo_freq = (float) (ADCBuffer[3] & 0xfffc)/5;				// TODO: AM: div by 20
+	// osc.vco_freq = (float) (ADCBuffer[1] & 0xfffc) * 2 * PI;		// A1
+	// osc.lfo_amp = (float) (ADCBuffer[2] & 0xfffc)/200;				// AM: div by 4095
+	// osc.lfo_freq = (float) (ADCBuffer[3] & 0xfffc)/5;				// TODO: AM: div by 20
 
-	osc.vco_freq = movingAvg(mov_avg1, &mov_avg_sum1, mov_avg_index1, MOV_AVG_BUFF_LEN, (ADCBuffer[1] & 0xfffc)*2*PI);
+	osc.vco_freq = moving_avg(mov_avg1, &mov_avg_sum1, mov_avg_index1, MOV_AVG_BUFF_LEN, (ADCBuffer[1] & 0xfffc)*2*PI);
 	mov_avg_index1++;
 	if (mov_avg_index1 >= MOV_AVG_BUFF_LEN)
 	{
 		mov_avg_index1 = 0;
 	}
 
-	osc.lfo_freq = movingAvg(mov_avg2, &mov_avg_sum2, mov_avg_index2, MOV_AVG_BUFF_LEN, (ADCBuffer[3] & 0xfffc)/5);
+	osc.lfo_freq = moving_avg(mov_avg2, &mov_avg_sum2, mov_avg_index2, MOV_AVG_BUFF_LEN, (ADCBuffer[3] & 0xfffc)/5);
 	mov_avg_index2++;
 	if (mov_avg_index2 >= MOV_AVG_BUFF_LEN)
 	{
 		mov_avg_index2 = 0;
 	}
 
-	osc.lfo_amp = movingAvg(mov_avg3, &mov_avg_sum3, mov_avg_index3, MOV_AVG_BUFF_LEN, (ADCBuffer[2] & 0xfffc)/200);
+	osc.lfo_amp = moving_avg(mov_avg3, &mov_avg_sum3, mov_avg_index3, MOV_AVG_BUFF_LEN, (ADCBuffer[2] & 0xfffc)/200);
 	mov_avg_index3++;
 	if (mov_avg_index3 >= MOV_AVG_BUFF_LEN)
 	{
@@ -193,23 +134,21 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	volatile uint32_t i = 0;
-	adsr_settings = adsr_03;
-
-	// adsr_settings.mod = DualMode_VCO;
+	adsr_settings.mod = current_menu_state.adsr_mod;
 	adsr_settings.mod = VCOamp;						// TODO: turn this off when LCD activated.
+	// adsr_settings.mod = DualMode_VCO;
 	// adsr_settings.mod = NO_MOD;
 	// adsr_settings.mod = VCOfreq;
-	/*
-	 * TODO: Turn this on when LCD activated.
-	 * 	adsr_settings.mod = menu_state.adsr_mod;
-	 */
 
 	//	// Calculate angle amount to increment per sample.
 	volatile float32_t rads_per_sample_vco = osc.vco_freq / ONE_SECOND;		// Radians to increment for each iteration.
 	volatile float32_t rads_per_sample_lfo = osc.lfo_freq / ONE_SECOND;		// Radians to increment for each iteration.
 
-	// adsr(start, end);
-	adsr(start, end);
+	// Fill adsr buffer.
+	if(adsr_settings.mod != NO_MOD)
+	{
+		adsr(start, end);
+	}
 
 
 	// Sine LFO
@@ -269,7 +208,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			for(i = start; i < end; i++)
 			{
 				theta_lfo = theta_lfo + rads_per_sample_lfo;
-				buffer_lfo_float[i] = osc.lfo_amp*gen_sawtooth_angle(theta_lfo);
+				buffer_lfo_float[i] = osc.lfo_amp + osc.lfo_amp*gen_sawtooth_angle(theta_lfo);
 			}
 		}
 
@@ -279,7 +218,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			for(i = start; i < end; i++)
 			{
 				theta_lfo = theta_lfo + rads_per_sample_lfo;
-				buffer_lfo_float[i] = osc.lfo_amp*gen_sawtooth_integral_angle(theta_lfo);
+				buffer_lfo_float[i] = osc.lfo_amp + osc.lfo_amp*gen_sawtooth_integral_angle(theta_lfo);
 			}
 		}
 	}
@@ -292,7 +231,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			for(i = start; i < end; i++)
 			{
 				theta_lfo = theta_lfo + rads_per_sample_lfo;
-				buffer_lfo_float[i] = osc.lfo_amp*gen_triangle_angle(theta_lfo);
+				buffer_lfo_float[i] = osc.lfo_amp + osc.lfo_amp*gen_triangle_angle(theta_lfo);
 			}
 		}
 
@@ -302,7 +241,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			for(i = start; i < end; i++)
 			{
 				theta_lfo = theta_lfo + rads_per_sample_lfo;
-				buffer_lfo_float[i] = osc.lfo_amp*gen_triangle_integral_angle(theta_lfo);
+				buffer_lfo_float[i] = osc.lfo_amp + osc.lfo_amp*gen_triangle_integral_angle(theta_lfo);
 			}
 		}
 
@@ -386,6 +325,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 /*
  * Clean version - for testing only
+ * TODO: remove after testing.
  */
 void generate_waveforms2(uint16_t start, uint16_t end)
 {
@@ -393,27 +333,17 @@ void generate_waveforms2(uint16_t start, uint16_t end)
 	osc.vco_wav = sine;
 	// osc.vco_freq = (float) (ADCBuffer[1] & 0xffff) * 2 * PI;					// A1
 
-
-//	// Trying to eliminate frequency fluctuations.
-//	if (osc.vco_freq + 750.0 < prev_osc_freq || osc.vco_freq - 750.0 > prev_osc_freq &&  prev_osc_freq > 100.0)
-//	{
-//		osc.vco_freq = prev_osc_freq;
-//	}
-//	prev_osc_freq = osc.vco_freq;
-
 	// ---------------------------------------
 	// Someone else's moving average filter.
 	// Found here: https://gist.github.com/bmccormack/d12f4bf0c96423d03f82
 	// Note that this discards bits and then smooths it.  What if it did this the other way around?
 	// osc.vco_freq = log10(ADCBuffer[1] & 0xffff)*200;
-	osc.vco_freq = movingAvg(mov_avg1, &mov_avg_sum1, mov_avg_index1, MOV_AVG_BUFF_LEN, ADCBuffer[1] & 0xfffc);
+	osc.vco_freq = moving_avg(mov_avg1, &mov_avg_sum1, mov_avg_index1, MOV_AVG_BUFF_LEN, ADCBuffer[1] & 0xfffc);
 	mov_avg_index1++;
 	if (mov_avg_index1 >= MOV_AVG_BUFF_LEN)
 	{
 		mov_avg_index1 = 0;
 	}
-
-
 
 	float32_t rads_per_sample = osc.vco_freq / ONE_SECOND;		// Radians to increment for each iteration.
 
@@ -438,10 +368,19 @@ void adsr(uint16_t start, uint16_t end)
 	adsr_settings.attack_len = ADCBuffer[5]*20;		// A5
 	adsr_settings.decay_len = (ADCBuffer[6])*20;	// A6
 	adsr_settings.sustain_len = ADCBuffer[7]*20;	// A7
-	adsr_settings.release_len = ADCBuffer[8]*40;	// B0
-	adsr_settings.blank_len = ADCBuffer[10]*40;		// C0
-	adsr_settings.sustain_amp = (float32_t) ADCBuffer[12]/4095;		// C4
+	adsr_settings.release_len = ADCBuffer[8]*20;	// B0
+	adsr_settings.blank_len = ADCBuffer[10]*20;		// C0
+	// adsr_settings.sustain_amp = (float32_t) ADCBuffer[12]/4095;		// C4
 	volatile uint32_t samples_cycle_adsr = adsr_settings.attack_len + adsr_settings.decay_len + adsr_settings.sustain_len + adsr_settings.release_len + adsr_settings.blank_len;
+
+	adsr_settings.sustain_amp = moving_avg(mov_avg4, &mov_avg_sum4, mov_avg_index4, MOV_AVG_BUFF_LEN, ADCBuffer[12]);
+	mov_avg_index4++;
+	if (mov_avg_index4 >= MOV_AVG_BUFF_LEN)
+	{
+		mov_avg_index4 = 0;
+	}
+
+	adsr_settings.sustain_amp = adsr_settings.sustain_amp/8000.0;
 
 	// Calculate ADSR boundaries.
 	// uint32_t attack_start = 0;
@@ -598,6 +537,10 @@ void adsr(uint16_t start, uint16_t end)
 	sample_count_adsr = sample_count_adsr % samples_cycle_adsr;
 }
 
+/*
+ * This function works for AM mod but not for FM mod.
+ * For the time being, use adsr().
+ */
 void adsr_rad(uint16_t start, uint16_t end)
 {
 	volatile uint16_t i = 0;
@@ -806,22 +749,6 @@ void adsr_rad(uint16_t start, uint16_t end)
 }
 
 
-///*
-// * square()
-// * Returns 0 if 0.0 < current_sample < samples_half_cycle
-// * Returns 1 if current_sample > samples_half_cycle
-// *
-// * Parameter angle: value from 0.0 to 1.0.
-// */
-//float32_t gen_square(uint16_t current_sample, uint16_t samples_half_cycle)
-//{
-//	if (current_sample < samples_half_cycle)
-//	{
-//		return osc.square_min;
-//	}
-//	return osc.square_max;
-//}
-
 /* Parameters:
  * 	angle: normalized angle between 0 and 2*PI.  Similar to sine function.
  */
@@ -835,36 +762,6 @@ float32_t gen_square_angle(float32_t angle)
 	return 1;
 }
 
-/*
- * sawtooth()
- * Returns value ranging linearly from min to max, depending on input value.
- * The function is a linear function, f(x) = mx + b.
- *		b is the min output value, set by sawtooth_min (global variable).
- *		m*(xmax) + b is the max output value set by sawtooth_max (global variable).
- *
- *		Global variables sawtooth_min and sawtooth_max correspond to delta-y and are used to calculate the
- *		slope of the sawtooth wave.
-
- *		Parameter samples_cycle is the number of samples in a cycle.  This corresponds to delta-x and is used to
- *		calculate the slope of the sawtooth wave.
- *
- *		The global variables and samples_cycle comprise delta-y/delta-x, which equals slope m.
- *
- *		Parameter current_sample is the n'th sample in the current cycle.  This corresponds to x in f(x) = mx+b
-
- *
- */
-//float32_t gen_sawtooth(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
-//{
-//	float32_t m = 0.0;
-//	float32_t val = 0.0;
-//
-//	// y = mx + b
-//	m = (max - min)/samples_cycle;
-//	val = (m * current_sample) + min;
-//
-//	return val;
-//}
 
 float32_t gen_sawtooth_angle(float32_t angle)
 {
@@ -879,19 +776,6 @@ float32_t gen_sawtooth_angle(float32_t angle)
 	return val;
 }
 
-//float32_t gen_sawtooth_angle2( float32_t angle, float32_t delta, uint32_t len)
-//{
-//	float32_t m = 0.0;
-//	float32_t val = 0.0;
-//
-//	angle = fast_fmod(angle, len);
-//
-//	// y = mx + b
-//	// m = delta * len;
-//	m = delta * SAMPLERATE;
-//	val = angle*m;
-//	return val;
-//}
 
 float32_t gen_sawtooth_integral_angle(float32_t angle)
 {
@@ -912,20 +796,6 @@ float32_t gen_sawtooth_integral_angle(float32_t angle)
 	// return 0;
 }
 
-//float32_t gen_rampdown(uint32_t current_sample, uint32_t samples_cycle, float32_t min, float32_t max)
-//{
-//	float32_t m = 0.0;
-//	float32_t val = 0.0;
-//
-//	// y = mx + b
-//	// m = (max - min)/samples_cycle;
-//	// val = max - m * current_sample + min;
-//
-//	m = (min - max)/samples_cycle;
-//	val = m * current_sample + max;
-//
-//	return val;
-//}
 
 /*
  * Generate ramp value from +1 down to 0 based on angle.
@@ -960,29 +830,6 @@ float32_t gen_rampdown_angle2( float32_t angle, float32_t min, float32_t max)
 	return val;
 }
 
-//// TODO:
-//float32_t gen_rampdown_integral_angle(float32_t angle)
-//{
-//	return 0.0;
-//}
-
-
-//float32_t gen_triangle(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp)
-//{
-//	float32_t m = 0.0;
-//
-//	// Increase from a negative value to its opposite value. Eg. -1 to 1 over 1/2 the wave's period
-//	// Then decrease from 1 to -1 over 1/2 the wave's period
-//
-//	m = amp/(samples_half_cycle);
-//
-//	if(current_sample < samples_half_cycle)
-//	{
-//		return (m * current_sample);
-//	}
-//	// Make sure difference can be negative.
-//	return amp + (m * (int32_t)(samples_half_cycle - current_sample));
-//}
 
 float32_t gen_triangle_angle(float32_t angle)
 {
@@ -1004,27 +851,6 @@ float32_t gen_triangle_angle(float32_t angle)
 	val =  3 - m*angle;
 	return val;
 }
-
-
-
-//float32_t gen_triangle_integral(uint32_t current_sample, uint32_t samples_half_cycle, float32_t amp)
-//{
-//	float32_t m = 0.0;
-//	float32_t result = 0.0;
-//
-//	// Increase from a negative value to its opposite value. Eg. -1 to 1 over 1/2 the wave's period
-//	// Then decrease from 1 to -1 over 1/2 the wave's period
-//	m = amp/(samples_half_cycle);
-//
-//	if(current_sample < samples_half_cycle)
-//	{
-//		result = m*current_sample;
-//		return result*result;
-//	}
-//	// Make sure difference can be negative.
-//	result = amp + (m * (int32_t)(samples_half_cycle - current_sample));
-//	return -(result*result);
-//}
 
 // Integral of triangle wave is convex parabola going up and then concave parabola going down.
 float32_t gen_triangle_integral_angle(float32_t angle)
@@ -1055,7 +881,7 @@ float32_t gen_triangle_integral_angle(float32_t angle)
 }
 
 /*
- * Found similar function at this address: https://cboard.cprogramming.com/c-programming/105096-fmod.html
+ * This function is based on a function found at this address: https://cboard.cprogramming.com/c-programming/105096-fmod.html
  * Modified it to work with float32_t.
  * NOTE: Possible alternative found here: https://stackoverflow.com/questions/26342823/implementation-of-fmod-function
  * 	return (a - b * floor(a / b));
@@ -1069,7 +895,7 @@ float32_t fast_fmod(float32_t x,float32_t y)
 /*
  * Found here: https://gist.github.com/bmccormack/d12f4bf0c96423d03f82
  */
-uint32_t movingAvg(uint32_t *ptrArrNumbers, uint32_t *ptrSum, uint32_t pos, uint32_t len, uint16_t nextNum)
+uint32_t moving_avg(uint32_t *ptrArrNumbers, uint32_t *ptrSum, uint32_t pos, uint32_t len, uint16_t nextNum)
 {
   //Subtract the oldest number from the prev sum, add the new number
   *ptrSum = *ptrSum - ptrArrNumbers[pos] + nextNum;
@@ -1078,126 +904,3 @@ uint32_t movingAvg(uint32_t *ptrArrNumbers, uint32_t *ptrSum, uint32_t pos, uint
   //return the average
   return (uint32_t) *ptrSum / len;
 }
-
-
-///*
-// * Param: value - sample value
-// * Returns: running accumulation of values.
-// * Assumes that input signal is centered around zero, so that accumulation centers around zero.
-// */
-//float32_t integrate(float32_t value)
-//{
-//	static float32_t sum;
-//	sum = sum + value;
-//	return sum;
-//}
-
-///*
-// * This function was found at this address: https://gist.github.com/CAFxX/ad150f2403a0604e14cc
-// */
-//uint32_t ilog10c(uint64_t v)
-//{
-//  static const uint64_t thr[64] = {
-//    10000000000000000000ULL, 0, 0, 0, 1000000000000000000ULL, 0, 0, 100000000000000000ULL, 0, 0,
-//       10000000000000000ULL, 0, 0, 0,    1000000000000000ULL, 0, 0,    100000000000000ULL, 0, 0,
-//          10000000000000ULL, 0, 0, 0,       1000000000000ULL, 0, 0,       100000000000ULL, 0, 0,
-//             10000000000ULL, 0, 0, 0,          1000000000ULL, 0, 0,          100000000ULL, 0, 0,
-//                10000000ULL, 0, 0, 0,             1000000ULL, 0, 0,             100000ULL, 0, 0,
-//                   10000ULL, 0, 0, 0,                1000ULL, 0, 0,                100ULL, 0, 0,
-//                      10ULL, 0, 0, 0
-//  };
-//  uint32_t lz = __builtin_clzll(v);
-//  return (63 - lz) * 3 / 10 + (v >= thr[lz]);
-//}
-
-
-//void count_cycles()
-//{
-//	/* ************************************************************** */
-//	// TODO: time this function call to estimate processor load.
-//	/*
-//	 * CPU cycle counting to measure duration of code.
-//	 * This cycle-counting code was copied from here:
-//	 * http://embeddedb.blogspot.ca/2013/10/how-to-count-cycles-on-arm-cortex-m.html
-//	 */
-////	volatile uint32_t count = 0;
-////
-////	// addresses of registers
-////	volatile uint32_t *DWT_CONTROL = (uint32_t *)0xE0001000;
-////	volatile uint32_t *DWT_CYCCNT = (uint32_t *)0xE0001004;
-////	volatile uint32_t *DEMCR = (uint32_t *)0xE000EDFC;
-////
-////	// enable the use DWT
-////	*DEMCR = *DEMCR | 0x01000000;
-////
-////	// Reset cycle counter
-////	*DWT_CYCCNT = 0;
-////
-////	// enable cycle counter
-////	*DWT_CONTROL = *DWT_CONTROL | 1 ;
-//	/* ************************************************************** */
-//
-//
-//	/* ************************************************************* */
-//	// TODO: for measuring time.
-//	// number of cycles stored in count variable
-////	count = *DWT_CYCCNT;
-//	/* ************************************************************* */
-//}
-
-
-/*
- * Attempt to remove noise spikes from adc inputs.
- * Param: buffer.  Buffer of last few samples.  Could possibly contain just 2 samples.
- * Param: i.  Index of current sample in buffer.
- * Param: max_diff.  Sets max allowable difference.
- */
-//float32_t spike_filter(float32_t buffer[], uint16_t i, float32_t max_diff)
-//{
-//	// Choose previous index.
-//	uint16_t prev_i = 0;
-//	if (i == 0)
-//	{
-//		prev_i = SPIKE_FILTER_LEN - 1;
-//	}
-//	else
-//	{
-//		prev_i = i - 1;
-//	}
-//
-//	// If new value exceeds difference, then ignore it.
-////	if (buffer[i] + max_diff < buffer[prev_i] || buffer[i] - max_diff > buffer[prev_i])
-////	{
-////		buffer[i] = buffer[prev_i];
-////	}
-//
-//
-//	// If new value exceeds difference, then ignore it.
-//	if (buffer[i] + max_diff < buffer[prev_i] || buffer[i] - max_diff > buffer[prev_i])
-//	{
-//		return buffer[prev_i];
-//	}
-//
-//	return buffer[i];
-//}
-
-/*
- *
- * Found here: https://stackoverflow.com/questions/5989191/compare-two-floats
- */
-//uint16_t floatcmp(float32_t float1, float32_t float2, uint16_t precision)
-//{
-//	uint16_t int1, int2;
-//
-//   if (float1 > 0)
-//      int1 = (uint16_t)(float1 * precision + .5);
-//   else
-//      int1 = (uint16_t)(float1 * precision - .5);
-//
-//   if (float2 > 0)
-//      int2 = (uint16_t)(float2 * precision + .5);
-//   else
-//      int2 = (uint16_t)(float2 * precision - .5);
-//
-//   return (int1 == int2);
-//}

@@ -85,8 +85,8 @@ I should probably use the 3V as my voltage supply. --> Doesn't seem to matter
 	
 	Filters - Pots
 	------------------------
-	B1		FILTER-FreqLow			ADCBuffer[9]
-	C0		FILTER-FreqHigh			ADCBuffer[10]
+	B1		FILTER-FreqLow			ADCBuffer[9]		
+	C0		FILTER-FreqHigh			ADCBuffer[10]		--> MOVED TO adsr_settings.blank_len	
 	C1		FILTER-FreqResonance	ADCBuffer[11]
 	C4		FILTER-FreqGain			ADCBuffer[12] 		---> moved to ENVELOPE-sustain amp
 	
@@ -102,7 +102,10 @@ I should probably use the 3V as my voltage supply. --> Doesn't seem to matter
 	PE14		lfo_square
 	PE15		lfo_triangle	
 	
-	
+
+
+
+======================================================================================	
 	A4			volume				ADCBuffer[4]		*** COULD NOT GROUND ***
 	B1			fc_low				ADCBuffer[9]		--> MOVED TO adsr_settings.blank_len	
 	C0			fc_high				ADCBuffer[10]		GROUNDED

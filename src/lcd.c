@@ -86,14 +86,8 @@ void SPI_TX(int tx){
 		GPIO_ResetBits(GPIOD, GPIO_Pin_14);
 	}
 
-	delay(20);
-
 	//cycle enable bits
 	GPIO_ResetBits(GPIOC, GPIO_Pin_2);
-
-
-
-
 
 	//not using SPI any more gona configure in parallel and use this function to send the instructions/data
 
@@ -122,9 +116,9 @@ int LCD_TX(unsigned int RS,unsigned int RW, unsigned int data)
   int temp = data;
   temp += (RW<<8);
   temp+= (RS<<9);
-  GPIO_ResetBits(GPIOC, GPIO_Pin_5);				//chip select low
+  //GPIO_ResetBits(GPIOC, GPIO_Pin_5);				//chip select low no more chip select with parallel comms
   SPI_TX(temp);
-  GPIO_SetBits(GPIOC, GPIO_Pin_5);				//chip select high
+  //GPIO_SetBits(GPIOC, GPIO_Pin_5);				//chip select high no more chip select with parallel comms
   return temp;
 
 }
@@ -248,15 +242,6 @@ void LCD_WRITE(int data)
 
 void lcd_init(void)
 {
-//	SPI_DataSizeConfig(SPI2, SPI_DataSize_16b);			//Set to 16 bit to get through the initialization
-//
-//	SPI_TX(0x002C);										//function set europe 2 and 8 bit
-//	SPI_TX(0x000C);										//Display on cursor off bloinking off
-//	SPI_TX(0x0007);										//entry mode set to autoincrement
-//	SPI_TX(0x0001);										//clear screen
-//	SPI_TX(0x0002);										//return home
-//	SPI_TX(0x02FF);										//write something
-
 
   //SPI_TX(0b0000000001);//Clear Display
   LCD_CLEAR();
@@ -265,7 +250,7 @@ void lcd_init(void)
   LCD_FUNCTION(LCD_8BIT,LCD_EUROPE2);
   delay(0xffff);
   //SPI_TX(0b0000001011);//Display off
-  LCD_DISPLAY(LCD_OFF,LCD_CURSOR,LCD_BLINK);
+  LCD_DISPLAY(LCD_OFF,LCD_NOCURSOR,LCD_BLINK);
   delay(0xffff);
   //SPI_TX(0b0000000001);//Clear Display
   LCD_CLEAR();
@@ -277,8 +262,9 @@ void lcd_init(void)
   LCD_HOME();
   delay(0xffff);
   //SPI_TX(0b0000001100);//Display on
-  LCD_DISPLAY(LCD_ON,LCD_CURSOR,LCD_BLINK);
+  LCD_DISPLAY(LCD_ON,LCD_NOCURSOR,LCD_BLINK);
   delay(0xffff);
+  lcd_writeline("      GUMMYBOX      ", 0);
 }
 
 void lcd_writechar(int char_write,int row,int col)

@@ -232,26 +232,36 @@ void EXTI15_10_IRQHandler(void){
 
 // Timer for limiting button pushes 100ms
 void TIM3_IRQHandler(){
-		TIM_Cmd(TIM3, DISABLE);								//stop timer
-		TIM_ClearITPendingBit(TIM3, TIM_IT_Update);			//clear interrupt
-		menubutton.button_state = NOT_ACTIVE;
-		//handle button push havent quite figured it out yet
 
+	TIM_Cmd(TIM3, DISABLE);
+	int temp = menubutton.button;						//stop timer
+	TIM_ClearITPendingBit(TIM3, TIM_IT_Update);			//clear interrupt
+	menubutton.button_state = NOT_ACTIVE;
+	if(temp == enter){
+		handle_enter();
+	}else if(temp == back){
+		handle_back();
+	}else if(temp == up){
+		handle_up();
+	}else if(temp == down){
+		handle_down();
+	}
 }
+
 
 
 // Timer for debouncing selectors 50ms
 void TIM4_IRQHandler(){
-		TIM_Cmd(TIM4, DISABLE);								//stop timer
-		TIM_ClearITPendingBit(TIM4, TIM_IT_Update);			//clear interrupt
-		update_selector_state();							//update state
+	TIM_Cmd(TIM4, DISABLE);								//stop timer
+	TIM_ClearITPendingBit(TIM4, TIM_IT_Update);			//clear interrupt
+	update_selector_state();							//update state
 
 }
 
-// set up yet but might to see if the adc is working
+// not set up yet but might to see if the adc is working
 void ADC_IRQHandler() {
-        /* acknowledge interrupt */
-        ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
+	/* acknowledge interrupt */
+	ADC_ClearITPendingBit(ADC1, ADC_IT_EOC);
 }
 
 /******************************************************************************/
