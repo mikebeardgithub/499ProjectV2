@@ -373,7 +373,7 @@ void adsr(uint16_t start, uint16_t end)
 	// adsr_settings.sustain_amp = (float32_t) ADCBuffer[12]/4095;		// C4
 	volatile uint32_t samples_cycle_adsr = adsr_settings.attack_len + adsr_settings.decay_len + adsr_settings.sustain_len + adsr_settings.release_len + adsr_settings.blank_len;
 
-	adsr_settings.sustain_amp = moving_avg(mov_avg4, &mov_avg_sum4, mov_avg_index4, MOV_AVG_BUFF_LEN, ADCBuffer[12]);
+	adsr_settings.sustain_amp = moving_avg(mov_avg4, &mov_avg_sum4, mov_avg_index4, MOV_AVG_BUFF_LEN, ADCBuffer[12] & 0xfffc);
 	mov_avg_index4++;
 	if (mov_avg_index4 >= MOV_AVG_BUFF_LEN)
 	{
