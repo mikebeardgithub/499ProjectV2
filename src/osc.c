@@ -94,17 +94,16 @@ volatile adsr_setting adsr_settings;			// Fall back on this.
 
 void generate_waveforms(uint16_t start, uint16_t end)
 {
-	// Get wave shape.
-	osc.vco_wav = vfo_state;
+	uint32_t volume = (ADCBuffer[4] & 0xfffc)/4096;
+	osc.vco_wav = vfo_state;				// VCO wave type.
+	osc.lfo_wav = lfo_state;				// LFO wave type.
+	osc.mod = current_menu_state.lfo_mod;	// Modulation type.
+
 	osc.vco_wav = sine;					// TODO: comment when adding lcd and buttons
-
-	osc.lfo_wav = lfo_state;
-	osc.lfo_wav = square;					// TODO: comment when adding lcd and buttons
-
-	osc.mod = current_menu_state.lfo_mod;
-	osc.mod = VCOfreq;					// TODO: comment when adding lcd and buttons
+	osc.lfo_wav = square;				// TODO: comment when adding lcd and buttons
+	// osc.mod = VCOfreq;				// TODO: comment when adding lcd and buttons
 	// osc.mod = VCOamp;
-	// osc.mod = NO_MOD;
+	osc.mod = NO_MOD;
 
 	// Oscillators - amplitude and frequency.
 	osc.vco_amp = (float) (ADCBuffer[0] & 0xffff);					// A0
@@ -135,9 +134,9 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	volatile uint32_t i = 0;
 	adsr_settings.mod = current_menu_state.adsr_mod;
-	adsr_settings.mod = VCOamp;						// TODO: turn this off when LCD activated.
+	// adsr_settings.mod = VCOamp;						// TODO: turn this off when LCD activated.
 	// adsr_settings.mod = DualMode_VCO;
-	// adsr_settings.mod = NO_MOD;
+	adsr_settings.mod = NO_MOD;
 	// adsr_settings.mod = VCOfreq;
 
 	//	// Calculate angle amount to increment per sample.
@@ -308,6 +307,13 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		{
 			buffer_output[i] = buffer_output[i] * buffer_adsr_am[i];
 		}
+	}
+
+
+	// Volume
+	for(i = start; i < end; i++)
+	{
+		buffer_output[i] = volume;
 	}
 
 	theta_vco = fast_fmod(theta_vco, TWO_PI);

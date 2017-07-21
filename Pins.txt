@@ -67,7 +67,7 @@ I should probably use the 3V as my voltage supply. --> Doesn't seem to matter
 	
 	Oscillators - Pots
 	------------------------
-	A0		VCO-Amplitude			ADCBuffer[0]
+	A0		VCO-Amplitude			ADCBuffer[0]		** NOTE: same pin as pushbutton **
 	A1		VCO-Frequency			ADCBuffer[1]
 	
 	A2		LFO-Amplitude			ADCBuffer[2]
@@ -106,7 +106,7 @@ I should probably use the 3V as my voltage supply. --> Doesn't seem to matter
 
 
 ======================================================================================	
-	A4			volume				ADCBuffer[4]		*** COULD NOT GROUND ***
+	A4			volume				ADCBuffer[4]		Do not ground Mike, you idiot.
 	B1			fc_low				ADCBuffer[9]		--> MOVED TO adsr_settings.blank_len	
 	C0			fc_high				ADCBuffer[10]		GROUNDED
 	C1			fc_resonance		ADCBuffer[11]		GROUNDED
