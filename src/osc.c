@@ -69,6 +69,15 @@ uint32_t mov_avg4 [MOV_AVG_BUFF_LEN] = {0};
 uint32_t mov_avg_index4 = 0;
 uint32_t mov_avg_sum4;
 
+uint32_t mov_avg5 [MOV_AVG_BUFF_LEN] = {0};
+uint32_t mov_avg_index5 = 0;
+uint32_t mov_avg_sum5;
+
+uint32_t mov_avg6 [MOV_AVG_BUFF_LEN] = {0};
+uint32_t mov_avg_index6 = 0;
+uint32_t mov_avg_sum6;
+
+
 #define SPIKE_FILTER_LEN		2
 float32_t spike_buff [SPIKE_FILTER_LEN] = {0};
 uint16_t spike_buff_index = 0;
@@ -94,23 +103,36 @@ volatile adsr_setting adsr_settings;			// Fall back on this.
 
 void generate_waveforms(uint16_t start, uint16_t end)
 {
-	uint32_t volume = (ADCBuffer[4] & 0xfffc)/4096;
 	osc.vco_wav = vfo_state;				// VCO wave type.
 	osc.lfo_wav = lfo_state;				// LFO wave type.
 	osc.mod = current_menu_state.lfo_mod;	// Modulation type.
 
-	osc.vco_wav = sine;					// TODO: comment when adding lcd and buttons
-	osc.lfo_wav = square;				// TODO: comment when adding lcd and buttons
-	// osc.mod = VCOfreq;				// TODO: comment when adding lcd and buttons
+	osc.vco_wav = square;					// TODO: comment-out when adding lcd and buttons
+	osc.lfo_wav = sine;				// TODO: comment-out when adding lcd and buttons
+	osc.mod = VCOfreq;				// TODO: comment-out when adding lcd and buttons
 	// osc.mod = VCOamp;
-	osc.mod = NO_MOD;
+	// osc.mod = NO_MOD;
 
-	// Oscillators - amplitude and frequency.
-	osc.vco_amp = (float) (ADCBuffer[0] & 0xffff);					// A0
-	// osc.vco_freq = (float) (ADCBuffer[1] & 0xfffc) * 2 * PI;		// A1
-	// osc.lfo_amp = (float) (ADCBuffer[2] & 0xfffc)/200;				// AM: div by 4095
-	// osc.lfo_freq = (float) (ADCBuffer[3] & 0xfffc)/5;				// TODO: AM: div by 20
+	float32_t volume = moving_avg(mov_avg6, &mov_avg_sum6, mov_avg_index6, MOV_AVG_BUFF_LEN, ADCBuffer[4] & 0xfffc);	// For testing.
+	// float32_t volume = moving_avg(mov_avg6, &mov_avg_sum6, mov_avg_index6, MOV_AVG_BUFF_LEN, ADCBuffer[3] & 0xfffc);	// For testing.
+	mov_avg_index6++;
+	if (mov_avg_index6 >= MOV_AVG_BUFF_LEN)
+	{
+		mov_avg_index6 = 0;
+	}
 
+	// A0
+	osc.vco_amp = moving_avg(mov_avg5, &mov_avg_sum5, mov_avg_index5, MOV_AVG_BUFF_LEN, ADCBuffer[0] & 0xfffc);
+	mov_avg_index5++;
+	if (mov_avg_index5 >= MOV_AVG_BUFF_LEN)
+	{
+		mov_avg_index5 = 0;
+	}
+
+	volume = (float32_t) volume / 2048;
+	osc.vco_amp = osc.vco_amp * volume;
+
+	// A1
 	osc.vco_freq = moving_avg(mov_avg1, &mov_avg_sum1, mov_avg_index1, MOV_AVG_BUFF_LEN, (ADCBuffer[1] & 0xfffc)*2*PI);
 	mov_avg_index1++;
 	if (mov_avg_index1 >= MOV_AVG_BUFF_LEN)
@@ -309,24 +331,12 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		}
 	}
 
-
-	// Volume
-	for(i = start; i < end; i++)
-	{
-		buffer_output[i] = volume;
-	}
-
 	theta_vco = fast_fmod(theta_vco, TWO_PI);
 	theta_lfo = fast_fmod(theta_lfo, TWO_PI);
 	theta_adsr = fast_fmod(theta_adsr, TWO_PI);
 
-//	sample_count_adsr = sample_count_adsr + (i - start);
-//	sample_count_adsr = sample_count_adsr % samples_cycle_adsr;
-
 	return;
 }
-
-
 
 
 /*
@@ -795,11 +805,6 @@ float32_t gen_sawtooth_integral_angle(float32_t angle)
 	val = val*2;			// Double it.
 	val = val - 1;			// Shift it down
 	return val;
-
-	// Test
-	// return 2*(m*angle)*2 - 1;
-
-	// return 0;
 }
 
 
