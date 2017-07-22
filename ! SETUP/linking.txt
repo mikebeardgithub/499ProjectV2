@@ -1,0 +1,13 @@
+
+For dsp, GGC compiler:
+
+1) Add to library search path, the FULL path for this: STM32F4xx_DSP_StdPeriph_Lib_V1.8.0\Libraries\CMSIS\Lib\GCC
+	Mine is currently here: C:\stm32_workspace\STM32F4xx_DSP_StdPeriph_Lib_V1.8.0
+
+
+2) Add to library, the file:
+	libarm_cortexM4lf_math.a
+3) In the settings, you might need to add a COLON to beginning of file... for some GCC reason.
+
+
+

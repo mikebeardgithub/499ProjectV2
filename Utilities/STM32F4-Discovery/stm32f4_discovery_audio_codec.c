@@ -522,16 +522,16 @@ static void Audio_MAL_IRQHandler(void)
   }
 #endif /* AUDIO_MAL_DMA_IT_TC_EN */
 
-#ifdef AUDIO_MAL_DMA_IT_HT_EN  
+#ifdef AUDIO_MAL_DMA_IT_HT_EN
   /* Half Transfer complete interrupt */
   if (DMA_GetFlagStatus(AUDIO_MAL_DMA_STREAM, AUDIO_MAL_DMA_FLAG_HT) != RESET)
   {
-    /* Manage the remaining file size and new address offset: This function 
-       should be coded by user (its prototype is already declared in stm32f4_discovery_audio_codec.h) */  
-    EVAL_AUDIO_HalfTransfer_CallBack((uint32_t)pAddr, Size);    
-   
+    /* Manage the remaining file size and new address offset: This function
+       should be coded by user (its prototype is already declared in stm32f4_discovery_audio_codec.h) */
+    EVAL_AUDIO_HalfTransfer_CallBack((uint32_t)pAddr, Size);
+
     /* Clear the Interrupt flag */
-    DMA_ClearFlag(AUDIO_MAL_DMA_STREAM, AUDIO_MAL_DMA_FLAG_HT);    
+    DMA_ClearFlag(AUDIO_MAL_DMA_STREAM, AUDIO_MAL_DMA_FLAG_HT);
   }
 #endif /* AUDIO_MAL_DMA_IT_HT_EN */
   

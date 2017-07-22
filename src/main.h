@@ -1,62 +1,105 @@
 /*
  * main.h
  *
- *  Created on: May 19, 2017
- *      Author: admin
+ *  Created on: Jun 10, 2017
+ *      Author: jjank
  */
-
-
-/*
- * This file was downloaded and adapted from the project found here:
- * https://github.com/MrBlueXav/horrorophone-eclipse-with-makefile
- */
-
-
 
 #ifndef MAIN_H_
 #define MAIN_H_
 
-/* Includes ------------------------------------------------------------------*/
-#include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "stm32f4xx.h"
-#include "stm32f4xx_conf.h"
-#include "stm32f4_discovery.h"
-#include "stm32f4_discovery_audio_codec.h"
 
-#include <stdio.h>
-#include "stm32f4xx_it.h"
+// *****************************DEFINITIONS******************************
 
-// TODO: remove these (test first).  They're set elsewhere.
-#undef AUDIO_MAL_MODE_NORMAL
-#define AUDIO_MAL_MODE_CIRCULAR
+#define	MYTIM3_PERIOD ((uint16_t)0x396C)				// button limiting timer runs for 175ms
+#define myTIM3_PRESCALER ((uint32_t)0x7D0)				// so need to count to 29400000/2000=14700=0x396C
+#define	MYTIM4_PERIOD ((uint16_t)0x396C)				// debouncing timer runs for 150ms
+#define myTIM4_PRESCALER ((uint32_t)0x7D0)				// so need to count to 25200000/2000=12600=0x3138
+#define myTIM2_PRESCALER ((uint16_t)0x03E8)				//want ADC to run every 75ms =13.3Hz board is at 168MHz prescale by 1000
+#define myTIM2_PERIOD ((uint32_t)0x3138)				//so need to count to count to 12600=0x3138 gona change for testing
+#define NUM_CHANNELS 15
+#define ACTIVE 1
+#define NOT_ACTIVE 0
 
-#define _2PI                    6.283185307f
-#define _PI						3.14159265f
-#define _INVPI					0.3183098861f
-#define SAMPLERATE              48000
-#define FREQ1                   440.0f   // default carrier frequency
-#define FREQ2                   8.0f     // default modulation frequency
+typedef enum selector_state
+{
+	sine,
+	sawtooth,
+	square,
+	triangle,
+	other2
+} selector_state;
+
+typedef enum button_pushed
+{
+	up,
+	down,
+	back,
+	enter
+}button_pushed;
+
+typedef enum primary_menu
+{
+	startup,
+	filter,
+	ADSR,
+	LFO,
+	secondaryVCO,
+	ADSR_Mod,
+	LFO_Mod
+}primary_menu;
+
+typedef enum filter_state
+{
+	no_filter,
+	highpass,
+	lowpass,
+	bandpass
+}filter_state;
+
+typedef enum modulation_state
+{
+	NO_MOD,
+	VCOfreq,
+	VCOamp,
+	LFOfreq,			// MB: this is not needed.
+	LFOamp,				// MB: this is not needed.
+	FILTER_freq,
+	DualMode_LFO,		// MB: this is not needed.
+	DualMode_VCO
+}modulation_state;
+
+/*
+ * Button state used for button debouncing
+ */
+typedef struct
+{
+	button_pushed button;
+	int button_state;
+}button_state;
+
+/*
+ * Struct for menu state machine keeps track of what menu and where the cursor is
+ */
+typedef struct
+{
+	primary_menu menu_state;					//which menu
+	unsigned int cursor_option;					//where is cursor pointing
+	modulation_state lfo_mod;					//What is LFO modulating
+	modulation_state adsr_mod;					//what is ADSR modulating
+	filter_state filterst8;						//what is filter modulating
+	unsigned int secondary_vco;					//is the secondary VCO on
+}menu_state;
+
+/******************************************************Global Variables***********************/
 
 
-#define VOL                     80
-#define BUFF_LEN_DIV4           32 // 2ms latency at 48kHz
-#define BUFF_LEN_DIV2           64
-#define BUFF_LEN                128
-// #define BUFF_LEN                97
-// #define BUFF_LEN                769  /* Audio buffer length : count in 16bits half-words */
-
-
-#define DELAYLINE_LEN           14000  // max delay in samples
-#define DELAY                   13000  // actual delay (in samples)
-#define DELAY_VOLUME            0.1f   // 0.3f
-#define FEEDB                   0.4f   //0.4f
-#define ON                      1
-#define OFF                     0
-
-#define ADC3_DR_ADDRESS     ((uint32_t)0x4001224C)
-
+volatile uint16_t ADCBuffer[NUM_CHANNELS];	//DMA buffer for ADC values
+selector_state lfo_state, vfo_state;		//state variables for selectors
+button_state menubutton;
+menu_state current_menu_state;
 
 #endif /* MAIN_H_ */

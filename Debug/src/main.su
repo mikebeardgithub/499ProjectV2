@@ -1,9 +1,6 @@
-main.c:117:5:main	16	static
-main.c:204:6:EVAL_AUDIO_HalfTransfer_CallBack	16	static
-main.c:220:10:Codec_TIMEOUT_UserCallback	8	static
-main.c:230:6:EVAL_AUDIO_TransferComplete_CallBack	40	static
-main.c:277:10:EVAL_AUDIO_GetSampleCallBack	4	static
-main.c:284:6:EVAL_AUDIO_Error_CallBack	16	static
-main.c:297:6:ADC3_CH12_DMA_Config	120	static
-main.c:367:7:randomNum	4	static
-main.c:373:6:TimingDelay_Decrement	4	static
+main.c:51:5:main	8	static
+main.c:91:10:Codec_TIMEOUT_UserCallback	8	static
+main.c:103:6:EVAL_AUDIO_HalfTransfer_CallBack	16	static
+main.c:121:6:EVAL_AUDIO_TransferComplete_CallBack	16	static
+main.c:132:10:EVAL_AUDIO_GetSampleCallBack	4	static
+main.c:139:6:EVAL_AUDIO_Error_CallBack	16	static

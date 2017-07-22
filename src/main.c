@@ -27,136 +27,61 @@ SOFTWARE.
 ******************************************************************************
 */
 
-/*
- * This file was downloaded and adapted from the project found here:
- * https://github.com/MrBlueXav/horrorophone-eclipse-with-makefile
- *
- * There may be very little of the original file left.
- *
- */
-
-
 /* Includes */
-#include "main.h"
+#include "initial_ization.h"
+#include "user_interface.h"
+#include "osc.h"
+
+#include <math.h>
+#include <stdint.h>
+#include <stdlib.h>
+
 #include "stm32f4xx.h"
+#include "stm32f4xx_conf.h"
 #include "stm32f4_discovery.h"
 #include "stm32f4_discovery_audio_codec.h"
 
-#include <math.h>
-#include "arm_math.h"
-
-void ADC3_CH12_DMA_Config(void);
+#include <stdio.h>
+#include "main.h"
+#include "lcd.h"
 
 /* Globals */
-int sample;
-float           		pass = 1.f ;
-float           		phase2 = 0.0f , phase2Step;
-float           		f1 = FREQ1 , f2 = FREQ2 , freq;
-__IO uint16_t 			ADC3ConvertedValue = 0;
-RCC_ClocksTypeDef       RCC_Clocks;
-GPIO_InitTypeDef        GPIO_InitStructure;
-uint8_t                 state = OFF;
-__IO uint32_t 			TimingDelay = 50;
+extern uint16_t buffer_output[BUFF_LEN];
 
-
-volatile uint16_t buffer_vco[] = {0};
-volatile uint16_t buffer_lfo[BUFF_LEN] = {0};
-volatile float32_t buffer_lfo_float[BUFF_LEN] = {0};
-volatile uint16_t buffer_output[BUFF_LEN] = {0};
-volatile uint16_t phase_lfo = 0;
-
-
-/**
-**===========================================================================
-**
-**  Abstract: main program
-**
-**===========================================================================
-*/
 int main(void)
 {
-  int i = 0;
-  // int datasize = sizeof(data)/2;
-  int retVal = -1;
+	/**
+	*  IMPORTANT NOTE!
+	*  The symbol VECT_TAB_SRAM needs to be defined when building the project
+	*  if code has been located to RAM and interrupts are used.
+	*  Otherwise the interrupt table located in flash will be used.
+	*  See also the <system_*.c> file and how the SystemInit() function updates
+	*  SCB->VTOR register.
+	*  E.g.  SCB->VTOR = 0x20000000;
+	*/
 
-  /**
-  *  IMPORTANT NOTE!
-  *  The symbol VECT_TAB_SRAM needs to be defined when building the project
-  *  if code has been located to RAM and interrupts are used. 
-  *  Otherwise the interrupt table located in flash will be used.
-  *  See also the <system_*.c> file and how the SystemInit() function updates 
-  *  SCB->VTOR register.  
-  *  E.g.  SCB->VTOR = 0x20000000;  
-  */
+  /**************************** Run Initialization functions timer for tim2 started in init_adc*****************************/
 
-  /* TODO - Add your application code here */
+  menubutton.button=back;					//initializes menubutton state for startup
+  init_gpios();								//initialize gpios
+  init_push_buttons();						//initialize menu navigation buttons
+  init_adc(ADCBuffer);						//initialize ADC, do this last because it starts the timer
+  //init_spi();								//initialize the SPI for LCD not using SPI any more don't need this
+  init_parallel();							//initializes all the GPIO's for parallel LCD communication
+  lcd_init();								//initializes LCD screen
+  update_selector_state();					// get startup state
+  init_state();								//initialize the global state variable for the menu, filterstate, secondary VCO and modlulation
+  display_new_menu();
 
+	EVAL_AUDIO_Init( OUTPUT_DEVICE_AUTO, VOL, SAMPLERATE);
+	EVAL_AUDIO_Play(buffer_output, BUFF_LEN);
 
-  /* ADC3 configuration *******************************************************/
-   /*  - Enable peripheral clocks                                              */
-   /*  - DMA2_Stream0 channel2 configuration                                   */
-   /*  - Configure ADC Channel12 pin as analog input  : PC2                    */
-   /*  - Configure ADC3 Channel12                                              */
-   ADC3_CH12_DMA_Config();
+	while (1)
+	{
 
-
-   /* Initialize LEDS */
-   STM_EVAL_LEDInit(LED3); // orange LED
-   STM_EVAL_LEDInit(LED4); // green LED
-   STM_EVAL_LEDInit(LED5); // red LED
-   STM_EVAL_LEDInit(LED6); // blue LED
-
-   /* Green Led On: start of application */
-   STM_EVAL_LEDOn(LED4);
-
-  /* Initialize User Button */
-  STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_GPIO);
-
-  retVal = EVAL_AUDIO_Init( OUTPUT_DEVICE_AUTO, VOL, SAMPLERATE);
-  retVal = EVAL_AUDIO_Play(buffer_output, BUFF_LEN);
-
-  /* Infinite loop */
-  while (1)
-  {
-	i++;
-
-
-    if (STM_EVAL_PBGetState(BUTTON_USER) && (state == OFF))
-    {
-      state = ON;
-      STM_EVAL_LEDOn(LED6); // blue LED ON
-      pass = 0.5f;
-    }
-    else
-    {
-      if (! STM_EVAL_PBGetState(BUTTON_USER))
-      {
-        STM_EVAL_LEDOff(LED6); // blue LED OFF
-        pass = 0.0f;
-        state = OFF;
-      }
-    }
-
-  }
+	}
 }
 
-
-
-/**
-* @brief  Manages the DMA Half Transfer complete interrupt.
-* @param  None
-* @retval None
-*/
-void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
-{
-  /* Generally this interrupt routine is used to load the buffer when
-  a streaming scheme is used: When first Half buffer is already transferred load
-  the new data to the first half of buffer while DMA is transferring data from
-  the second half. And when Transfer complete occurs, load the second half of
-  the buffer while the DMA is transferring from the first half ... */
-
-
-}
 
 /**
   * @brief  Basic management of the timeout situation.
@@ -165,56 +90,40 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
   */
 uint32_t Codec_TIMEOUT_UserCallback(void)
 {
-	STM_EVAL_LEDOn(LED5); /*  alert : red LED !  */
+	// TODO: See instructions in function declaration.  I've seen this LED turn on, which may signal an issue.
+	STM_EVAL_LEDOn(LED5); 				/*  alert : red LED !  */
 	return (0);
+}
+
+/**
+* @brief  Manages the DMA Half Transfer complete interrupt.
+* @param  None
+* @retval None
+*/
+void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
+{
+	/*
+	Generally this interrupt routine is used to load the buffer when
+	a streaming scheme is used: When first Half buffer is already transferred load
+	the new data to the first half of buffer while DMA is transferring data from
+	the second half. And when Transfer complete occurs, load the second half of
+	the buffer while the DMA is transferring from the first half ...
+	 */
+
+	generate_waveforms(0, BUFF_LEN_DIV2);
+	return;
 }
 
 /*
  * Callback used by stm32f4_discovery_audio_codec.c.
  * Refer to stm32f4_discovery_audio_codec.h for more info.
  */
-void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size){
-	// Turns off yellow LED -- indicates no error occurred.
-	// STM_EVAL_LEDOff(LED3);
-
-	// float32_t  sinOutput;
-	volatile int i = 0;
-
-	// float32_t ratio = 20/48000;
-
-	for(i = 0; i < BUFF_LEN; i+=1)
-	{
-		// Fill lfo buffer with phase shifted portion of sine wave.
-		// buffer_lfo[i] = 0.5 + 0.5*arm_sin_f32((phase_lfo+i)*2*PI/SAMPLERATE);
-//		buffer_output[i] = 65536 * (buffer_vco[i] * buffer_lfo[i]);
-//		buffer_output[i] = (uint16_t) buffer_output[i];
-		//buffer_output[i] = 0.5 + 0.5*arm_sin_f32((phase_lfo+i)*2*PI*50/48000);
-
-		// buffer_output[i] = 60000 * (buffer_vco[i]);
-		// buffer_output[i] = 32767 + 32767*arm_sin_f32((sample+i)*1000.0/48000.0);
-		// buffer_output[i] = 32767 + 32767*sin((sample+i)*480.0*2*PI/48000.0);
-		// buffer_output[i] = buffer_vco[i];
-
-
-		// buffer_lfo[i] = 0.3 + 0.3*arm_sin_f32((phase_lfo+i)*20/48000);
-		// buffer_lfo[i] = 500 + 500*arm_sin_f32((phase_lfo+i)*500/48000);
-		// buffer_lfo[i] = 500 + 500*sin(i*375*2*PI/48000);					//
-		// buffer_lfo[i] = 1500 + 1500*arm_sin_f32(i*375*2*PI/48000);
-		// buffer_output[i] = buffer_vco[i];
-
-		buffer_vco[i] = 2000 + 2000*arm_sin_f32((phase_lfo+i)*375*2*PI/48000);		// phase_lfo should allow for arbitrary vco freq.
-		buffer_lfo_float[i] = 0.5 + 0.4*arm_sin_f32((phase_lfo+i)*2*2*PI/48000);	// phase_lfo allows for arbitrary lfo freq.
-		buffer_output[i] = buffer_vco[i] * buffer_lfo_float[i];
-
-
-	}
-	// Floating point vector multiplication.
-	// arm_mult_f32(buffer_vco, buffer_lfo, buffer_output, BUFF_LEN);
-
-	// Remember lfo phase and resume next run of callback.
-	phase_lfo = (phase_lfo + i) % SAMPLERATE;
+void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size)
+{
+	generate_waveforms(BUFF_LEN_DIV2, BUFF_LEN);
 	return;
 }
+
 
 /*
  * Callback used by stm324xg_eval_audio_codec.c.
@@ -230,96 +139,4 @@ uint16_t EVAL_AUDIO_GetSampleCallBack(void){
 void EVAL_AUDIO_Error_CallBack(void* pData)
 {
 	STM_EVAL_LEDOn(LED3);
-}
-
-
-
-
-/**
-  * @brief  ADC3 channel12 with DMA configuration
-  * @param  None
-  * @retval None
-  */
-void ADC3_CH12_DMA_Config(void)
-{
-  ADC_InitTypeDef       ADC_InitStructure;
-  ADC_CommonInitTypeDef ADC_CommonInitStructure;
-  DMA_InitTypeDef       DMA_InitStructure;
-  GPIO_InitTypeDef      GPIO_InitStructure;
-
-  /* Enable ADC3, DMA2 and GPIO clocks ****************************************/
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2 | RCC_AHB1Periph_GPIOC, ENABLE);
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC3, ENABLE);
-
-  /* DMA2 Stream0 channel0 configuration **************************************/
-  DMA_InitStructure.DMA_Channel = DMA_Channel_2;
-  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC3_DR_ADDRESS;
-  DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&ADC3ConvertedValue;
-  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
-  DMA_InitStructure.DMA_BufferSize = 1;
-  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
-  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
-  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
-  DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-  DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
-  DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
-  DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;
-  DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
-  DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
-  DMA_Init(DMA2_Stream0, &DMA_InitStructure);
-  DMA_Cmd(DMA2_Stream0, ENABLE);
-
-  /* Configure ADC3 Channel12 pin as analog input ******************************/
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-  /* ADC Common Init **********************************************************/
-  ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
-  ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div2;
-  ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
-  ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
-  ADC_CommonInit(&ADC_CommonInitStructure);
-
-  /* ADC3 Init ****************************************************************/
-  ADC_InitStructure.ADC_Resolution = ADC_Resolution_8b;
-  ADC_InitStructure.ADC_ScanConvMode = DISABLE;
-  ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
-  ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
-  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-  ADC_InitStructure.ADC_NbrOfConversion = 1;
-  ADC_Init(ADC3, &ADC_InitStructure);
-
-  /* ADC3 regular channel12 configuration *************************************/
-  ADC_RegularChannelConfig(ADC3, ADC_Channel_12, 1, ADC_SampleTime_3Cycles);
-
- /* Enable DMA request after last transfer (Single-ADC mode) */
-  ADC_DMARequestAfterLastTransferCmd(ADC3, ENABLE);
-
-  /* Enable ADC3 DMA */
-  ADC_DMACmd(ADC3, ENABLE);
-
-  /* Enable ADC3 */
-  ADC_Cmd(ADC3, ENABLE);
-}
-
-
-//---------------------------------------------------------------------------
-/**************
-* returns a random float between 0 and 1
-*****************/
-float randomNum(void)
-  {
-		return 0.5;
-  }
-
-
-void TimingDelay_Decrement(void)
-{
-  if (TimingDelay != 0x00)
-  {
-    TimingDelay--;
-  }
 }

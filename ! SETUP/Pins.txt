@@ -1,0 +1,180 @@
+
+*** Measure top/bottom range of noise spikes.
+*** Measure top/bottom range of normal noise.
+
+
+For vco, try ADDING angle_vco instead of multiplying:
+	buffer_output[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32((sample_count_vco+(i-start))*angle_vco);
+	to
+	buffer_output[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32((sample_count_vco+(i-start)) + angle_vco);
+	maybe need to take integral of of angle_vco each time...????
+	
+	OR
+	Measure the time of the glitches.  As soon as adc increases above a threshold, count that many ms and do nothing.  Then take new average.
+	If same as old, keep old.  If same as new, keep new.	
+
+	
+	OR 
+	Keep a running average.
+	Measure derivative between samples.
+	If If |d/dt| is above a threshold, do not add to average.
+
+	Could combine this with thresholding or with removing lsb(s)
+	
+	
+	OR
+	discretize the adc value in this way:
+	1) Get a value from adc.
+	2) Set a lower and upper bound.  Say -10 and +10.
+	3) If get next value.  
+		a) If it's within range, do not keep.
+		b) If it's outside range, store and get average over some range.
+		If the average is close to new value, then use that as new value.
+		If the average is closer to old value, then discard the new value.
+	
+	OR
+	[Not sure if this works... large spike will change the average a lot]
+	OR use two thresholds (for above baseline) (and two below)
+	1) Get moving average - store as baseline.
+	2) If average goes above threshold 2 (higher one), then keep.  Otherwise ignore.
+		If average drops back below threshold 1 (lower one), then keep.  Otherwise ignore.
+		
+	
+	
+Take LOG of ADCBuffer[1] just for frequency?
+
+Find way of smoothing ground reference?  Is there an analog ground?
+
+Vref+ or Vref- do we use it?
+
+Should be different than voltage powering the voltage divider (vdd?)
+
+I'm using VDD as my voltage source.  Is that right?  Is there a VDDA? (That's an input I think)
+
+I should probably use the 3V as my voltage supply. --> Doesn't seem to matter
+
+
+
+
+
+
+
+
+
+====================================
+PINS
+====================================
+
+	Gain (Maybe)
+	------------------------
+	C2		VCO-Volume			volume = ADCBuffer[13] (Maybe)
+	
+	
+	Oscillators - Pots
+	------------------------
+	A0		VCO-Amplitude			ADCBuffer[0]		** NOTE: same pin as pushbutton **
+	A1		VCO-Frequency			ADCBuffer[1]
+	
+	A2		LFO-Amplitude			ADCBuffer[2]
+	A3		LFO-Frequency			ADCBuffer[3]
+
+	
+	Envelope - Pots
+	------------------------
+	** TODO - UPDATE THIS **** 
+	A5		ENVELOPE-Attack			ADCBuffer[5]
+	A6		ENVELOPE-decay			ADCBuffer[6]
+	A7		ENVELOPE-Sustain		ADCBuffer[7]
+	B0		ENVELOPE-Release		ADCBuffer[8]
+	C0		ENVELOPE-BlankLen		ADCBuffer[10]		*** stolen from FILTER-fc_high
+	C4		ENVELOPE-sustain amp	ADCBuffer[11]		*** stolen from FILTER-FreqGain
+	
+	Filters - Pots
+	------------------------
+	B1		FILTER-FreqLow			ADCBuffer[8]		
+	C0		FILTER-FreqHigh			ADCBuffer[9]		--> MOVED TO adsr_settings.blank_len	
+	C1		FILTER-FreqResonance	ADCBuffer[10]
+	 ** C4		FILTER-FreqGain			ADCBuffer[11] 		---> moved to ENVELOPE-sustain amp
+	
+	Waveform Types - Selectors
+	------------------------
+	PE7 		vco_sine
+	PE8			vco_sawtooth
+	PE9			vco_square
+	PE10		vco_triangle
+
+	PE12 		lfo_sine
+	PE13		lfo_sawtooth
+	PE14		lfo_square
+	PE15		lfo_triangle	
+	
+
+
+
+======================================================================================	
+	A4			volume				ADCBuffer[4]		Do not ground
+	B1			fc_low				ADCBuffer[9]		--> MOVED TO adsr_settings.blank_len	
+	C0			fc_high				ADCBuffer[10]		GROUNDED
+	C1			fc_resonance		ADCBuffer[11]		GROUNDED
+		
+	
+
+======================================================================================	
+
+
+													audio_codec.h	
+PE7		John	vco_sine							ok
+PE8		John	vco_sawtooth						ok
+PE9		John	vco_square							ok
+PE10	John	vco_other 1 talk to mike			ok
+PE11	John	vco_other 2 talk to mike			ok
+PE12	John	lfo_sine							ok
+PE13	John	lfo_sawtooth						ok
+PE14	John	lfo_square							ok
+PE15	John	lfo_other 1							ok
+	
+
+PC5		John	LCD RS								ok
+ //// PC7		John	LCD R/W								** conflict **				#define CODEC_I2S_MCK_PIN              GPIO_Pin_7
+PD6		John	LCD R/W
+PC8		John	LCD DB0								ok
+PC9		John	LCD DB1								ok
+PC11	John	LCD DB2								ok
+PC13	John	LCD DB3								ok
+PC14	John	LCD DB4								ok
+PC15	John`	LCD DB5								ok
+
+
+============================================
+PINS FOR AUDIO
+============================================
+#define CODEC_I2S_WS_PIN               GPIO_Pin_4			A4
+#define CODEC_I2C_SCL_PIN              GPIO_Pin_6			B7
+#define CODEC_I2C_SDA_PIN              GPIO_Pin_9			B9
+#define CODEC_I2S_MCK_PIN              GPIO_Pin_7			C7
+#define CODEC_I2S_SCK_PIN              GPIO_Pin_10			C10
+#define CODEC_I2S_SD_PIN               GPIO_Pin_12			C12
+#define AUDIO_RESET_PIN                GPIO_Pin_4			D4
+
+
+
+============================================
+IMPORTING JOHN's FILES:
+============================================
+Copy in:
+initial_ization.c
+initial_ization.h
+lcd.c
+lcd.h
+stm32f4xx_it.c
+stm32f4xx_it.h
+user_interface.c
+user_interface.h
+
+File Compare:
+main.c
+main.h
+
+
+
+
