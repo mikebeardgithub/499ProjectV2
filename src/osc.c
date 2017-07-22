@@ -107,15 +107,14 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	osc.lfo_wav = lfo_state;				// LFO wave type.
 	osc.mod = current_menu_state.lfo_mod;	// Modulation type.
 
-	osc.vco_wav = square;					// TODO: comment-out when adding lcd and buttons
-	osc.lfo_wav = sine;				// TODO: comment-out when adding lcd and buttons
-	osc.mod = VCOfreq;				// TODO: comment-out when adding lcd and buttons
+	// osc.vco_wav = square;					// TODO: comment-out when adding lcd and buttons
+	// osc.lfo_wav = sine;				// TODO: comment-out when adding lcd and buttons
+	// osc.mod = VCOfreq;				// TODO: comment-out when adding lcd and buttons
 	// osc.mod = VCOamp;
 	// osc.mod = NO_MOD;
 
-	float32_t volume = moving_avg(mov_avg6, &mov_avg_sum6, mov_avg_index6, MOV_AVG_BUFF_LEN, ADCBuffer[4] & 0xfffc);	// For testing.
-	// float32_t volume = moving_avg(mov_avg6, &mov_avg_sum6, mov_avg_index6, MOV_AVG_BUFF_LEN, ADCBuffer[3] & 0xfffc);	// For testing.
-	mov_avg_index6++;
+	// PC2
+	float32_t volume = moving_avg(mov_avg6, &mov_avg_sum6, mov_avg_index6, MOV_AVG_BUFF_LEN, ADCBuffer[12] & 0xfffc);	// For testing.
 	if (mov_avg_index6 >= MOV_AVG_BUFF_LEN)
 	{
 		mov_avg_index6 = 0;
@@ -158,7 +157,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	adsr_settings.mod = current_menu_state.adsr_mod;
 	// adsr_settings.mod = VCOamp;						// TODO: turn this off when LCD activated.
 	// adsr_settings.mod = DualMode_VCO;
-	adsr_settings.mod = NO_MOD;
+	// adsr_settings.mod = NO_MOD;
 	// adsr_settings.mod = VCOfreq;
 
 	//	// Calculate angle amount to increment per sample.

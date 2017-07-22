@@ -66,12 +66,11 @@ void init_adc(volatile uint16_t ADCBuffer[NUM_CHANNELS]){
 	//GPIO_Pin_1	VFO-Frequency
 	//GPIO_Pin_2	LFO-Amplitude
 	//GPIO_Pin_3	LFO-Frequency
-	//GPIO_Pin_4	VCO-Volume
 	//GPIO_Pin_5	ENVELOPE-Attack
 	//GPIO_Pin_6	ENVELOPE-decay
-	//GPIO_Pin_7	ENVELOPE-Sustain
+	//GPIO_Pin_7	ENVELOPE-Sustain-time
 	GPIO_StructInit(&GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 |GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;
 	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AIN;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
@@ -87,11 +86,13 @@ void init_adc(volatile uint16_t ADCBuffer[NUM_CHANNELS]){
 	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-	//C bank pins//GPIO_Pin_0	FILTER-FreqHigh
+	//C bank pins//GPIO_Pin_0
+	//GPIO_Pin_0	ENVELOPE blsnk_len
 	//GPIO_Pin_1	FILTER-FreqResonance
-	//GPIO_Pin_4	FILTER-FreqGain
+	//GPIO_Pin_2	VCO-Volume
+	//GPIO_Pin_4	ENVELOPE-sustain-amp
 	GPIO_StructInit(&GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4;
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_4;
 	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AIN;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
@@ -151,7 +152,6 @@ void init_adc(volatile uint16_t ADCBuffer[NUM_CHANNELS]){
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 2, ADC_SampleTime_480Cycles);		//VFO-Frequency
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 3, ADC_SampleTime_480Cycles);		//LFO-Amplitude
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_3, 4, ADC_SampleTime_480Cycles);		//LFO-Frequency
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 5, ADC_SampleTime_480Cycles);		//VCO-Volume
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_5, 6, ADC_SampleTime_480Cycles);		//ENVELOPE-Attack
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_6, 7, ADC_SampleTime_480Cycles);		//ENVELOPE-decay
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_7, 8, ADC_SampleTime_480Cycles);		//ENVELOPE-Sustain
@@ -159,7 +159,8 @@ void init_adc(volatile uint16_t ADCBuffer[NUM_CHANNELS]){
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_9, 10, ADC_SampleTime_480Cycles);	//FILTER-FreqLow
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 11, ADC_SampleTime_480Cycles);	//FILTER-FreqHigh
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_11, 12, ADC_SampleTime_480Cycles);	//FILTER-FreqResonance
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 13, ADC_SampleTime_480Cycles);	//FILTER-FreqGain
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_12, 13, ADC_SampleTime_480Cycles);	//VCO-Volume
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 14, ADC_SampleTime_480Cycles);	//FILTER-FreqGain
 
 
 	/* Enable ADC1 DMA */
@@ -464,15 +465,15 @@ void init_spi(){
 
 void init_parallel(){
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE,ENABLE); 			//This is already turned on in init gpio's but turn on incase
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD,ENABLE); 			//This is already turned on in init gpio's but turn on incase
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC,ENABLE); 			//This is already turned on in init gpio's but turn on incase
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD,ENABLE);
+
+	//This is already turned on in init gpio's but turn on incase
 
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	/*
 	 * C bank pins
-	 * PC2		LCD Enable
-	 * PC7		LCD R/W
 	 * PC8		LCD DB0
 	 * PC9		LCD DB1
 	 * PC11		LCD DB2
@@ -481,7 +482,7 @@ void init_parallel(){
 	 * PC15		LCD DB5
 	 */
 	GPIO_StructInit(&GPIO_InitStructure);							//default values
-	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_2 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_2 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_11 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
 	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;					//CS output
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;				//medium
 	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;				// no pull up/down
@@ -489,18 +490,20 @@ void init_parallel(){
 
 	/*
 	 * D bank pins
+	 * PD6		LCD R/W
+	 * PD12		LCD Enable
 	 * PD13		LCD DB6
 	 * PD14		LCD DB7
 	 * PD15		LCD RS
 	 */
 	GPIO_StructInit(&GPIO_InitStructure);							//default values
-	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
+	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_6 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
 	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;					//CS output
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;				//medium
 	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;				// no pull up/down
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 
 	//set enable high
-	GPIO_ResetBits(GPIOC, GPIO_Pin_2);
+	GPIO_ResetBits(GPIOD, GPIO_Pin_12);
 
 }

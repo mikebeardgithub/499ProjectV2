@@ -30,12 +30,12 @@ void SPI_TX(int tx){
 
 	//R/W
 	if(tx & 0x0100){
-		GPIO_SetBits(GPIOC, GPIO_Pin_7);
+		GPIO_SetBits(GPIOD, GPIO_Pin_6);
 	}else{
-		GPIO_ResetBits(GPIOC, GPIO_Pin_7);
+		GPIO_ResetBits(GPIOD, GPIO_Pin_6);
 	}
 
-	GPIO_SetBits(GPIOC, GPIO_Pin_2);
+	GPIO_SetBits(GPIOD, GPIO_Pin_12);
 
 	//DB0
 	if(tx & 0x01){
@@ -87,7 +87,7 @@ void SPI_TX(int tx){
 	}
 
 	//cycle enable bits
-	GPIO_ResetBits(GPIOC, GPIO_Pin_2);
+	GPIO_ResetBits(GPIOD, GPIO_Pin_12);
 
 	//not using SPI any more gona configure in parallel and use this function to send the instructions/data
 
@@ -409,4 +409,3 @@ int reverse_Av(double setpoint)
     }
     return returnval;
 }
-

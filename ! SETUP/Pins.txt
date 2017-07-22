@@ -60,9 +60,14 @@ I should probably use the 3V as my voltage supply. --> Doesn't seem to matter
 
 
 
+
+====================================
+PINS
+====================================
+
 	Gain (Maybe)
 	------------------------
-	A4		VCO-Volume			volume = ADCBuffer[4] (Maybe)
+	C2		VCO-Volume			volume = ADCBuffer[13] (Maybe)
 	
 	
 	Oscillators - Pots
@@ -76,19 +81,20 @@ I should probably use the 3V as my voltage supply. --> Doesn't seem to matter
 	
 	Envelope - Pots
 	------------------------
+	** TODO - UPDATE THIS **** 
 	A5		ENVELOPE-Attack			ADCBuffer[5]
 	A6		ENVELOPE-decay			ADCBuffer[6]
 	A7		ENVELOPE-Sustain		ADCBuffer[7]
 	B0		ENVELOPE-Release		ADCBuffer[8]
 	C0		ENVELOPE-BlankLen		ADCBuffer[10]		*** stolen from FILTER-fc_high
-	C4		ENVELOPE-sustain amp	ADCBuffer[12]		*** stolen from FILTER-FreqGain
+	C4		ENVELOPE-sustain amp	ADCBuffer[11]		*** stolen from FILTER-FreqGain
 	
 	Filters - Pots
 	------------------------
-	B1		FILTER-FreqLow			ADCBuffer[9]		
-	C0		FILTER-FreqHigh			ADCBuffer[10]		--> MOVED TO adsr_settings.blank_len	
-	C1		FILTER-FreqResonance	ADCBuffer[11]
-	C4		FILTER-FreqGain			ADCBuffer[12] 		---> moved to ENVELOPE-sustain amp
+	B1		FILTER-FreqLow			ADCBuffer[8]		
+	C0		FILTER-FreqHigh			ADCBuffer[9]		--> MOVED TO adsr_settings.blank_len	
+	C1		FILTER-FreqResonance	ADCBuffer[10]
+	 ** C4		FILTER-FreqGain			ADCBuffer[11] 		---> moved to ENVELOPE-sustain amp
 	
 	Waveform Types - Selectors
 	------------------------
@@ -106,9 +112,69 @@ I should probably use the 3V as my voltage supply. --> Doesn't seem to matter
 
 
 ======================================================================================	
-	A4			volume				ADCBuffer[4]		Do not ground Mike, you idiot.
+	A4			volume				ADCBuffer[4]		Do not ground
 	B1			fc_low				ADCBuffer[9]		--> MOVED TO adsr_settings.blank_len	
 	C0			fc_high				ADCBuffer[10]		GROUNDED
 	C1			fc_resonance		ADCBuffer[11]		GROUNDED
 		
 	
+
+======================================================================================	
+
+
+													audio_codec.h	
+PE7		John	vco_sine							ok
+PE8		John	vco_sawtooth						ok
+PE9		John	vco_square							ok
+PE10	John	vco_other 1 talk to mike			ok
+PE11	John	vco_other 2 talk to mike			ok
+PE12	John	lfo_sine							ok
+PE13	John	lfo_sawtooth						ok
+PE14	John	lfo_square							ok
+PE15	John	lfo_other 1							ok
+	
+
+PC5		John	LCD RS								ok
+ //// PC7		John	LCD R/W								** conflict **				#define CODEC_I2S_MCK_PIN              GPIO_Pin_7
+PD6		John	LCD R/W
+PC8		John	LCD DB0								ok
+PC9		John	LCD DB1								ok
+PC11	John	LCD DB2								ok
+PC13	John	LCD DB3								ok
+PC14	John	LCD DB4								ok
+PC15	John`	LCD DB5								ok
+
+
+============================================
+PINS FOR AUDIO
+============================================
+#define CODEC_I2S_WS_PIN               GPIO_Pin_4			A4
+#define CODEC_I2C_SCL_PIN              GPIO_Pin_6			B7
+#define CODEC_I2C_SDA_PIN              GPIO_Pin_9			B9
+#define CODEC_I2S_MCK_PIN              GPIO_Pin_7			C7
+#define CODEC_I2S_SCK_PIN              GPIO_Pin_10			C10
+#define CODEC_I2S_SD_PIN               GPIO_Pin_12			C12
+#define AUDIO_RESET_PIN                GPIO_Pin_4			D4
+
+
+
+============================================
+IMPORTING JOHN's FILES:
+============================================
+Copy in:
+initial_ization.c
+initial_ization.h
+lcd.c
+lcd.h
+stm32f4xx_it.c
+stm32f4xx_it.h
+user_interface.c
+user_interface.h
+
+File Compare:
+main.c
+main.h
+
+
+
+

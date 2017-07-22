@@ -1,5 +1,5 @@
 initial_ization.c:33:6:init_adc	136	static
-initial_ization.c:190:6:init_gpios	48	static
-initial_ization.c:296:7:init_push_buttons	48	static
-initial_ization.c:390:6:init_spi	40	static
-initial_ization.c:465:6:init_parallel	16	static
+initial_ization.c:191:6:init_gpios	48	static
+initial_ization.c:297:7:init_push_buttons	48	static
+initial_ization.c:391:6:init_spi	40	static
+initial_ization.c:466:6:init_parallel	16	static
