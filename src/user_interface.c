@@ -52,9 +52,6 @@ void init_state(){
 	current_menu_state.filterst8 = no_filter;
 	current_menu_state.secondary_vco = 0;
 	display_new_menu();
-	LCD_SETDDRAM(0x14);
-	LCD_WRITE(199);
-	LCD_SETDDRAM(0x14);
 
 }
 

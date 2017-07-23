@@ -1,8 +1,8 @@
 user_interface.c:18:6:update_selector_state	8	static
 user_interface.c:46:6:init_state	8	static
-user_interface.c:63:6:handle_enter	8	static
-user_interface.c:270:6:handle_back	8	static
-user_interface.c:298:6:handle_up	8	static
-user_interface.c:380:6:handle_down	8	static
-user_interface.c:458:6:display_new_menu	8	static
-user_interface.c:509:6:curser_start	8	static
+user_interface.c:60:6:handle_enter	8	static
+user_interface.c:267:6:handle_back	8	static
+user_interface.c:295:6:handle_up	8	static
+user_interface.c:377:6:handle_down	8	static
+user_interface.c:455:6:display_new_menu	8	static
+user_interface.c:506:6:curser_start	8	static

@@ -67,7 +67,7 @@ PINS
 
 	Gain (Maybe)
 	------------------------
-	C2		VCO-Volume			volume = ADCBuffer[13] (Maybe)
+	C2		VCO-Volume			volume = ADCBuffer[10]
 	
 	
 	Oscillators - Pots
@@ -81,20 +81,18 @@ PINS
 	
 	Envelope - Pots
 	------------------------
-	** TODO - UPDATE THIS **** 
-	A5		ENVELOPE-Attack			ADCBuffer[5]
-	A6		ENVELOPE-decay			ADCBuffer[6]
-	A7		ENVELOPE-Sustain		ADCBuffer[7]
-	B0		ENVELOPE-Release		ADCBuffer[8]
-	C0		ENVELOPE-BlankLen		ADCBuffer[10]		*** stolen from FILTER-fc_high
-	C4		ENVELOPE-sustain amp	ADCBuffer[11]		*** stolen from FILTER-FreqGain
+	A5		ENVELOPE-Attack			ADCBuffer[4]
+	C1		ENVELOPE-decay			ADCBuffer[9]
+	A7		ENVELOPE-Sustain		ADCBuffer[5]
+	B0		ENVELOPE-Release		ADCBuffer[6]
+	C0		ENVELOPE-BlankLen		ADCBuffer[8]    ** THINK THIS IS SUSTAIN TIME
+	C4		ENVELOPE-sustain amp	ADCBuffer[11]
 	
 	Filters - Pots
 	------------------------
-	B1		FILTER-FreqLow			ADCBuffer[8]		
-	C0		FILTER-FreqHigh			ADCBuffer[9]		--> MOVED TO adsr_settings.blank_len	
-	C1		FILTER-FreqResonance	ADCBuffer[10]
-	 ** C4		FILTER-FreqGain			ADCBuffer[11] 		---> moved to ENVELOPE-sustain amp
+	B1		FILTER-FreqLow			ADCBuffer[7]		
+	DEFUNCT 	C0		FILTER-FreqHigh			ADCBuffer[8]		--> MOVED TO adsr_settings.blank_len	
+	DEFUNCT		C4		FILTER-FreqGain			ADCBuffer[12] 		---> moved to ENVELOPE-sustain amp
 	
 	Waveform Types - Selectors
 	------------------------

@@ -29,10 +29,12 @@ osc_setting osc =
 	.lfo_wav = sine,		// other2 means OFF, for now.
 	.mod = VCOfreq,
 
-	.vco_amp = VCO_AMP/2,
-	.vco_amp2 = VCO_AMP/5,
-	.lfo_amp = 0.7,
-	// .lfo_offset = 2.0,
+	.vco_amp = VCO_AMP,
+	.vco_amp2 = VCO_AMP,
+
+	.lfo_amp = 1.0,
+	.lfo_amp_am = 1.0,
+	.lfo_amp_fm = 1.0,
 
 	.square_min = 0.4,
 	.square_max = 1.0,
@@ -107,29 +109,31 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	osc.lfo_wav = lfo_state;				// LFO wave type.
 	osc.mod = current_menu_state.lfo_mod;	// Modulation type.
 
-	// osc.vco_wav = square;					// TODO: comment-out when adding lcd and buttons
+	// osc.vco_wav = sine;				// TODO: comment-out when adding lcd and buttons
 	// osc.lfo_wav = sine;				// TODO: comment-out when adding lcd and buttons
-	// osc.mod = VCOfreq;				// TODO: comment-out when adding lcd and buttons
 	// osc.mod = VCOamp;
+	// osc.mod = VCOfreq;			// TODO: comment-out when adding lcd and buttons
 	// osc.mod = NO_MOD;
+	// osc.mod = DualMode_VCO;
 
 	// PC2
-	float32_t volume = moving_avg(mov_avg6, &mov_avg_sum6, mov_avg_index6, MOV_AVG_BUFF_LEN, ADCBuffer[12] & 0xfffc);	// For testing.
+	osc.volume = (float32_t) moving_avg(mov_avg6, &mov_avg_sum6, mov_avg_index6, MOV_AVG_BUFF_LEN, (ADCBuffer[10] & 0xfffc));
+	mov_avg_index6++;
 	if (mov_avg_index6 >= MOV_AVG_BUFF_LEN)
 	{
 		mov_avg_index6 = 0;
 	}
 
 	// A0
-	osc.vco_amp = moving_avg(mov_avg5, &mov_avg_sum5, mov_avg_index5, MOV_AVG_BUFF_LEN, ADCBuffer[0] & 0xfffc);
+	osc.vco_amp = moving_avg(mov_avg5, &mov_avg_sum5, mov_avg_index5, MOV_AVG_BUFF_LEN, (ADCBuffer[0] & 0xfffc));
 	mov_avg_index5++;
 	if (mov_avg_index5 >= MOV_AVG_BUFF_LEN)
 	{
 		mov_avg_index5 = 0;
 	}
 
-	volume = (float32_t) volume / 2048;
-	osc.vco_amp = osc.vco_amp * volume;
+	osc.volume = (float32_t) osc.volume / 2048;
+	osc.vco_amp = osc.vco_amp * osc.volume;
 
 	// A1
 	osc.vco_freq = moving_avg(mov_avg1, &mov_avg_sum1, mov_avg_index1, MOV_AVG_BUFF_LEN, (ADCBuffer[1] & 0xfffc)*2*PI);
@@ -139,18 +143,20 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		mov_avg_index1 = 0;
 	}
 
+	osc.lfo_amp = moving_avg(mov_avg3, &mov_avg_sum3, mov_avg_index3, MOV_AVG_BUFF_LEN, (ADCBuffer[2] & 0xfffc));
+	mov_avg_index3++;
+	if (mov_avg_index3 >= MOV_AVG_BUFF_LEN)
+	{
+		mov_avg_index3 = 0;
+	}
+	osc.lfo_amp_am = osc.lfo_amp*LFO_AMP_AM;
+	osc.lfo_amp_fm = osc.lfo_amp*LFO_AMP_FM;
+
 	osc.lfo_freq = moving_avg(mov_avg2, &mov_avg_sum2, mov_avg_index2, MOV_AVG_BUFF_LEN, (ADCBuffer[3] & 0xfffc)/5);
 	mov_avg_index2++;
 	if (mov_avg_index2 >= MOV_AVG_BUFF_LEN)
 	{
 		mov_avg_index2 = 0;
-	}
-
-	osc.lfo_amp = moving_avg(mov_avg3, &mov_avg_sum3, mov_avg_index3, MOV_AVG_BUFF_LEN, (ADCBuffer[2] & 0xfffc)/200);
-	mov_avg_index3++;
-	if (mov_avg_index3 >= MOV_AVG_BUFF_LEN)
-	{
-		mov_avg_index3 = 0;
 	}
 
 	volatile uint32_t i = 0;
@@ -174,23 +180,10 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	// Sine LFO
 	if(osc.lfo_wav == sine)
 	{
-		if(osc.mod == VCOamp || osc.mod == DualMode_VCO)
+		for(i = start; i < end; i++)
 		{
-			for(i = start; i < end; i++)
-			{
-				theta_lfo = theta_lfo + rads_per_sample_lfo;
-				// AM - Requires an amplitude offset.
-				buffer_lfo_float[i] = osc.lfo_amp + osc.lfo_amp*arm_sin_f32(theta_lfo);
-			}
-		}
-		else if(osc.mod == VCOfreq)
-		{
-			for(i = start; i < end; i++)
-			{
-				theta_lfo = theta_lfo + rads_per_sample_lfo;
-				// FM - No offset.
-				buffer_lfo_float[i] = osc.lfo_amp*arm_cos_f32(theta_lfo);
-			}
+			theta_lfo = theta_lfo + rads_per_sample_lfo;
+			buffer_lfo_float[i] = arm_sin_f32(theta_lfo);
 		}
 	}
 
@@ -203,7 +196,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			for(i = start; i < end; i++)
 			{
 				theta_lfo = theta_lfo + rads_per_sample_lfo;
-				buffer_lfo_float[i] = osc.lfo_amp*gen_square_angle(theta_lfo);
+				buffer_lfo_float[i] = gen_square_angle(theta_lfo);	// TODO: offset??
 			}
 		}
 		else if(osc.mod == VCOfreq)
@@ -213,10 +206,9 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			{
 				theta_lfo = theta_lfo + rads_per_sample_lfo;
 				// Sawtooth is integral of triangle
-				buffer_lfo_float[i] = osc.lfo_amp + osc.lfo_amp*gen_triangle_angle(theta_lfo);
+				buffer_lfo_float[i] = gen_triangle_angle(theta_lfo);
 			}
 		}
-
 	}
 
 	// Sawtooth LFO
@@ -228,7 +220,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			for(i = start; i < end; i++)
 			{
 				theta_lfo = theta_lfo + rads_per_sample_lfo;
-				buffer_lfo_float[i] = osc.lfo_amp + osc.lfo_amp*gen_sawtooth_angle(theta_lfo);
+				buffer_lfo_float[i] = gen_sawtooth_angle(theta_lfo);
 			}
 		}
 
@@ -238,7 +230,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			for(i = start; i < end; i++)
 			{
 				theta_lfo = theta_lfo + rads_per_sample_lfo;
-				buffer_lfo_float[i] = osc.lfo_amp + osc.lfo_amp*gen_sawtooth_integral_angle(theta_lfo);
+				buffer_lfo_float[i] = gen_sawtooth_integral_angle(theta_lfo);
 			}
 		}
 	}
@@ -251,7 +243,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			for(i = start; i < end; i++)
 			{
 				theta_lfo = theta_lfo + rads_per_sample_lfo;
-				buffer_lfo_float[i] = osc.lfo_amp + osc.lfo_amp*gen_triangle_angle(theta_lfo);
+				buffer_lfo_float[i] = gen_triangle_angle(theta_lfo);
 			}
 		}
 
@@ -261,11 +253,16 @@ void generate_waveforms(uint16_t start, uint16_t end)
 			for(i = start; i < end; i++)
 			{
 				theta_lfo = theta_lfo + rads_per_sample_lfo;
-				buffer_lfo_float[i] = osc.lfo_amp + osc.lfo_amp*gen_triangle_integral_angle(theta_lfo);
+				buffer_lfo_float[i] = gen_triangle_integral_angle(theta_lfo);
 			}
 		}
 
 	}
+
+//
+//	NO_MOD,
+//	VCOfreq,
+//	VCOamp,
 
 	// Sine VCO
 	if(osc.vco_wav == sine)
@@ -274,7 +271,14 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		for(i = start; i < end; i++)
 		{
 			theta_vco = theta_vco + rads_per_sample_vco;
-			buffer_output[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32(theta_vco + buffer_lfo_float[i] + 0.3 * buffer_adsr_fm[i]);
+			if(osc.mod == VCOfreq || osc.mod == DualMode_VCO)
+			{
+				buffer_output[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32(theta_vco + osc.lfo_amp_fm*buffer_lfo_float[i] + 0.3 * buffer_adsr_fm[i]);
+			}
+			else
+			{
+				buffer_output[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32(theta_vco + 0.3 * buffer_adsr_fm[i]);
+			}
 		}
 	}
 
@@ -285,7 +289,15 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		for(i = start; i < end; i++)
 		{
 			theta_vco = theta_vco + rads_per_sample_vco;
-			buffer_output[i] = osc.vco_amp + osc.vco_amp*gen_square_angle(theta_vco + buffer_lfo_float[i] + 0.3 * buffer_adsr_fm[i]);
+
+			if(osc.mod == VCOfreq || osc.mod == DualMode_VCO)
+			{
+				buffer_output[i] = osc.vco_amp + osc.vco_amp*gen_square_angle(theta_vco + osc.lfo_amp_fm*buffer_lfo_float[i] + 0.3 * buffer_adsr_fm[i]);
+			}
+			else
+			{
+				buffer_output[i] = osc.vco_amp + osc.vco_amp*gen_square_angle(theta_vco + 0.3 * buffer_adsr_fm[i]);
+			}
 		}
 	}
 
@@ -296,8 +308,16 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		for(i = start; i < end; i++)
 		{
 			theta_vco = theta_vco + rads_per_sample_vco;
-			// buffer_output[i] = osc.vco_amp + osc.vco_amp*gen_sawtooth_angle(theta_vco + 10*buffer_lfo_float[i] + 0.3 * buffer_adsr_fm[i]);
-			buffer_output[i] = osc.vco_amp + osc.vco_amp*gen_sawtooth_angle(theta_vco + buffer_lfo_float[i] + 0.3 * buffer_adsr_fm[i]);
+
+			if(osc.mod == VCOfreq || osc.mod == DualMode_VCO)
+			{
+				buffer_output[i] = osc.vco_amp + osc.vco_amp*gen_sawtooth_angle(theta_vco + osc.lfo_amp_fm*buffer_lfo_float[i] + 0.3 * buffer_adsr_fm[i]);
+			}
+			else
+			{
+				// buffer_output[i] = osc.vco_amp + osc.vco_amp*gen_sawtooth_angle(theta_vco + 10*buffer_lfo_float[i] + 0.3 * buffer_adsr_fm[i]);
+				buffer_output[i] = osc.vco_amp + osc.vco_amp*gen_sawtooth_angle(theta_vco + 0.3 * buffer_adsr_fm[i]);
+			}
 		}
 	}
 
@@ -308,7 +328,15 @@ void generate_waveforms(uint16_t start, uint16_t end)
 		for(i = start; i < end; i++)
 		{
 			theta_vco = theta_vco + rads_per_sample_vco;
-			buffer_output[i] = osc.vco_amp + osc.vco_amp*gen_triangle_angle(theta_vco + buffer_lfo_float[i] + 0.3 * buffer_adsr_fm[i]);
+			if(osc.mod == VCOfreq || osc.mod == DualMode_VCO)
+			{
+				buffer_output[i] = osc.vco_amp + osc.vco_amp*gen_triangle_angle(theta_vco + osc.lfo_amp_fm*buffer_lfo_float[i] + 0.3 * buffer_adsr_fm[i]);
+			}
+			else
+			{
+				buffer_output[i] = osc.vco_amp + osc.vco_amp*gen_triangle_angle(theta_vco + 0.3 * buffer_adsr_fm[i]);
+			}
+
 		}
 	}
 
@@ -317,7 +345,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_output[i] = buffer_output[i] * buffer_lfo_float[i];
+			buffer_output[i] = buffer_output[i]*(osc.lfo_amp_am + osc.lfo_amp_am*buffer_lfo_float[i]);
 		}
 	}
 
@@ -326,7 +354,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	{
 		for(i = start; i < end; i++)
 		{
-			buffer_output[i] = buffer_output[i] * buffer_adsr_am[i];
+			buffer_output[i] = buffer_output[i]*buffer_adsr_am[i];
 		}
 	}
 
@@ -380,15 +408,16 @@ void adsr(uint16_t start, uint16_t end)
 {
 	uint16_t i = 0;
 	// adsr_settings = adsr_03;
-	adsr_settings.attack_len = ADCBuffer[5]*20;		// A5
-	adsr_settings.decay_len = (ADCBuffer[6])*20;	// A6
-	adsr_settings.sustain_len = ADCBuffer[7]*20;	// A7
-	adsr_settings.release_len = ADCBuffer[8]*20;	// B0
-	adsr_settings.blank_len = ADCBuffer[10]*20;		// C0
+	adsr_settings.attack_len = ADCBuffer[4]*20;		// A5
+	adsr_settings.decay_len = (ADCBuffer[9])*20;	// C1
+	adsr_settings.sustain_len = ADCBuffer[5]*20;	// A7
+	adsr_settings.release_len = ADCBuffer[6]*20;	// B0
+	adsr_settings.blank_len = ADCBuffer[8]*20;		// C0
 	// adsr_settings.sustain_amp = (float32_t) ADCBuffer[12]/4095;		// C4
 	volatile uint32_t samples_cycle_adsr = adsr_settings.attack_len + adsr_settings.decay_len + adsr_settings.sustain_len + adsr_settings.release_len + adsr_settings.blank_len;
 
-	adsr_settings.sustain_amp = moving_avg(mov_avg4, &mov_avg_sum4, mov_avg_index4, MOV_AVG_BUFF_LEN, ADCBuffer[12] & 0xfffc);
+	// C4
+	adsr_settings.sustain_amp = moving_avg(mov_avg4, &mov_avg_sum4, mov_avg_index4, MOV_AVG_BUFF_LEN, ADCBuffer[11] & 0xfffc);
 	mov_avg_index4++;
 	if (mov_avg_index4 >= MOV_AVG_BUFF_LEN)
 	{
@@ -912,5 +941,6 @@ uint32_t moving_avg(uint32_t *ptrArrNumbers, uint32_t *ptrSum, uint32_t pos, uin
   //Assign the nextNum to the position in the array
   ptrArrNumbers[pos] = nextNum;
   //return the average
+  uint32_t temp = (uint32_t) *ptrSum / len;		// TODO: remove after testing.
   return (uint32_t) *ptrSum / len;
 }

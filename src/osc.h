@@ -52,13 +52,13 @@
 //#define MOD_FM					2
 
 #define VCO_AMP					4000
-#define LFO_AMP_AM				0.4
-#define LFO_AMP_FM				0.5
-#define LFO_AMP_FM2				10
-
+#define LFO_AMP_AM				0.0004
+#define LFO_AMP_FM				0.010
 
 typedef struct osc_setting
 {
+	float32_t volume;
+
 	float32_t vco_freq;
 	float32_t vco2_freq;
 	float32_t lfo_freq;
@@ -73,7 +73,11 @@ typedef struct osc_setting
 
 	float32_t vco_amp;
 	float32_t vco_amp2;
+
 	float32_t lfo_amp;
+	float32_t lfo_amp_am;
+	float32_t lfo_amp_fm;
+
 	// float32_t lfo_offset;
 
 	float32_t square_min;
