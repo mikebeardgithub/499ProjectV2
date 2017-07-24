@@ -52,7 +52,7 @@
 //#define MOD_FM					2
 
 #define VCO_AMP					4000
-#define LFO_AMP_AM				0.0004
+#define LFO_AMP_AM				0.0001
 #define LFO_AMP_FM				0.010
 
 typedef struct osc_setting

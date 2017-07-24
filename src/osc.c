@@ -54,7 +54,7 @@ volatile uint32_t sample_count_adsr = 0;
 /*
  * Moving average -- TODO: remove after testing.
  */
-#define MOV_AVG_BUFF_LEN		256
+#define MOV_AVG_BUFF_LEN		1024
 uint32_t mov_avg1 [MOV_AVG_BUFF_LEN] = {0};
 uint32_t mov_avg_index1 = 0;
 uint32_t mov_avg_sum1;
@@ -152,7 +152,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	osc.lfo_amp_am = osc.lfo_amp*LFO_AMP_AM;
 	osc.lfo_amp_fm = osc.lfo_amp*LFO_AMP_FM;
 
-	osc.lfo_freq = moving_avg(mov_avg2, &mov_avg_sum2, mov_avg_index2, MOV_AVG_BUFF_LEN, (ADCBuffer[3] & 0xfffc)/5);
+	osc.lfo_freq = moving_avg(mov_avg2, &mov_avg_sum2, mov_avg_index2, MOV_AVG_BUFF_LEN, (ADCBuffer[3] & 0xfffc));
 	mov_avg_index2++;
 	if (mov_avg_index2 >= MOV_AVG_BUFF_LEN)
 	{
@@ -941,6 +941,5 @@ uint32_t moving_avg(uint32_t *ptrArrNumbers, uint32_t *ptrSum, uint32_t pos, uin
   //Assign the nextNum to the position in the array
   ptrArrNumbers[pos] = nextNum;
   //return the average
-  uint32_t temp = (uint32_t) *ptrSum / len;		// TODO: remove after testing.
   return (uint32_t) *ptrSum / len;
 }
