@@ -125,7 +125,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	}
 
 	// A0
-	osc.vco_amp = moving_avg(mov_avg5, &mov_avg_sum5, mov_avg_index5, MOV_AVG_BUFF_LEN, (ADCBuffer[0] & 0xfffc));
+	osc.vco_amp = moving_avg(mov_avg5, &mov_avg_sum5, mov_avg_index5, MOV_AVG_BUFF_LEN, (ADCBuffer[1] & 0xfffc));
 	mov_avg_index5++;
 	if (mov_avg_index5 >= MOV_AVG_BUFF_LEN)
 	{
@@ -136,12 +136,13 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	osc.vco_amp = osc.vco_amp * osc.volume;
 
 	// A1
-	osc.vco_freq = moving_avg(mov_avg1, &mov_avg_sum1, mov_avg_index1, MOV_AVG_BUFF_LEN, (ADCBuffer[1] & 0xfffc)*2*PI);
+	osc.vco_freq = moving_avg(mov_avg1, &mov_avg_sum1, mov_avg_index1, MOV_AVG_BUFF_LEN, (ADCBuffer[0] & 0xfffc)*2*PI);
 	mov_avg_index1++;
 	if (mov_avg_index1 >= MOV_AVG_BUFF_LEN)
 	{
 		mov_avg_index1 = 0;
 	}
+	// osc.vco_freq = pseudo_log(osc.vco_freq, ???);
 
 	osc.lfo_amp = moving_avg(mov_avg3, &mov_avg_sum3, mov_avg_index3, MOV_AVG_BUFF_LEN, (ADCBuffer[2] & 0xfffc));
 	mov_avg_index3++;
@@ -158,6 +159,7 @@ void generate_waveforms(uint16_t start, uint16_t end)
 	{
 		mov_avg_index2 = 0;
 	}
+	// osc.lfo_freq = pseudo_log(osc.lfo_freq, ???);
 
 	volatile uint32_t i = 0;
 	adsr_settings.mod = current_menu_state.adsr_mod;
@@ -259,7 +261,6 @@ void generate_waveforms(uint16_t start, uint16_t end)
 
 	}
 
-//
 //	NO_MOD,
 //	VCOfreq,
 //	VCOamp,
@@ -413,7 +414,6 @@ void adsr(uint16_t start, uint16_t end)
 	adsr_settings.sustain_len = ADCBuffer[5]*20;	// A7
 	adsr_settings.release_len = ADCBuffer[6]*20;	// B0
 	adsr_settings.blank_len = ADCBuffer[8]*20;		// C0
-	// adsr_settings.sustain_amp = (float32_t) ADCBuffer[12]/4095;		// C4
 	volatile uint32_t samples_cycle_adsr = adsr_settings.attack_len + adsr_settings.decay_len + adsr_settings.sustain_len + adsr_settings.release_len + adsr_settings.blank_len;
 
 	// C4
@@ -425,9 +425,9 @@ void adsr(uint16_t start, uint16_t end)
 	}
 
 	adsr_settings.sustain_amp = adsr_settings.sustain_amp/8000.0;
+	// adsr_settings.sustain_amp = pseudo_log(adsr_settings.sustain_amp, ???);
 
 	// Calculate ADSR boundaries.
-	// uint32_t attack_start = 0;
 	uint32_t decay_start = adsr_settings.attack_len;
 	uint32_t sustain_start = decay_start + adsr_settings.decay_len;
 	uint32_t release_start = sustain_start + adsr_settings.sustain_len;
@@ -437,12 +437,10 @@ void adsr(uint16_t start, uint16_t end)
 
 	volatile float32_t angle_attack = PI/adsr_settings.attack_len;
 	volatile float32_t angle_decay = PI/adsr_settings.decay_len;
-	// volatile float32_t angle_sustain = PI/adsr_settings.sustain_len;
 	volatile float32_t angle_release = PI/adsr_settings.release_len;
 
 	// Generic ADSR envelope
 	// The waveform contains 5 segments (asdr + a blank space)
-	// if(adsr_am || adsr_fm)
 	if(adsr_settings.mod == VCOamp || adsr_settings.mod == VCOfreq || adsr_settings.mod == DualMode_VCO)
 	{
 		for(i = start; i < end; i++)
@@ -480,7 +478,6 @@ void adsr(uint16_t start, uint16_t end)
 				// Blank
 				buffer_adsr_am[i] = 0;
 			}
-			// buffer_output[i] = buffer_output[i] * buffer_adsr_am[i];
 		}
 	}
 
@@ -489,7 +486,6 @@ void adsr(uint16_t start, uint16_t end)
 	 * ADSR frequency envelope.
 	 * Uses the ADSR amplitude envelope and integrates each of the shapes.
 	 */
-	// if(adsr_fm)
 	if(adsr_settings.mod == VCOfreq || adsr_settings.mod == DualMode_VCO)
 	{
 		for(i = start; i < end; i++)
@@ -576,7 +572,6 @@ void adsr(uint16_t start, uint16_t end)
 			}
 		}
 	}
-
 	sample_count_adsr = sample_count_adsr + (i - start);
 	sample_count_adsr = sample_count_adsr % samples_cycle_adsr;
 }
@@ -611,7 +606,6 @@ void adsr_rad(uint16_t start, uint16_t end)
 	adsr_settings.sustain_len_rad = adsr_settings.sustain_len  * rads_per_sample_adsr;
 	adsr_settings.release_len_rad = adsr_settings.release_len  * rads_per_sample_adsr;
 	adsr_settings.blank_len_rad = adsr_settings.blank_len  * rads_per_sample_adsr;
-
 
 	// float32_t attack_start_rad = 0.0;
 	volatile float32_t decay_start_rad = adsr_settings.attack_len_rad;
@@ -942,4 +936,24 @@ uint32_t moving_avg(uint32_t *ptrArrNumbers, uint32_t *ptrSum, uint32_t pos, uin
   ptrArrNumbers[pos] = nextNum;
   //return the average
   return (uint32_t) *ptrSum / len;
+}
+
+/*
+ * Make adc values seems as though they came from a log-taper potentiometer.
+ */
+// TODO: use int as input instead ... otherwise difficult to compare taper cutoff.
+uint32_t pseudo_log(uint32_t x)
+{
+	float32_t y = 0.0;
+	uint32_t max = 4096;
+
+	// Gradual taper.
+	if(x < (max > 2))
+	{
+		y = (float32_t) 0.2 * x;
+		return (uint32_t) y;
+	}
+	// Fast taper.
+	y = (float32_t) 0.1*max + (float32_t) (20/9)*x;
+	return y;
 }

@@ -38,7 +38,7 @@ void update_selector_state (){
 		lfo_state = square;
 	}else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_15) == 1){
 		lfo_state = triangle;
-	}else if(GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_13) == 1){
+	}else if(GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_6) == 1){
 		lfo_state = other2;
 	}
 }
