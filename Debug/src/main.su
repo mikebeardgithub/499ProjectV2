@@ -3,4 +3,4 @@ main.c:91:10:Codec_TIMEOUT_UserCallback	8	static
 main.c:103:6:EVAL_AUDIO_HalfTransfer_CallBack	16	static
 main.c:121:6:EVAL_AUDIO_TransferComplete_CallBack	16	static
 main.c:132:10:EVAL_AUDIO_GetSampleCallBack	4	static
-main.c:139:6:EVAL_AUDIO_Error_CallBack	16	static
+main.c:138:6:EVAL_AUDIO_Error_CallBack	16	static

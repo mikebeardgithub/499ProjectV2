@@ -89,8 +89,8 @@ volatile float32_t delta = 0.0;
 
 
 /*
- * For first half of buffer, start = 0; end = buff_len/2
- * For second half, start = buff_len/2; end = buff_len
+ * For first half of buffer, start = 0; end = LENGTH_BUFFER/2
+ * For second half, start = buff_len/2; end = LENGTH_BUFFER
  */
 
 volatile float32_t theta_vco = 0.0;

@@ -10501,7 +10501,6 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size)
 uint16_t EVAL_AUDIO_GetSampleCallBack(void){
  8003bd4:	b480      	push	{r7}
  8003bd6:	af00      	add	r7, sp, #0
-  /* TODO, implement your code here */
 
   // return -1;
 	return 0;
