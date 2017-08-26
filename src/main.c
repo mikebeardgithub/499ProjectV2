@@ -46,7 +46,7 @@ SOFTWARE.
 #include "lcd.h"
 
 /* Globals */
-extern uint16_t buffer_output[BUFF_LEN];
+extern uint16_t buffer_output[LENGTH_BUFFER];
 
 int main(void)
 {
@@ -74,7 +74,7 @@ int main(void)
   display_new_menu();
 
 	EVAL_AUDIO_Init( OUTPUT_DEVICE_AUTO, VOL, SAMPLERATE);
-	EVAL_AUDIO_Play(buffer_output, BUFF_LEN);
+	EVAL_AUDIO_Play(buffer_output, LENGTH_BUFFER);
 
 	while (1)
 	{
@@ -110,7 +110,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
 	the buffer while the DMA is transferring from the first half ...
 	 */
 
-	generate_waveforms(0, BUFF_LEN_DIV2);
+	generate_waveforms(0, BUFF_LEN_HALF);
 	return;
 }
 
@@ -120,7 +120,7 @@ void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size)
  */
 void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size)
 {
-	generate_waveforms(BUFF_LEN_DIV2, BUFF_LEN);
+	generate_waveforms(BUFF_LEN_HALF, LENGTH_BUFFER);
 	return;
 }
 
@@ -130,7 +130,6 @@ void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size)
  * Refer to stm324xg_eval_audio_codec.h for more info.
  */
 uint16_t EVAL_AUDIO_GetSampleCallBack(void){
-  /* TODO, implement your code here */
 
   // return -1;
 	return 0;

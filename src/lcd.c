@@ -202,34 +202,34 @@ void LCD_SETDDRAM(int DDADress)
 
 void LCD_READSTATUS(int *busy, int *currentaddress)
 {
-    int rs = 0;
-    int rw = 1;
-    int data = 0;
-    SPI_RX();
-    LCD_TX(rs,rw,data);
-    int tempa;
-    int leaders;
-    int dummy;
-    int real;
-    int tempb;
-    int tempc;
-    //delay(0xff);
-    tempa = SPI_RX();
-    //delay(0xff);
-   // LCD_TX(0,0,0);
-    //delay(0xff);
-    //tempa = SPI_RX();
-    leaders = tempa &(3<<14);
-    dummy   = tempa &(0xff<<5);
-    real = tempa &(0x3f);
-    tempb = real &(1<<5);
-    tempc = real & 0b11111;
-    tempc = tempc<<2;
-    busy = tempb;
-    currentaddress = tempc;
-    //READ LCD DATA
-    //Bit 7 = Busy flag
-    //Bits 0-6 are address
+//    int rs = 0;
+//    int rw = 1;
+//    int data = 0;
+//    SPI_RX();
+//    LCD_TX(rs,rw,data);
+//    int tempa;
+//    int leaders;
+//    int dummy;
+//    int real;
+//    int tempb;
+//    int tempc;
+//    //delay(0xff);
+//    tempa = SPI_RX();
+//    //delay(0xff);
+//   // LCD_TX(0,0,0);
+//    //delay(0xff);
+//    //tempa = SPI_RX();
+//    leaders = tempa &(3<<14);
+//    dummy   = tempa &(0xff<<5);
+//    real = tempa &(0x3f);
+//    tempb = real &(1<<5);
+//    tempc = real & 0b11111;
+//    tempc = tempc<<2;
+//    busy = tempb;
+//    currentaddress = tempc;
+//    //READ LCD DATA
+//    //Bit 7 = Busy flag
+//    //Bits 0-6 are address
 }
 
 
@@ -270,8 +270,8 @@ void lcd_init(void)
 void lcd_writechar(int char_write,int row,int col)
 {
       int addr;
-      int realaddr;
-      int busy;
+//      int realaddr;
+//      int busy;
       switch(row){
           case 0: addr = 0x0; break;
           case 1: addr = 0x40;break;
@@ -319,20 +319,20 @@ void lcd_update(int waveform,double dcoffset, int zout, double zload, double vou
   //lcd_writeline("VOLTWORKS SOUP. CAN.",0);
 //
 
- if(waveform == 1) sprintf(buffer,"Wave:Sine%c DC:%+1.2lfV",0b00011101,0b00011101,dcoffset);
- if(waveform == 2) sprintf(buffer,"W:Triangle DC:%+1.2lfV",dcoffset);
- if(waveform == 3) sprintf(buffer,"W:Square…À DC:%+1.2lfV",0b00011101,0b00011101,dcoffset);
-  lcd_writeline(buffer,0);
+// if(waveform == 1) sprintf(buffer,"Wave:Sine%c DC:%+1.2lfV",0b00011101,0b00011101,dcoffset);
+// if(waveform == 2) sprintf(buffer,"W:Triangle DC:%+1.2lfV",dcoffset);
+// if(waveform == 3) sprintf(buffer,"W:Square…À DC:%+1.2lfV",0b00011101,0b00011101,dcoffset);
+//  lcd_writeline(buffer,0);
 
-  if(zload < 0 &&zout <100 ) sprintf(buffer,"Zout:%dﬁ Zload:HiZ ﬁ",zout);
-  else if(zout >= 100) sprintf(buffer,"Zout:%dkﬁ Zload:HiZ ﬁ",zout/1000);
-  else sprintf(buffer,"Zout:%dﬁ Zload:%4d ﬁ",zout,zload);
-  lcd_writeline(buffer,1);
-  if(zload <0) sprintf(buffer,"Output:%2.2lfVpp HiZ   ",vout);
-  else sprintf(buffer,"Output:%2.2lfVpp Load    ",vout);
-  lcd_writeline(buffer,2);
- sprintf(buffer,"Freq (Hz): %7.2lf           ",freq);
-  lcd_writeline(buffer,3);
+//  if(zload < 0 &&zout <100 ) sprintf(buffer,"Zout:%dﬁ Zload:HiZ ﬁ",zout);
+//  else if(zout >= 100) sprintf(buffer,"Zout:%dkﬁ Zload:HiZ ﬁ",zout/1000);
+//  else sprintf(buffer,"Zout:%dﬁ Zload:%4d ﬁ",zout,zload);
+//  lcd_writeline(buffer,1);
+//  if(zload <0) sprintf(buffer,"Output:%2.2lfVpp HiZ   ",vout);
+//  else sprintf(buffer,"Output:%2.2lfVpp Load    ",vout);
+//  lcd_writeline(buffer,2);
+// sprintf(buffer,"Freq (Hz): %7.2lf           ",freq);
+//  lcd_writeline(buffer,3);
 }
 
 void lcd_scaled_update(int waveform, int DC_offset, int zo, double zl, int gain_control, double freq)
@@ -409,3 +409,4 @@ int reverse_Av(double setpoint)
     }
     return returnval;
 }
+

@@ -1,79 +1,17 @@
-
-*** Measure top/bottom range of noise spikes.
-*** Measure top/bottom range of normal noise.
-
-
-For vco, try ADDING angle_vco instead of multiplying:
-	buffer_output[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32((sample_count_vco+(i-start))*angle_vco);
-	to
-	buffer_output[i] = osc.vco_amp + osc.vco_amp*arm_sin_f32((sample_count_vco+(i-start)) + angle_vco);
-	maybe need to take integral of of angle_vco each time...????
-	
-	OR
-	Measure the time of the glitches.  As soon as adc increases above a threshold, count that many ms and do nothing.  Then take new average.
-	If same as old, keep old.  If same as new, keep new.	
-
-	
-	OR 
-	Keep a running average.
-	Measure derivative between samples.
-	If If |d/dt| is above a threshold, do not add to average.
-
-	Could combine this with thresholding or with removing lsb(s)
-	
-	
-	OR
-	discretize the adc value in this way:
-	1) Get a value from adc.
-	2) Set a lower and upper bound.  Say -10 and +10.
-	3) If get next value.  
-		a) If it's within range, do not keep.
-		b) If it's outside range, store and get average over some range.
-		If the average is close to new value, then use that as new value.
-		If the average is closer to old value, then discard the new value.
-	
-	OR
-	[Not sure if this works... large spike will change the average a lot]
-	OR use two thresholds (for above baseline) (and two below)
-	1) Get moving average - store as baseline.
-	2) If average goes above threshold 2 (higher one), then keep.  Otherwise ignore.
-		If average drops back below threshold 1 (lower one), then keep.  Otherwise ignore.
-		
-	
-	
-Take LOG of ADCBuffer[1] just for frequency?
-
-Find way of smoothing ground reference?  Is there an analog ground?
-
-Vref+ or Vref- do we use it?
-
-Should be different than voltage powering the voltage divider (vdd?)
-
-I'm using VDD as my voltage source.  Is that right?  Is there a VDDA? (That's an input I think)
-
-I should probably use the 3V as my voltage supply. --> Doesn't seem to matter
-
-
-
-
-
-
-
-
-
 ====================================
 PINS
 ====================================
 
 	Gain (Maybe)
 	------------------------
-	C2		VCO-Volume			volume = ADCBuffer[13] (Maybe)
+	C2		VCO-Volume			volume = ADCBuffer[10]
 	
 	
 	Oscillators - Pots
 	------------------------
-	A0		VCO-Amplitude			ADCBuffer[0]		** NOTE: same pin as pushbutton **
-	A1		VCO-Frequency			ADCBuffer[1]
+	---> SWAPPED
+	A0		VCO-Amplitude			ADCBuffer[1]		** NOTE: same pin as pushbutton **
+	A1		VCO-Frequency			ADCBuffer[0]	
 	
 	A2		LFO-Amplitude			ADCBuffer[2]
 	A3		LFO-Frequency			ADCBuffer[3]
@@ -81,20 +19,18 @@ PINS
 	
 	Envelope - Pots
 	------------------------
-	** TODO - UPDATE THIS **** 
-	A5		ENVELOPE-Attack			ADCBuffer[5]
-	A6		ENVELOPE-decay			ADCBuffer[6]
-	A7		ENVELOPE-Sustain		ADCBuffer[7]
-	B0		ENVELOPE-Release		ADCBuffer[8]
-	C0		ENVELOPE-BlankLen		ADCBuffer[10]		*** stolen from FILTER-fc_high
-	C4		ENVELOPE-sustain amp	ADCBuffer[11]		*** stolen from FILTER-FreqGain
+	A5		ENVELOPE-Attack			ADCBuffer[4]
+	C1		ENVELOPE-decay			ADCBuffer[9]
+	A7		ENVELOPE-Sustain		ADCBuffer[5]
+	B0		ENVELOPE-Release		ADCBuffer[6]
+	C0		ENVELOPE-BlankLen		ADCBuffer[8]
+	C4		ENVELOPE-sustain amp	ADCBuffer[11]
 	
 	Filters - Pots
 	------------------------
-	B1		FILTER-FreqLow			ADCBuffer[8]		
-	C0		FILTER-FreqHigh			ADCBuffer[9]		--> MOVED TO adsr_settings.blank_len	
-	C1		FILTER-FreqResonance	ADCBuffer[10]
-	 ** C4		FILTER-FreqGain			ADCBuffer[11] 		---> moved to ENVELOPE-sustain amp
+	B1		FILTER-FreqLow			ADCBuffer[7]		
+	DEFUNCT 	C0		FILTER-FreqHigh			ADCBuffer[8]		--> MOVED TO adsr_settings.blank_len	
+	DEFUNCT		C4		FILTER-FreqGain			ADCBuffer[12] 		---> moved to ENVELOPE-sustain amp
 	
 	Waveform Types - Selectors
 	------------------------

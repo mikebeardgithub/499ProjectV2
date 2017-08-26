@@ -38,7 +38,7 @@ void update_selector_state (){
 		lfo_state = square;
 	}else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_15) == 1){
 		lfo_state = triangle;
-	}else if(GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_13) == 1){
+	}else if(GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_6) == 1){
 		lfo_state = other2;
 	}
 }
@@ -52,9 +52,6 @@ void init_state(){
 	current_menu_state.filterst8 = no_filter;
 	current_menu_state.secondary_vco = 0;
 	display_new_menu();
-	LCD_SETDDRAM(0x14);
-	LCD_WRITE(199);
-	LCD_SETDDRAM(0x14);
 
 }
 

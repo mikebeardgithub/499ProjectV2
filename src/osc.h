@@ -31,10 +31,9 @@
 #define ONE_DIV_4_PI			0.07957747155
 
 #define VOL                     80
-#define BUFF_LEN                64
+#define LENGTH_BUFFER           64
+#define BUFF_LEN_HALF           32
 
-/* TODO: Used by Horrorophone project -- remove and test */
-#define BUFF_LEN_DIV2           32
 #define OFF                     0
 #define ON                      1
 
@@ -52,13 +51,13 @@
 //#define MOD_FM					2
 
 #define VCO_AMP					4000
-#define LFO_AMP_AM				0.4
-#define LFO_AMP_FM				0.5
-#define LFO_AMP_FM2				10
-
+#define LFO_AMP_AM				0.0001
+#define LFO_AMP_FM				0.010
 
 typedef struct osc_setting
 {
+	float32_t volume;
+
 	float32_t vco_freq;
 	float32_t vco2_freq;
 	float32_t lfo_freq;
@@ -73,7 +72,11 @@ typedef struct osc_setting
 
 	float32_t vco_amp;
 	float32_t vco_amp2;
+
 	float32_t lfo_amp;
+	float32_t lfo_amp_am;
+	float32_t lfo_amp_fm;
+
 	// float32_t lfo_offset;
 
 	float32_t square_min;
@@ -131,5 +134,5 @@ float32_t gen_triangle_integral_angle(float32_t angle);
 
 float32_t fast_fmod(float32_t x, float32_t y);
 uint32_t moving_avg(uint32_t *ptrArrNumbers, uint32_t *ptrSum, uint32_t pos, uint32_t len, uint16_t nextNum);
-
+uint16_t pseudo_log(uint16_t x);
 #endif /* OSC_H_ */
